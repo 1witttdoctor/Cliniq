@@ -1,98 +1,38 @@
 # Cliniq
-# Cliniq
 
-**Learn medicine. Think clinically.**
+**Free AI-powered USMLE Step 1 clinical reasoning tool for IMGs.**
+Built by Dr. Abhinay Poludasu.
 
-An AI-powered clinical reasoning tool for USMLE Step 1 — free, open source, built for IMGs worldwide.
-
-Built by **Dr. Abhinay Poludasu** · [github.com/1witttdoctor](https://github.com/1witttdoctor)
+🌐 Live: [1witttdoctor.github.io/Cliniq](https://1witttdoctor.github.io/Cliniq)
 
 ---
 
-## What it does
+## What is Cliniq?
 
-Most medical students read First Aid passively. Cliniq makes you use it actively.
+Cliniq helps international medical graduates build clinical reasoning skills for USMLE Step 1 through three modes:
 
-**Learn Mode** — walk through any topic layer by layer:
-- Normal physiology → what goes wrong → what you see clinically → how you diagnose it → how you treat it
-- Each layer has a micro-check to activate recall before you move on
-- Skip any layer if you already know it
-
-**Case Mode** — a patient walks in:
-- You see only the chief complaint and vitals
-- Action buttons: History, Examine, Labs, Imaging, Diagnose, Treat
-- 4 options per action — choose what to do next
-- Severity randomizer: mild / moderate / severe / atypical presentation every time
-- No points shown during the case — just clinical decisions
-
-**Review Mode** — full debrief after every case:
-- Every decision you made, explained
-- Every DDx ruling with the distinguishing feature
-- High-yield teaching points mapped to the topic
+- **Learn** — layered concept breakdowns
+- **Case** — interactive patient scenarios
+- **Review** — debrief and self-assessment
 
 ---
 
-## Why I built this
+## Topics Available
 
-12,000+ IMGs apply for US residency every year. Most cannot afford $400+ question banks.
-
-Passive reading of review books does not build clinical reasoning. You need to apply knowledge to patients — repeatedly, with feedback, with randomization so you never see the same case twice.
-
-Cliniq is free, runs locally with no server, and will cover all major Step 1 systems as it grows.
-
----
-
-## Current coverage
-
-- [x] Cardiology — Heart Failure (complete: Learn + Case + Review)
-- [ ] Cardiology — Arrhythmias (in progress)
-- [ ] Cardiology — ACS
-- [ ] Renal — AKI / CKD
-- [ ] Pharmacology — Cardiovascular drugs
-- [ ] And more — one topic per week
-
----
-
-## How to use
-
-**Option 1 — Live demo (no install):**
-Open in any browser: [1witttdoctor.github.io/Cliniq](https://1witttdoctor.github.io/Cliniq)
-
-**Option 2 — Run locally:**
-Download `index.html` → open in Chrome. That's it. No server, no dependencies, no account.
-
----
-
-## Built with
-
-- Vanilla HTML / CSS / JavaScript — zero dependencies
-- Anthropic Claude API (for dynamic case generation — coming in v0.2)
-- GitHub Pages for free hosting
-
----
-
-## Roadmap
-
-**v0.1 (now)** — Static prototype, Heart Failure case, full Learn + Case + Review flow
-
-**v0.2** — Claude API integration for AI-generated case variants, never repeating
-
-**v0.3** — PWA conversion — installable as desktop app, works offline
-
-**v1.0** — All 18 Step 1 systems covered, spaced repetition, progress tracking
+- Cardiology: Heart Failure ✓
+- More topics coming soon
 
 ---
 
 ## License
 
-MIT — free to use, free to build on, free forever.
+This project is **free to use** for personal and educational purposes.
+
+It is **not open source.** You may not modify, redistribute, or build upon this work.
+
+Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+© 2025 Dr. Abhinay Poludasu
 
 ---
 
-## Contribute
-
-If you're a medical student, doctor, or developer who wants to help add topics — open an issue or PR. Every topic added helps another IMG.
-
----
-
-*Cliniq is an independent educational tool. Not affiliated with any publisher or licensing body.*
+> Independent educational tool. Not affiliated with any publisher or licensing body.
