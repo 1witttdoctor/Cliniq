@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cliniq — Learn Medicine. Think Clinically.</title>
+<meta name="author" content="Dr. Abhinay Poludasu">
+<meta name="description" content="Cliniq — AI-powered clinical reasoning tool for USMLE Step 1. Free for IMGs worldwide.">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e1117;
+  --bg2:      #141920;
+  --bg3:      #1a2230;
+  --bg4:      #1f2940;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --accent:   #4ecdc4;
+  --accent2:  #7eb8f7;
+  --amber:    #f6b84b;
+  --red:      #e07070;
+  --green:    #5bbf8a;
+  --purple:   #b39ddb;
+  --text:     #dce8f0;
+  --text2:    #7d95aa;
+  --text3:    #3d5060;
+  --serif:    'Instrument Serif', Georgia, serif;
+  --sans:     'DM Sans', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ── LAYOUT ── */
+.shell { max-width: 720px; margin: 0 auto; padding: 0 20px 100px; }
+
+/* ── NAV ── */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 0 28px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 36px;
+}
+.nav-logo { font-family: var(--serif); font-size: 20px; font-style: italic; color: var(--text); letter-spacing: 0.01em; }
+.nav-built { font-size: 11px; color: var(--text3); letter-spacing: 0.04em; }
+.nav-logo em { color: var(--accent); font-style: normal; }
+.nav-meta { font-size: 12px; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* ── SCREENS ── */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeUp 0.4s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── TOPIC SCREEN ── */
+.topic-hero { margin-bottom: 40px; }
+.topic-eyebrow {
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 12px;
+}
+.topic-title {
+  font-family: var(--serif);
+  font-size: 40px; line-height: 1.15;
+  color: var(--text); margin-bottom: 14px;
+  font-style: italic;
+}
+.topic-desc { color: var(--text2); font-size: 15px; max-width: 540px; margin-bottom: 28px; line-height: 1.7; }
+.topic-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+.tag {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.05em;
+  padding: 4px 10px; border-radius: 20px; text-transform: uppercase;
+}
+.tag-cardio { background: rgba(78,205,196,0.1); color: var(--accent); border: 1px solid rgba(78,205,196,0.2); }
+.tag-pharma { background: rgba(179,157,219,0.1); color: var(--purple); border: 1px solid rgba(179,157,219,0.2); }
+.tag-renal  { background: rgba(126,184,247,0.1); color: var(--accent2); border: 1px solid rgba(126,184,247,0.2); }
+.tag-fa     { background: rgba(246,184,75,0.1); color: var(--amber); border: 1px solid rgba(246,184,75,0.2); }
+
+.mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.mode-card {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 24px 22px;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.mode-card:hover { border-color: var(--accent); background: var(--bg3); transform: translateY(-1px); }
+.mode-card-icon { font-size: 26px; margin-bottom: 4px; }
+.mode-card-title { font-family: var(--serif); font-size: 19px; font-style: italic; color: var(--text); }
+.mode-card-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.mode-card-tag { font-size: 11px; color: var(--accent); font-weight: 500; margin-top: auto; padding-top: 10px; letter-spacing: 0.04em; }
+
+/* ── LEARN SCREEN ── */
+.learn-progress {
+  display: flex; gap: 6px; margin-bottom: 32px; align-items: center;
+}
+.lp-step {
+  height: 3px; flex: 1; border-radius: 2px; background: var(--border2);
+  transition: background 0.4s;
+}
+.lp-step.done { background: var(--accent); }
+.lp-step.active { background: rgba(78,205,196,0.5); }
+.lp-label { font-size: 11px; color: var(--text3); white-space: nowrap; letter-spacing: 0.06em; text-transform: uppercase; margin-left: 4px; }
+
+.layer-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px 30px; margin-bottom: 20px;
+}
+.layer-num {
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 8px; font-weight: 500;
+}
+.layer-title {
+  font-family: var(--serif); font-size: 26px; font-style: italic;
+  margin-bottom: 20px; line-height: 1.25; color: var(--text);
+}
+.layer-body { color: var(--text); font-size: 15px; line-height: 1.75; }
+
+/* fact blocks */
+.fact-grid { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+.fact-item {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--bg3); border-radius: 10px; padding: 14px 16px;
+  border-left: 3px solid var(--accent);
+}
+.fact-item.amber-border { border-left-color: var(--amber); }
+.fact-item.blue-border { border-left-color: var(--accent2); }
+.fact-item.purple-border { border-left-color: var(--purple); }
+.fact-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 9px; }
+.fact-dot.amber { background: var(--amber); }
+.fact-dot.blue { background: var(--accent2); }
+.fact-dot.purple { background: var(--purple); }
+.fact-text { font-size: 14px; line-height: 1.65; color: var(--text); flex: 1; }
+.fact-text strong { color: var(--text); font-weight: 600; }
+.fact-text em { color: var(--accent); font-style: normal; font-weight: 500; }
+
+/* two-col comparison */
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+.compare-col { background: var(--bg3); border-radius: 10px; padding: 16px; }
+.compare-head { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; }
+.compare-head.left { color: var(--accent2); }
+.compare-head.right { color: var(--amber); }
+.compare-item { font-size: 13px; color: var(--text2); padding: 4px 0; border-bottom: 1px solid var(--border); line-height: 1.5; }
+.compare-item:last-child { border-bottom: none; }
+
+/* FA reference */
+.fa-ref {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--amber); background: rgba(246,184,75,0.1);
+  border: 1px solid rgba(246,184,75,0.2); border-radius: 6px;
+  padding: 4px 10px; margin-top: 16px; font-weight: 500;
+}
+
+/* micro check */
+.micro-check {
+  background: var(--bg4); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 16px 18px; margin-top: 20px;
+}
+.micro-q { font-size: 13px; color: var(--text2); margin-bottom: 10px; font-style: italic; }
+.micro-opts { display: flex; flex-direction: column; gap: 6px; }
+.micro-btn {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 7px;
+  padding: 8px 14px; font-size: 13px; color: var(--text2); text-align: left;
+  cursor: pointer; font-family: var(--sans); transition: all 0.15s;
+}
+.micro-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--text); }
+.micro-btn.mc-correct { border-color: var(--green); color: var(--green); background: rgba(91,191,138,0.08); }
+.micro-btn.mc-wrong { border-color: var(--red); color: var(--red); background: rgba(224,112,112,0.07); opacity: 0.6; }
+.micro-btn:disabled { cursor: default; }
+.micro-ans { font-size: 12px; color: var(--text2); margin-top: 8px; display: none; line-height: 1.5; }
+.micro-ans.show { display: block; }
+
+/* learn nav */
+.learn-nav { display: flex; gap: 10px; margin-top: 24px; align-items: center; }
+.btn-primary {
+  background: var(--accent); color: var(--bg); border: none;
+  font-family: var(--sans); font-size: 14px; font-weight: 600;
+  padding: 12px 26px; border-radius: 8px; cursor: pointer;
+  transition: all 0.2s; letter-spacing: 0.02em;
+}
+.btn-primary:hover { background: #5ed8d0; transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent; color: var(--text2); border: 1px solid var(--border2);
+  font-family: var(--sans); font-size: 14px; padding: 12px 20px;
+  border-radius: 8px; cursor: pointer; transition: all 0.2s;
+}
+.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+
+/* ── CASE SCREEN ── */
+.case-header { margin-bottom: 28px; }
+.case-eyebrow {
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+}
+.case-eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.patient-card {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 24px 26px; margin-bottom: 20px;
+  position: relative; overflow: hidden;
+}
+.patient-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+.sev-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 20px; margin-bottom: 12px;
+}
+.sev-moderate { background: rgba(246,184,75,0.12); color: var(--amber); }
+.sev-severe   { background: rgba(224,112,112,0.12); color: var(--red); }
+.sev-mild     { background: rgba(91,191,138,0.12); color: var(--green); }
+.sev-atypical { background: rgba(179,157,219,0.12); color: var(--purple); }
+
+.pt-name { font-family: var(--serif); font-size: 24px; font-style: italic; margin-bottom: 3px; }
+.pt-meta { font-size: 13px; color: var(--text2); margin-bottom: 16px; }
+.pt-cc {
+  font-size: 15px; color: var(--text); line-height: 1.7;
+  border-left: 2px solid var(--accent); padding-left: 14px;
+  font-style: italic; margin-bottom: 16px;
+}
+.vitals-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.vital-chip {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 7px;
+  padding: 7px 12px; text-align: center; min-width: 72px;
+}
+.vital-chip.abn { border-color: rgba(224,112,112,0.4); }
+.vital-chip.warn { border-color: rgba(246,184,75,0.35); }
+.v-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; }
+.v-val { font-size: 15px; font-weight: 500; }
+.vital-chip.abn .v-val { color: var(--red); }
+.vital-chip.warn .v-val { color: var(--amber); }
+
+/* info log */
+.info-log {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+  margin-bottom: 18px; min-height: 56px; max-height: 200px;
+  overflow-y: auto;
+}
+.info-log::-webkit-scrollbar { width: 3px; }
+.info-log::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.log-row {
+  display: flex; gap: 10px; padding: 5px 0;
+  border-bottom: 1px solid var(--border); font-size: 13px;
+  animation: fadeUp 0.25s ease;
+}
+.log-row:last-child { border-bottom: none; }
+.log-ico { flex-shrink: 0; width: 16px; text-align: center; color: var(--text3); margin-top: 2px; }
+.log-txt { flex: 1; color: var(--text2); line-height: 1.5; }
+.log-txt.starter { color: var(--text3); font-style: italic; }
+
+/* twist */
+.twist-box {
+  background: rgba(224,112,112,0.08); border: 1px solid rgba(224,112,112,0.25);
+  border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+  font-size: 13px; color: var(--text); display: none;
+  animation: fadeUp 0.3s ease;
+}
+.twist-box.show { display: flex; gap: 10px; }
+
+/* action buttons */
+.action-label { font-size: 11px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+.action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 18px; }
+.act-btn {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 14px 10px;
+  color: var(--text2); font-family: var(--sans); font-size: 12px;
+  cursor: pointer; transition: all 0.2s; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.act-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--text); background: var(--bg3); }
+.act-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.act-btn.used { border-color: rgba(78,205,196,0.25); color: var(--accent); opacity: 0.6; }
+.act-btn.act-active { border-color: var(--accent); background: rgba(78,205,196,0.06); color: var(--text); }
+.act-icon { font-size: 20px; }
+.act-name { font-weight: 500; font-size: 13px; }
+.act-hint { font-size: 10px; color: var(--text3); }
+
+/* question panel */
+.q-panel {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 24px 24px; margin-bottom: 16px;
+  display: none;
+}
+.q-panel.open { display: block; animation: fadeUp 0.25s ease; }
+.q-type-label {
+  font-size: 11px; color: var(--accent2); letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.q-type-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.q-stem { font-size: 15px; color: var(--text); margin-bottom: 18px; line-height: 1.65; }
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 9px;
+  padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start;
+  cursor: pointer; font-family: var(--sans); font-size: 14px; color: var(--text2);
+  text-align: left; transition: all 0.2s; line-height: 1.5;
+}
+.opt:hover:not(:disabled) { border-color: var(--accent2); color: var(--text); background: var(--bg4); }
+.opt:disabled { cursor: default; }
+.opt.o-correct { border-color: var(--green); background: rgba(91,191,138,0.07); color: var(--text); }
+.opt.o-near    { border-color: var(--amber); background: rgba(246,184,75,0.07); color: var(--text); }
+.opt.o-wrong   { border-color: rgba(224,112,112,0.35); opacity: 0.5; }
+.opt-ltr {
+  width: 22px; height: 22px; border-radius: 5px; background: var(--bg4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+  color: var(--text3); margin-top: 1px;
+}
+.opt.o-correct .opt-ltr { background: rgba(91,191,138,0.2); color: var(--green); }
+.opt.o-near    .opt-ltr { background: rgba(246,184,75,0.2); color: var(--amber); }
+
+/* feedback */
+.feedback {
+  margin-top: 14px; padding: 14px 16px; border-radius: 9px;
+  font-size: 13px; line-height: 1.65; display: none;
+}
+.feedback.show { display: block; animation: fadeUp 0.25s ease; }
+.fb-good   { background: rgba(91,191,138,0.07); border-left: 3px solid var(--green); }
+.fb-near   { background: rgba(246,184,75,0.07); border-left: 3px solid var(--amber); }
+.fb-bad    { background: rgba(224,112,112,0.07); border-left: 3px solid var(--red); }
+.fb-title  { font-weight: 600; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 5px; }
+.fb-good .fb-title { color: var(--green); }
+.fb-near .fb-title { color: var(--amber); }
+.fb-bad  .fb-title { color: var(--red); }
+.fb-fa   { font-size: 11px; color: var(--amber); margin-top: 8px; opacity: 0.8; }
+
+.continue-btn {
+  margin-top: 14px; background: transparent;
+  border: 1px solid var(--border2); border-radius: 7px;
+  padding: 9px 18px; font-size: 13px; color: var(--text2);
+  font-family: var(--sans); cursor: pointer; display: none; transition: all 0.2s;
+}
+.continue-btn.show { display: inline-block; }
+.continue-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ddx panel */
+.ddx-panel {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 24px; margin-bottom: 16px; display: none;
+}
+.ddx-panel.open { display: block; animation: fadeUp 0.25s ease; }
+.ddx-head { font-family: var(--serif); font-size: 20px; font-style: italic; margin-bottom: 5px; }
+.ddx-sub { font-size: 13px; color: var(--text2); margin-bottom: 18px; }
+.ddx-items { display: flex; flex-direction: column; gap: 8px; }
+.ddx-item {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 9px;
+  padding: 14px 16px; cursor: pointer; transition: all 0.2s;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.ddx-item:hover:not(.answered) { border-color: var(--accent2); }
+.ddx-item.confirmed { border-color: var(--green); background: rgba(91,191,138,0.06); }
+.ddx-item.ruled-out { opacity: 0.5; border-color: rgba(224,112,112,0.3); }
+.ddx-num {
+  width: 26px; height: 26px; border-radius: 6px; background: var(--bg4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: var(--text3); flex-shrink: 0;
+}
+.ddx-item.confirmed .ddx-num { background: rgba(91,191,138,0.18); color: var(--green); }
+.ddx-item.ruled-out .ddx-num { background: rgba(224,112,112,0.12); color: var(--red); }
+.ddx-content { flex: 1; }
+.ddx-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.ddx-reason { font-size: 12px; color: var(--text2); display: none; line-height: 1.55; margin-top: 6px; }
+.ddx-item.answered .ddx-reason { display: block; }
+.ddx-status { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; align-self: center; white-space: nowrap; color: var(--text3); }
+.ddx-item.confirmed .ddx-status { color: var(--green); }
+.ddx-item.ruled-out .ddx-status { color: var(--red); }
+
+/* ── REVIEW SCREEN ── */
+.review-header { margin-bottom: 32px; }
+.review-grade {
+  font-family: var(--serif); font-size: 64px; font-style: italic;
+  line-height: 1; margin-bottom: 6px;
+}
+.grade-S { color: var(--accent); }
+.grade-A { color: var(--green); }
+.grade-B { color: var(--accent2); }
+.grade-C { color: var(--amber); }
+.grade-F { color: var(--red); }
+.review-summary { font-size: 15px; color: var(--text2); margin-bottom: 24px; }
+.score-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 32px; }
+.score-tile {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px; text-align: center;
+}
+.score-tile-val { font-family: var(--serif); font-size: 28px; font-style: italic; color: var(--text); }
+.score-tile-lbl { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+.review-section { margin-bottom: 28px; }
+.review-section-title {
+  font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+}
+.review-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.review-item {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 18px; margin-bottom: 8px;
+}
+.ri-q { font-size: 13px; color: var(--text2); margin-bottom: 10px; line-height: 1.5; }
+.ri-picked { font-size: 13px; margin-bottom: 4px; }
+.ri-picked.correct { color: var(--green); }
+.ri-picked.wrong   { color: var(--red); }
+.ri-picked.near    { color: var(--amber); }
+.ri-correct-ans { font-size: 13px; color: var(--green); margin-bottom: 8px; }
+.ri-why { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.ri-fa  { font-size: 11px; color: var(--amber); margin-top: 6px; opacity: 0.8; }
+
+.teaching-box {
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: 12px;
+  padding: 22px 22px; margin-bottom: 24px;
+}
+.teaching-title { font-family: var(--serif); font-size: 18px; font-style: italic; margin-bottom: 14px; color: var(--text); }
+.teaching-item {
+  display: flex; gap: 12px; padding: 9px 0;
+  border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text); line-height: 1.55;
+}
+.teaching-item:last-child { border-bottom: none; }
+.ti-arrow { color: var(--accent); flex-shrink: 0; margin-top: 2px; font-weight: 600; }
+
+.restart-btn {
+  background: transparent; border: 1px solid var(--accent); color: var(--accent);
+  font-family: var(--sans); font-size: 14px; font-weight: 500;
+  padding: 13px 32px; border-radius: 9px; cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.03em;
+}
+.restart-btn:hover { background: var(--accent); color: var(--bg); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <nav>
+    <span class="nav-logo">Clin<em>iq</em></span>
+    <div style="text-align:right">
+      <div class="nav-meta" id="nav-meta">Cardiology · Heart Failure</div>
+      <div class="nav-built">Dr. Abhinay Poludasu</div>
+    </div>
+  </nav>
+
+  <!-- ═══ SCREEN: TOPIC ═══ -->
+  <div class="screen active" id="screen-topic">
+    <div class="topic-hero">
+      <div class="topic-eyebrow">Cliniq · Cardiology · Topic 01</div>
+      <h1 class="topic-title">Heart Failure</h1>
+      <p class="topic-desc">A clinical syndrome where the heart cannot pump enough blood to meet the body's demands. Covers physiology, pathophysiology, clinical presentation, diagnosis, and management — step by step, then tested through a real patient case.</p>
+      <div class="topic-tags">
+        <span class="tag tag-cardio">Cardiology</span>
+        <span class="tag tag-pharma">Pharmacology</span>
+        <span class="tag tag-renal">Renal overlap</span>
+        <span class="tag tag-fa">High-yield · Step 1</span>
+      </div>
+    </div>
+    <div class="mode-cards">
+      <div class="mode-card" onclick="startLearn()">
+        <div class="mode-card-icon">📖</div>
+        <div class="mode-card-title">Learn First</div>
+        <div class="mode-card-desc">Walk through the topic layer by layer — physiology, pathology, clinical, diagnosis, treatment. Then test yourself.</div>
+        <div class="mode-card-tag">Recommended → 15 min</div>
+      </div>
+      <div class="mode-card" onclick="startCase()">
+        <div class="mode-card-icon">🏥</div>
+        <div class="mode-card-title">Jump to Case</div>
+        <div class="mode-card-desc">Already know this topic? Go straight to the patient case. Review will show you what you missed.</div>
+        <div class="mode-card-tag">Skip learn → 10 min</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN: LEARN ═══ -->
+  <div class="screen" id="screen-learn">
+    <div class="learn-progress">
+      <div class="lp-step active" id="lp0"></div>
+      <div class="lp-step" id="lp1"></div>
+      <div class="lp-step" id="lp2"></div>
+      <span class="lp-label" id="lp-label">Layer 1 of 3</span>
+    </div>
+    <div id="layer-content"></div>
+  </div>
+
+  <!-- ═══ SCREEN: CASE ═══ -->
+  <div class="screen" id="screen-case">
+    <div class="case-header">
+      <div class="case-eyebrow">Clinical Case · Heart Failure</div>
+    </div>
+
+    <div class="patient-card">
+      <div><span class="sev-pill" id="sev-pill"></span></div>
+      <div class="pt-name">Mr. Ramesh Iyer</div>
+      <div class="pt-meta" id="pt-meta">68M · HTN, DM Type 2, MI (2019) · Brought by family</div>
+      <div class="pt-cc" id="pt-cc">"Doctor, I am feeling very breathless since 3–4 days. Cannot sleep lying flat. My legs have also become heavy and swollen."</div>
+      <div class="vitals-row" id="vitals-row"></div>
+    </div>
+
+    <div class="twist-box" id="twist-box">
+      <span>⚠️</span><span id="twist-text"></span>
+    </div>
+
+    <div class="info-log" id="info-log">
+      <div class="log-row">
+        <span class="log-ico">·</span>
+        <span class="log-txt starter">Patient arrived. Use the action buttons below to gather information and build your diagnosis.</span>
+      </div>
+    </div>
+
+    <div class="action-label">What do you do next?</div>
+    <div class="action-grid">
+      <button class="act-btn" id="ab-history"  onclick="openQ('history')">
+        <span class="act-icon">💬</span>
+        <span class="act-name">History</span>
+        <span class="act-hint">Ask the patient</span>
+      </button>
+      <button class="act-btn" id="ab-exam"     onclick="openQ('exam')">
+        <span class="act-icon">🩺</span>
+        <span class="act-name">Examine</span>
+        <span class="act-hint">Physical exam</span>
+      </button>
+      <button class="act-btn" id="ab-labs"     onclick="openQ('labs')">
+        <span class="act-icon">🧪</span>
+        <span class="act-name">Labs</span>
+        <span class="act-hint">Order bloods</span>
+      </button>
+      <button class="act-btn" id="ab-imaging"  onclick="openQ('imaging')">
+        <span class="act-icon">📷</span>
+        <span class="act-name">Imaging</span>
+        <span class="act-hint">CXR / Echo</span>
+      </button>
+      <button class="act-btn" id="ab-diagnose" onclick="openDDx()">
+        <span class="act-icon">🎯</span>
+        <span class="act-name">Diagnose</span>
+        <span class="act-hint">Build DDx</span>
+      </button>
+      <button class="act-btn" id="ab-treat" onclick="openQ('treat')" disabled>
+        <span class="act-icon">💊</span>
+        <span class="act-name">Treat</span>
+        <span class="act-hint">Diagnose first</span>
+      </button>
+    </div>
+
+    <div class="q-panel" id="q-panel">
+      <div class="q-type-label" id="q-type-label">History</div>
+      <div class="q-stem" id="q-stem"></div>
+      <div class="opts" id="opts"></div>
+      <div class="feedback" id="feedback">
+        <div class="fb-title" id="fb-title"></div>
+        <div id="fb-body"></div>
+        <div class="fb-fa" id="fb-fa"></div>
+      </div>
+      <button class="continue-btn" id="continue-btn" onclick="closeQ()">Continue →</button>
+    </div>
+
+    <div class="ddx-panel" id="ddx-panel">
+      <div class="ddx-head">Build your differential</div>
+      <div class="ddx-sub">Click each diagnosis — work through the list to confirm or rule out based on what you've found so far.</div>
+      <div class="ddx-items" id="ddx-items"></div>
+      <button class="continue-btn show" id="ddx-proceed" onclick="openQ('treat')" style="display:none; margin-top:14px;">Proceed to treatment →</button>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN: REVIEW ═══ -->
+  <div class="screen" id="screen-review">
+    <div class="review-header">
+      <div class="review-grade" id="review-grade"></div>
+      <div class="review-summary" id="review-summary"></div>
+      <div class="score-row">
+        <div class="score-tile"><div class="score-tile-val" id="sc-learn">–</div><div class="score-tile-lbl">Learn</div></div>
+        <div class="score-tile"><div class="score-tile-val" id="sc-case">0</div><div class="score-tile-lbl">Case</div></div>
+        <div class="score-tile"><div class="score-tile-val" id="sc-ddx">0</div><div class="score-tile-lbl">Diagnosis</div></div>
+      </div>
+    </div>
+
+    <div class="review-section">
+      <div class="review-section-title">Question review</div>
+      <div id="q-review-items"></div>
+    </div>
+
+    <div class="review-section">
+      <div class="review-section-title">Differential diagnosis review</div>
+      <div id="ddx-review-items"></div>
+    </div>
+
+    <div class="teaching-box">
+      <div class="teaching-title">High-yield First Aid points</div>
+      <div id="teaching-list"></div>
+    </div>
+
+    <button class="restart-btn" onclick="restart()">↺ Try another case variant</button>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+// ────────────────────────────────────────────────
+// STATE
+// ────────────────────────────────────────────────
+let S = {
+  pts: 0, ddxPts: 0,
+  learnDone: false, learnLayer: 0,
+  severity: '',
+  usedActions: new Set(),
+  ddxAnswered: 0,
+  ddxDone: false,
+  twistShown: false,
+  log: [],          // { type, picked, correct, q, fb, fa }
+  ddxLog: [],       // { name, correct, picked }
+};
+
+// ────────────────────────────────────────────────
+// LEARN DATA  (3 layers, each a function)
+// ────────────────────────────────────────────────
+const layers = [
+  // ── LAYER 1: Physiology + Pathophysiology ──
+  () => `
+    <div class="layer-card">
+      <div class="layer-num">Layer 1 of 3</div>
+      <h2 class="layer-title">How the normal heart works — and how it fails</h2>
+      <div class="layer-body">
+        <p>The heart's job is to maintain <strong>cardiac output (CO)</strong>. It does this through two variables:</p>
+        <div class="fact-grid">
+          <div class="fact-item">
+            <div class="fact-dot"></div>
+            <div class="fact-text"><strong>CO = Heart Rate × Stroke Volume.</strong> Stroke volume depends on three things: <em>preload</em> (how full the ventricle is), <em>afterload</em> (resistance it must pump against), and <em>contractility</em> (force of contraction).</div>
+          </div>
+          <div class="fact-item amber-border">
+            <div class="fact-dot amber"></div>
+            <div class="fact-text"><strong>Frank-Starling Law:</strong> up to a point, the more you stretch the ventricle (more preload), the stronger it contracts. In HF, this curve shifts right and flattens — more stretch gives no more force.</div>
+          </div>
+          <div class="fact-item blue-border">
+            <div class="fact-dot blue"></div>
+            <div class="fact-text"><strong>When CO falls,</strong> the body compensates: RAAS activates (retains Na⁺/H₂O → more preload), sympathetic system surges (↑HR, ↑contractility), ventricle remodels (hypertrophies). These help short-term but worsen HF long-term.</div>
+          </div>
+          <div class="fact-item purple-border">
+            <div class="fact-dot purple"></div>
+            <div class="fact-text"><strong>BNP</strong> (Brain Natriuretic Peptide) is released by ventricular myocytes when the wall is stretched by pressure/volume overload. It's the biomarker of HF. BNP >100 pg/mL = cardiac dyspnea confirmed.</div>
+          </div>
+        </div>
+        <div class="fa-ref">📖 FA p.280–282 — Cardiac physiology &amp; Frank-Starling</div>
+      </div>
+    </div>
+    <div class="micro-check">
+      <div class="micro-q">Quick check — Which compensatory mechanism in HF leads to fluid retention?</div>
+      <div class="micro-opts">
+        <button class="micro-btn" onclick="microAns(this, false)">Sympathetic activation → ↑HR</button>
+        <button class="micro-btn" onclick="microAns(this, true)">RAAS activation → Na⁺/H₂O retention</button>
+        <button class="micro-btn" onclick="microAns(this, false)">Ventricular hypertrophy → ↑stroke volume</button>
+      </div>
+      <div class="micro-ans" id="micro-ans-0">Correct. RAAS (Renin–Angiotensin–Aldosterone System) is the key. Low renal perfusion → renin → angiotensin II → aldosterone → Na⁺ and water retention → more preload. This initially helps but worsens congestion.</div>
+    </div>
+    <div class="learn-nav">
+      <button class="btn-primary" onclick="nextLayer()">Next layer →</button>
+      <button class="btn-ghost" onclick="startCase()">Skip to case</button>
+    </div>
+  `,
+
+  // ── LAYER 2: Clinical + Diagnosis ──
+  () => `
+    <div class="layer-card">
+      <div class="layer-num">Layer 2 of 3</div>
+      <h2 class="layer-title">What you see — and how you confirm it</h2>
+      <div class="layer-body">
+        <p>Left and right HF present differently because they back up into different circuits.</p>
+        <div class="compare">
+          <div class="compare-col">
+            <div class="compare-head left">Left HF (↑PCWP)</div>
+            <div class="compare-item">Pulmonary oedema → crackles</div>
+            <div class="compare-item">Orthopnoea (can't lie flat)</div>
+            <div class="compare-item">PND (paroxysmal nocturnal dyspnoea)</div>
+            <div class="compare-item">S3 gallop (volume overload)</div>
+            <div class="compare-item">Pink frothy sputum (severe)</div>
+          </div>
+          <div class="compare-col">
+            <div class="compare-head right">Right HF (↑CVP/JVP)</div>
+            <div class="compare-item">Elevated JVP</div>
+            <div class="compare-item">Bilateral pitting oedema</div>
+            <div class="compare-item">Hepatomegaly / ascites</div>
+            <div class="compare-item">Most common cause: Left HF</div>
+            <div class="compare-item">JVP = most specific sign</div>
+          </div>
+        </div>
+        <div class="fact-grid">
+          <div class="fact-item">
+            <div class="fact-dot"></div>
+            <div class="fact-text"><strong>CXR findings:</strong> Cardiomegaly (CTR >0.5) + upper lobe blood diversion + Kerley B lines (engorged lymphatics) + bat-wing perihilar oedema.</div>
+          </div>
+          <div class="fact-item blue-border">
+            <div class="fact-dot blue"></div>
+            <div class="fact-text"><strong>Echo</strong> gives you EF. <em>HFrEF</em> = EF &lt;40% (systolic failure). <em>HFpEF</em> = EF ≥50% (diastolic failure — stiff ventricle, can't fill). Different pathophysiology, different management.</div>
+          </div>
+        </div>
+        <div class="fa-ref">📖 FA p.283–285 — HF presentation &amp; investigations</div>
+      </div>
+    </div>
+    <div class="micro-check">
+      <div class="micro-q">Which finding most specifically points to cardiac cause of dyspnoea vs respiratory?</div>
+      <div class="micro-opts">
+        <button class="micro-btn" onclick="microAns(this, false)">Bilateral lung crackles</button>
+        <button class="micro-btn" onclick="microAns(this, true)">Elevated JVP + S3 gallop</button>
+        <button class="micro-btn" onclick="microAns(this, false)">Bilateral leg oedema</button>
+      </div>
+      <div class="micro-ans" id="micro-ans-1">Correct. JVP elevation reflects raised right-heart filling pressures — purely cardiac. Crackles and oedema both occur in non-cardiac causes. The S3 gallop specifically indicates volume-overloaded ventricle.</div>
+    </div>
+    <div class="learn-nav">
+      <button class="btn-primary" onclick="nextLayer()">Next layer →</button>
+      <button class="btn-ghost" onclick="startCase()">Skip to case</button>
+    </div>
+  `,
+
+  // ── LAYER 3: Management ──
+  () => `
+    <div class="layer-card">
+      <div class="layer-num">Layer 3 of 3</div>
+      <h2 class="layer-title">How you treat it — acute and chronic</h2>
+      <div class="layer-body">
+        <p>Management splits into <strong>acute decompensation</strong> (stabilise now) and <strong>chronic HFrEF</strong> (reduce mortality long-term).</p>
+        <div class="fact-grid">
+          <div class="fact-item">
+            <div class="fact-dot"></div>
+            <div class="fact-text"><strong>Acute ADHF bundle:</strong> Sit upright + O₂ (target SpO₂ ≥94%) + <em>IV furosemide</em> (venodilates before diuresis → rapid preload reduction). Monitor closely.</div>
+          </div>
+          <div class="fact-item amber-border">
+            <div class="fact-dot amber"></div>
+            <div class="fact-text"><strong>NEVER start beta-blockers in acute decompensation</strong> — they reduce contractility acutely and worsen haemodynamics. Start only once the patient is euvolemic and stable.</div>
+          </div>
+          <div class="fact-item blue-border">
+            <div class="fact-dot blue"></div>
+            <div class="fact-text"><strong>Chronic HFrEF mortality-reducing triad:</strong>
+              <br>1. <em>ACE inhibitor / ARB</em> — blocks RAAS, prevents remodelling
+              <br>2. <em>Beta-blocker</em> (metoprolol succinate / carvedilol) — blocks catecholamine toxicity, reverse remodelling
+              <br>3. <em>MRA</em> (spironolactone) — blocks aldosterone, reduces fibrosis</div>
+          </div>
+          <div class="fact-item purple-border">
+            <div class="fact-dot purple"></div>
+            <div class="fact-text"><strong>Furosemide mechanism:</strong> Inhibits Na⁺/K⁺/2Cl⁻ co-transporter in thick ascending limb of loop of Henle. Reduces preload. Monitor K⁺ (hypokalaemia risk).</div>
+          </div>
+        </div>
+        <div class="fa-ref">📖 FA p.286–290 — HF management + FA Pharmacology p.245</div>
+      </div>
+    </div>
+    <div class="micro-check">
+      <div class="micro-q">A patient with HFrEF (EF 28%) is newly stable after diuresis. Which drug reduces mortality most in this scenario?</div>
+      <div class="micro-opts">
+        <button class="micro-btn" onclick="microAns(this, false)">Digoxin</button>
+        <button class="micro-btn" onclick="microAns(this, true)">ACE inhibitor (e.g. lisinopril)</button>
+        <button class="micro-btn" onclick="microAns(this, false)">Furosemide</button>
+      </div>
+      <div class="micro-ans" id="micro-ans-2">Correct. ACE inhibitors are the cornerstone of HFrEF management. They block RAAS, reduce afterload, prevent remodelling, and significantly reduce mortality. Furosemide helps symptoms but does not reduce mortality. Digoxin reduces hospitalisations but not mortality.</div>
+    </div>
+    <div class="learn-nav">
+      <button class="btn-primary" onclick="startCase()">Start the case →</button>
+    </div>
+  `,
+];
+
+let microAnswered = [false, false, false];
+function microAns(btn, correct) {
+  const parent = btn.closest('.micro-check');
+  const allBtns = parent.querySelectorAll('.micro-btn');
+  const idx = [...document.querySelectorAll('.micro-check')].indexOf(parent);
+  if (microAnswered[idx]) return;
+  microAnswered[idx] = true;
+  allBtns.forEach(b => {
+    b.disabled = true;
+    if (b === btn) b.classList.add(correct ? 'mc-correct' : 'mc-wrong');
+  });
+  const ans = parent.querySelector('[id^="micro-ans"]');
+  if (ans) ans.classList.add('show');
+}
+
+// ────────────────────────────────────────────────
+// CASE DATA
+// ────────────────────────────────────────────────
+const SEVS = ['mild','moderate','severe','atypical'];
+const sevConf = {
+  mild:     { label:'Mild',     cls:'sev-mild',     twist: null,
+    vitals: [{l:'BP',v:'148/92',n:false,w:true},{l:'HR',v:'88',n:false,w:false},{l:'RR',v:'18',n:false,w:false},{l:'SpO₂',v:'96%',n:false,w:false},{l:'Temp',v:'37.1°C',n:false,w:false}]},
+  moderate: { label:'Moderate', cls:'sev-moderate', twist: null,
+    vitals: [{l:'BP',v:'155/96',n:false,w:true},{l:'HR',v:'104',n:false,w:true},{l:'RR',v:'22',n:false,w:true},{l:'SpO₂',v:'90%',n:true,w:false},{l:'Temp',v:'37.2°C',n:false,w:false}]},
+  severe:   { label:'Severe',   cls:'sev-severe',
+    twist: 'Patient suddenly diaphoretic. BP has dropped to 88/60. Possible cardiogenic shock — reassess immediately.',
+    vitals: [{l:'BP',v:'88/60',n:true,w:false},{l:'HR',v:'120',n:true,w:false},{l:'RR',v:'28',n:true,w:false},{l:'SpO₂',v:'84%',n:true,w:false},{l:'Temp',v:'37.0°C',n:false,w:false}]},
+  atypical: { label:'Atypical', cls:'sev-atypical',
+    twist: 'Atypical presentation — patient denies orthopnoea. Reports only a 3-week productive cough and fatigue. Do not be misled — look at the full picture.',
+    vitals: [{l:'BP',v:'142/88',n:false,w:true},{l:'HR',v:'78',n:false,w:false},{l:'RR',v:'16',n:false,w:false},{l:'SpO₂',v:'94%',n:false,w:false},{l:'Temp',v:'36.9°C',n:false,w:false}]},
+};
+
+const Qs = {
+  history: {
+    label: 'Taking History',
+    stem: 'The patient is breathless, cannot lie flat, and has swollen legs. What is the single most important history question right now?',
+    fa: 'FA p.283 — HF history: orthopnoea, PND, exertional dyspnoea are cardinal symptoms',
+    opts: [
+      { t:'Any chest pain or pressure associated with this breathlessness?', type:'correct',
+        fb_title:'Correct — ACS must be excluded first.',
+        fb:'Acute MI can precipitate acute decompensated HF. Always ask about chest pain before anything else in a breathless cardiac patient — it changes your immediate management. Ruling out ACS is step one.' },
+      { t:'How many pillows do you use to sleep at night?', type:'near',
+        fb_title:'Good — orthopnoea confirms cardiac dyspnoea.',
+        fb:'Orthopnoea (needing pillows to breathe) strongly favours cardiac over respiratory dyspnoea. Good question — but ask about chest pain first to exclude an acute coronary event driving this presentation.' },
+      { t:'Any recent fever or cough suggesting infection?', type:'wrong',
+        fb_title:'Not the priority here.',
+        fb:'Infection can trigger HF decompensation but bilateral leg oedema + orthopnoea + prior MI strongly points cardiac. Pursuing infection history first when there are clear cardiac flags wastes critical time.' },
+      { t:'Any recent change in your medications?', type:'wrong',
+        fb_title:'Relevant later — not your opening question.',
+        fb:'Non-compliance with diuretics/ACEi is a common HF trigger, but with acute decompensation you need to establish the acute risk (ACS? shock?) before taking a drug history.' },
+    ]
+  },
+  exam: {
+    label: 'Physical Examination',
+    stem: 'What is the MOST diagnostically specific physical exam finding for confirming a cardiac cause of this presentation?',
+    fa: 'FA p.283 — Elevated JVP + S3 + basal crackles = classic ADHF triad',
+    opts: [
+      { t:'Elevated JVP + bilateral basal crackles + S3 gallop', type:'correct',
+        fb_title:'The classic ADHF triad.',
+        fb:'Elevated JVP = raised right-sided filling pressures (cardiac). Basal crackles = pulmonary oedema from raised PCWP (cardiac). S3 = volume-overloaded ventricle (cardiac). This triad essentially confirms ADHF without investigations.' },
+      { t:'Bilateral pitting oedema to the knees', type:'near',
+        fb_title:'Supportive but not specific.',
+        fb:'Bilateral oedema has many causes — venous insufficiency, hypoalbuminaemia, CCBs, nephrotic syndrome. It supports HF but central signs (JVP, S3, crackles) are far more specific for cardiac aetiology.' },
+      { t:'Dullness to percussion at both lung bases', type:'near',
+        fb_title:'Suggests pleural effusions — not specific.',
+        fb:'Pleural effusions occur in HF but also in pneumonia, malignancy, PE, hypoalbuminaemia. The JVP + S3 + crackles triad is specific to cardiac congestion — dullness alone does not differentiate.' },
+      { t:'Tender hepatomegaly', type:'wrong',
+        fb_title:'Late right HF sign — not most diagnostic.',
+        fb:'Congestive hepatopathy and hepatomegaly indicate established right heart failure. While relevant, this is a late finding. The JVP + S3 + crackles triad is the primary diagnostic combination for ADHF.' },
+    ]
+  },
+  labs: {
+    label: 'Ordering Labs',
+    stem: 'Which single lab result best confirms the diagnosis AND helps gauge severity?',
+    fa: 'FA p.284 — BNP: the HF biomarker. >100 pg/mL confirms cardiac dyspnoea.',
+    opts: [
+      { t:'BNP (Brain Natriuretic Peptide)', type:'correct',
+        fb_title:'BNP — the definitive HF biomarker.',
+        fb:'BNP >100 pg/mL (or NT-proBNP >300) confirms cardiac dyspnoea with high sensitivity. It\'s released by ventricular myocytes under wall stress. BNP also correlates with severity and guides discharge — should fall >30% before safe discharge.' },
+      { t:'Troponin I', type:'near',
+        fb_title:'Important — but confirms ACS, not HF.',
+        fb:'Troponin is essential to rule out ACS as the precipitant (always order it). Mildly elevated troponin also occurs in ADHF itself ("demand ischaemia"). But troponin doesn\'t confirm HF — BNP does. Order both.' },
+      { t:'Full blood count', type:'near',
+        fb_title:'Useful for triggers — not diagnostic.',
+        fb:'Anaemia (Hb <10) can precipitate or worsen HF by increasing cardiac demand. Always check FBC. But it doesn\'t confirm the diagnosis. BNP, troponin, and U&E/renal function are your priority labs.' },
+      { t:'Liver function tests', type:'wrong',
+        fb_title:'Not your first priority.',
+        fb:'LFTs are useful for assessing congestive hepatopathy in chronic HF and monitoring medications. But in the acute setting they don\'t confirm diagnosis or guide immediate management. Focus on BNP, troponin, renal function first.' },
+    ]
+  },
+  imaging: {
+    label: 'Imaging',
+    stem: 'You order a CXR. Which pattern would you EXPECT in acute decompensated HF?',
+    fa: 'FA p.284 — CXR in ADHF: cardiomegaly + upper lobe diversion + Kerley B lines + bat-wing oedema',
+    opts: [
+      { t:'Cardiomegaly + upper lobe blood diversion + Kerley B lines + perihilar bat-wing opacity', type:'correct',
+        fb_title:'The classic ADHF CXR — memorise this.',
+        fb:'CTR >0.5 = dilated chambers. Upper lobe diversion = PCWP >12 mmHg. Kerley B lines = engorged lymphatics at pleural edges (1–2cm horizontal lines). Bat-wing perihilar opacity = bilateral pulmonary oedema. This constellation = ADHF on CXR.' },
+      { t:'Hyperinflation + flattened diaphragm + ↑AP diameter', type:'wrong',
+        fb_title:'That\'s COPD/emphysema — different pathology entirely.',
+        fb:'Hyperinflation with flattened diaphragms = obstructive lung disease (COPD, emphysema). This patient has cardiac pathology. The HF CXR shows fluid redistribution and cardiac enlargement, not air trapping. Classic Step 1 trap.' },
+      { t:'Bilateral lower zone ground-glass opacification', type:'near',
+        fb_title:'Possible in pulmonary oedema — but not specific.',
+        fb:'Ground-glass changes can occur in pulmonary oedema but also in pneumonia, ARDS, pulmonary haemorrhage. The specific ADHF pattern is cardiomegaly + upper lobe diversion + Kerley B lines — the full constellation.' },
+      { t:'Unilateral consolidation with air bronchograms', type:'wrong',
+        fb_title:'Classic pneumonia — not HF.',
+        fb:'Unilateral lobar consolidation with air bronchograms = bacterial pneumonia. HF causes BILATERAL changes reflecting raised hydrostatic pressure. If you see unilateral opacity, reconsider your differential — could be missed pneumonia triggering HF.' },
+    ]
+  },
+  treat: {
+    label: 'Treatment',
+    stem: 'Diagnosis confirmed: acute decompensated HFrEF, EF 28%, SpO₂ 88% on room air. What is the correct IMMEDIATE management bundle?',
+    fa: 'FA p.286–288 — Acute HF management + Loop diuretics FA Pharmacology p.245',
+    opts: [
+      { t:'Supplemental O₂ + sit upright + IV furosemide + continuous monitoring', type:'correct',
+        fb_title:'Correct acute ADHF bundle.',
+        fb:'O₂ targets SpO₂ ≥94%. Sitting upright reduces venous return to the heart (↓preload). IV furosemide causes immediate venodilation (within minutes) then diuresis — rapid preload reduction. Continuous monitoring for arrhythmias and haemodynamic deterioration.' },
+      { t:'Start oral metoprolol 25mg + lisinopril immediately', type:'wrong',
+        fb_title:'DANGEROUS — never start BB in acute decompensation.',
+        fb:'Beta-blockers are CONTRAINDICATED in acute ADHF — they reduce contractility and worsen haemodynamics acutely. If patient is already on a BB, continue at lower dose. Only initiate after achieving euvolaemia. Lisinopril can be started once stable.' },
+      { t:'IV furosemide + IV dobutamine + urgent cardiology consult', type:'near',
+        fb_title:'Partially correct — dobutamine only for low-output.',
+        fb:'Furosemide is correct. Dobutamine (inotrope) is reserved for cardiogenic shock / low-output state (cold + wet profile: low BP, low CO, high filling pressures). If BP and perfusion are adequate, start with diuresis alone. Cardiology consult is appropriate.' },
+      { t:'IV norepinephrine + intubation + ICU transfer', type:'wrong',
+        fb_title:'Too aggressive — this is not yet cardiogenic shock.',
+        fb:'Vasopressors and intubation are for cardiogenic shock (SBP <90 + end-organ hypoperfusion). Even in severe ADHF, try diuresis + O₂ first. Escalate to vasopressors/intubation only if haemodynamics do not respond or the patient tires.' },
+    ]
+  },
+};
+
+const DDX = [
+  { name: 'Acute Decompensated Heart Failure', correct: true,
+    reason: '✓ Confirmed. Orthopnoea + bilateral oedema + elevated JVP + S3 + prior MI + cardiomegaly on CXR + BNP elevation = ADHF. EF 28% on echo confirms HFrEF.' },
+  { name: 'Pulmonary Embolism',   correct: false,
+    reason: '✗ Ruled out. PE causes acute pleuritic chest pain + tachycardia without bilateral oedema or orthopnoea. No DVT risk factors highlighted. CXR would be normal or show Westermark sign / Hampton\'s hump, not pulmonary oedema.' },
+  { name: 'COPD Exacerbation',    correct: false,
+    reason: '✗ Ruled out. COPD exacerbation: wheeze, prolonged expiration, hyperinflation on CXR. No smoking history. Elevated JVP and S3 are cardiac signs — not features of obstructive lung disease.' },
+  { name: 'Nephrotic Syndrome',   correct: false,
+    reason: '✗ Ruled out. Can cause bilateral oedema (low oncotic pressure) but NOT orthopnoea, elevated JVP, or pulmonary oedema. JVP is normal or low in nephrotic syndrome — the key differentiator here.' },
+  { name: 'Bilateral Pneumonia',  correct: false,
+    reason: '✗ Ruled out. Bilateral pneumonia: fever, purulent sputum, consolidation on CXR. Bilateral leg oedema is not a feature. Elevated JVP is cardiac. CXR shows pulmonary oedema pattern, not consolidation.' },
+];
+
+// ────────────────────────────────────────────────
+// NAV
+// ────────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ────────────────────────────────────────────────
+// LEARN
+// ────────────────────────────────────────────────
+function startLearn() {
+  S.learnLayer = 0;
+  show('learn');
+  renderLayer(0);
+}
+
+function renderLayer(i) {
+  // progress bar
+  for (let j = 0; j < 3; j++) {
+    const el = document.getElementById('lp' + j);
+    el.className = 'lp-step' + (j < i ? ' done' : j === i ? ' active' : '');
+  }
+  document.getElementById('lp-label').textContent = `Layer ${i + 1} of 3`;
+  document.getElementById('layer-content').innerHTML = layers[i]();
+  microAnswered = [false, false, false];
+}
+
+function nextLayer() {
+  S.learnLayer++;
+  if (S.learnLayer >= layers.length) { startCase(); return; }
+  renderLayer(S.learnLayer);
+  document.getElementById('screen-learn').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ────────────────────────────────────────────────
+// CASE INIT
+// ────────────────────────────────────────────────
+function startCase() {
+  S.learnDone = true;
+  const sev = SEVS[Math.floor(Math.random() * SEVS.length)];
+  S.severity = sev;
+  const sc = sevConf[sev];
+
+  // severity badge
+  const pill = document.getElementById('sev-pill');
+  pill.className = 'sev-pill ' + sc.cls;
+  pill.textContent = sc.label + ' presentation';
+
+  // vitals
+  const vr = document.getElementById('vitals-row');
+  vr.innerHTML = sc.vitals.map(v =>
+    `<div class="vital-chip ${v.n ? 'abn' : v.w ? 'warn' : ''}">
+      <div class="v-label">${v.l}</div>
+      <div class="v-val">${v.v}</div>
+    </div>`
+  ).join('');
+
+  // delayed twist
+  if (sc.twist) {
+    setTimeout(() => {
+      if (S.twistShown || S.ddxDone) return;
+      S.twistShown = true;
+      document.getElementById('twist-text').textContent = sc.twist;
+      document.getElementById('twist-box').classList.add('show');
+      addLog('⚠️', sc.twist);
+    }, 10000);
+  }
+
+  show('case');
+}
+
+// ────────────────────────────────────────────────
+// LOG
+// ────────────────────────────────────────────────
+function addLog(icon, text) {
+  const log = document.getElementById('info-log');
+  const row = document.createElement('div');
+  row.className = 'log-row';
+  row.innerHTML = `<span class="log-ico">${icon}</span><span class="log-txt">${text}</span>`;
+  log.appendChild(row);
+  log.scrollTop = log.scrollHeight;
+}
+
+// ────────────────────────────────────────────────
+// QUESTIONS
+// ────────────────────────────────────────────────
+function openQ(type) {
+  if (type !== 'treat') {
+    document.getElementById('ddx-panel').classList.remove('open');
+    document.querySelectorAll('.act-btn').forEach(b => b.classList.remove('act-active'));
+    const ab = document.getElementById('ab-' + type);
+    if (ab) ab.classList.add('act-active');
+  }
+
+  const qd = Qs[type];
+  if (!qd) return;
+
+  document.getElementById('q-type-label').textContent = qd.label;
+  document.getElementById('q-stem').textContent = qd.stem;
+
+  const letters = ['A','B','C','D'];
+  document.getElementById('opts').innerHTML = qd.opts.map((o, i) =>
+    `<button class="opt" onclick="pickOpt('${type}', ${i})">
+      <span class="opt-ltr">${letters[i]}</span>
+      <span>${o.t}</span>
+    </button>`
+  ).join('');
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('continue-btn').className = 'continue-btn';
+  document.getElementById('q-panel').classList.add('open');
+  document.getElementById('q-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function pickOpt(type, idx) {
+  const qd = Qs[type];
+  const picked = qd.opts[idx];
+  const btns = document.querySelectorAll('#opts .opt');
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    const t = qd.opts[i].type;
+    btn.classList.add(t === 'correct' ? 'o-correct' : t === 'near' ? 'o-near' : 'o-wrong');
+  });
+
+  const pts = picked.type === 'correct' ? 15 : picked.type === 'near' ? 7 : -3;
+  S.pts += pts;
+  S.log.push({ type, picked: picked.t, pickedType: picked.type, correct: qd.opts.find(o=>o.type==='correct').t, fb: picked.fb, fa: qd.fa });
+
+  const fb = document.getElementById('feedback');
+  const fcls = picked.type === 'correct' ? 'fb-good' : picked.type === 'near' ? 'fb-near' : 'fb-bad';
+  fb.className = 'feedback show ' + fcls;
+  document.getElementById('fb-title').textContent = picked.fb_title;
+  document.getElementById('fb-body').textContent = picked.fb;
+  document.getElementById('fb-fa').textContent = qd.fa;
+
+  addLog(
+    picked.type === 'correct' ? '✓' : picked.type === 'near' ? '~' : '✗',
+    picked.t
+  );
+
+  document.getElementById('continue-btn').className = 'continue-btn show';
+
+  S.usedActions.add(type);
+  const ab = document.getElementById('ab-' + type);
+  if (ab) { ab.classList.add('used'); ab.classList.remove('act-active'); }
+
+  if (type === 'treat') {
+    document.getElementById('continue-btn').textContent = 'See results →';
+    document.getElementById('continue-btn').onclick = showReview;
+  }
+}
+
+function closeQ() {
+  document.getElementById('q-panel').classList.remove('open');
+  document.querySelectorAll('.act-btn').forEach(b => b.classList.remove('act-active'));
+  document.getElementById('continue-btn').onclick = closeQ;
+  document.getElementById('continue-btn').textContent = 'Continue →';
+}
+
+// ────────────────────────────────────────────────
+// DDX
+// ────────────────────────────────────────────────
+function openDDx() {
+  if (S.usedActions.size < 1) {
+    addLog('·', 'Gather at least some findings before attempting a diagnosis.');
+    return;
+  }
+  closeQ();
+  document.getElementById('ddx-panel').classList.add('open');
+  document.getElementById('ab-diagnose').classList.add('act-active');
+
+  document.getElementById('ddx-items').innerHTML = DDX.map((d, i) =>
+    `<div class="ddx-item" id="di-${i}" onclick="pickDDx(${i})">
+      <div class="ddx-num">${i+1}</div>
+      <div class="ddx-content">
+        <div class="ddx-name">${d.name}</div>
+        <div class="ddx-reason" id="dr-${i}"></div>
+      </div>
+      <div class="ddx-status" id="ds-${i}">Click to assess</div>
+    </div>`
+  ).join('');
+
+  S.ddxAnswered = 0;
+  document.getElementById('ddx-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function pickDDx(i) {
+  const el = document.getElementById('di-' + i);
+  if (el.classList.contains('answered')) return;
+  el.classList.add('answered');
+  const d = DDX[i];
+
+  document.getElementById('dr-' + i).textContent = d.reason;
+  if (d.correct) {
+    el.classList.add('confirmed');
+    document.getElementById('ds-' + i).textContent = '✓ Confirmed';
+    S.ddxPts += 20;
+    addLog('✓', `Confirmed: ${d.name}`);
+  } else {
+    el.classList.add('ruled-out');
+    document.getElementById('ds-' + i).textContent = '✗ Ruled out';
+    S.ddxPts += 5;
+    addLog('✗', `Ruled out: ${d.name}`);
+  }
+  S.ddxLog.push({ name: d.name, correct: d.correct, reason: d.reason });
+  S.ddxAnswered++;
+  if (S.ddxAnswered >= DDX.length) {
+    S.ddxDone = true;
+    document.getElementById('ddx-proceed').style.display = 'inline-block';
+    document.getElementById('ab-treat').disabled = false;
+    document.getElementById('ab-treat').querySelector('.act-hint').textContent = 'Now unlocked';
+  }
+}
+
+// ────────────────────────────────────────────────
+// REVIEW
+// ────────────────────────────────────────────────
+function showReview() {
+  const total = S.pts + S.ddxPts;
+  let grade, gcls;
+  if (total >= 120) { grade='S'; gcls='grade-S'; }
+  else if (total >= 90) { grade='A'; gcls='grade-A'; }
+  else if (total >= 65) { grade='B'; gcls='grade-B'; }
+  else if (total >= 40) { grade='C'; gcls='grade-C'; }
+  else { grade='F'; gcls='grade-F'; }
+
+  document.getElementById('review-grade').innerHTML = `<span class="${gcls}">${grade}</span>`;
+  document.getElementById('review-summary').textContent =
+    `${total} points · Heart Failure · ${S.severity} presentation · ${S.log.length} questions answered`;
+
+  document.getElementById('sc-learn').textContent = S.learnDone ? '✓' : '–';
+  document.getElementById('sc-case').textContent = S.pts;
+  document.getElementById('sc-ddx').textContent = S.ddxPts;
+
+  // question review
+  const qri = document.getElementById('q-review-items');
+  qri.innerHTML = S.log.map(l => `
+    <div class="review-item">
+      <div class="ri-q">${l.type.charAt(0).toUpperCase() + l.type.slice(1)}</div>
+      <div class="ri-picked ${l.pickedType === 'correct' ? 'correct' : l.pickedType === 'near' ? 'near' : 'wrong'}">
+        ${l.pickedType === 'correct' ? '✓' : l.pickedType === 'near' ? '~' : '✗'} You picked: ${l.picked}
+      </div>
+      ${l.pickedType !== 'correct' ? `<div class="ri-correct-ans">✓ Best answer: ${l.correct}</div>` : ''}
+      <div class="ri-why">${l.fb}</div>
+      <div class="ri-fa">${l.fa}</div>
+    </div>
+  `).join('') || '<div class="review-item"><div class="ri-why" style="color:var(--text3)">No questions answered in this case.</div></div>';
+
+  // ddx review
+  const dri = document.getElementById('ddx-review-items');
+  dri.innerHTML = S.ddxLog.map(d => `
+    <div class="review-item">
+      <div class="ri-picked ${d.correct ? 'correct' : 'wrong'}">
+        ${d.correct ? '✓ Confirmed' : '✗ Ruled out'}: ${d.name}
+      </div>
+      <div class="ri-why">${d.reason}</div>
+    </div>
+  `).join('') || '<div class="review-item"><div class="ri-why" style="color:var(--text3)">DDx not attempted.</div></div>';
+
+  // teaching points
+  const teaching = [
+    'BNP >100 pg/mL confirms cardiac dyspnoea. Falls >30% = safe to discharge. It is produced by ventricular myocytes under wall stress.',
+    'JVP + S3 gallop + bilateral basal crackles = the ADHF triad. Memorise this. JVP is most specific for cardiac cause.',
+    'NEVER initiate beta-blockers in acute decompensation — acutely worsens haemodynamics. Start only once euvolemic and stable.',
+    'CXR in ADHF: cardiomegaly + upper lobe blood diversion + Kerley B lines + perihilar bat-wing opacity.',
+    'HFrEF long-term mortality triad: ACEi/ARB + beta-blocker (metoprolol succinate) + MRA (spironolactone).',
+    'Furosemide: inhibits Na⁺/K⁺/2Cl⁻ in thick ascending limb. Venodilates BEFORE diuresis — immediate preload reduction. Watch K⁺.',
+    'HFpEF (EF ≥50%) = diastolic failure. Cannot fill properly. Managed differently from HFrEF — no mortality benefit from ACEi/BB proven.',
+  ];
+  document.getElementById('teaching-list').innerHTML = teaching.map(t =>
+    `<div class="teaching-item"><span class="ti-arrow">→</span><span>${t}</span></div>`
+  ).join('');
+
+  show('review');
+}
+
+// ────────────────────────────────────────────────
+// RESTART
+// ────────────────────────────────────────────────
+function restart() {
+  S = { pts:0, ddxPts:0, learnDone:false, learnLayer:0, severity:'', usedActions:new Set(), ddxAnswered:0, ddxDone:false, twistShown:false, log:[], ddxLog:[] };
+  document.getElementById('info-log').innerHTML = `
+    <div class="log-row"><span class="log-ico">·</span><span class="log-txt starter">Patient arrived. Use the action buttons below to gather information and build your diagnosis.</span></div>`;
+  document.getElementById('q-panel').classList.remove('open');
+  document.getElementById('ddx-panel').classList.remove('open');
+  document.getElementById('twist-box').classList.remove('show');
+  document.querySelectorAll('.act-btn').forEach(b => { b.classList.remove('used','act-active'); b.disabled = false; });
+  document.getElementById('ab-treat').disabled = true;
+  document.getElementById('ab-treat').querySelector('.act-hint').textContent = 'Diagnose first';
+  document.getElementById('ddx-proceed').style.display = 'none';
+  document.getElementById('continue-btn').onclick = closeQ;
+  document.getElementById('continue-btn').textContent = 'Continue →';
+  microAnswered = [false,false,false];
+  show('topic');
+}
+</script>
+</body>
+</html>
+<!-- Cliniq v0.1 | Built by Dr. Abhinay Poludasu | github.com/1witttdoctor/Cliniq | March 2026 -->
