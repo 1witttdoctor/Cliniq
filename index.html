@@ -6,93 +6,40 @@
 <title>Cliniq — Learn Medicine. Think Clinically.</title>
 <meta name="author" content="Dr. Abhinay Poludasu">
 <meta name="description" content="Cliniq — AI-powered clinical reasoning tool for USMLE Step 1. Free for IMGs worldwide.">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-<!-- ═══ AMBIENT BACKGROUND — minimal heartbeat + DNA helix ═══ -->
-<div class="ambient" aria-hidden="true">
-  <div class="ambient-ecg">
-    <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="pulseGrad" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="#45e0c4"/>
-          <stop offset="50%" stop-color="#9b6bff"/>
-          <stop offset="100%" stop-color="#ff5e8a"/>
-        </linearGradient>
-      </defs>
-      <polyline class="ecg-base" pathLength="1"
-        points="0,60 60,60 75,50 90,60 120,60 130,66 140,18 150,96 160,60 195,60 215,46 240,60 300,60 360,60 375,50 390,60 420,60 430,66 440,18 450,96 460,60 495,60 515,46 540,60 600,60 660,60 675,50 690,60 720,60 730,66 740,18 750,96 760,60 795,60 815,46 840,60 900,60 960,60 975,50 990,60 1020,60 1030,66 1040,18 1050,96 1060,60 1095,60 1115,46 1140,60 1200,60" />
-      <polyline class="ecg-pulse" pathLength="1"
-        points="0,60 60,60 75,50 90,60 120,60 130,66 140,18 150,96 160,60 195,60 215,46 240,60 300,60 360,60 375,50 390,60 420,60 430,66 440,18 450,96 460,60 495,60 515,46 540,60 600,60 660,60 675,50 690,60 720,60 730,66 740,18 750,96 760,60 795,60 815,46 840,60 900,60 960,60 975,50 990,60 1020,60 1030,66 1040,18 1050,96 1060,60 1095,60 1115,46 1140,60 1200,60" />
-    </svg>
-  </div>
-  <div class="ambient-dna">
-    <div class="dna">
-      <div class="dna-rung" style="animation-delay:0s"></div>
-      <div class="dna-rung" style="animation-delay:-.34s"></div>
-      <div class="dna-rung" style="animation-delay:-.68s"></div>
-      <div class="dna-rung" style="animation-delay:-1.02s"></div>
-      <div class="dna-rung" style="animation-delay:-1.36s"></div>
-      <div class="dna-rung" style="animation-delay:-1.7s"></div>
-      <div class="dna-rung" style="animation-delay:-2.04s"></div>
-      <div class="dna-rung" style="animation-delay:-2.38s"></div>
-      <div class="dna-rung" style="animation-delay:-2.72s"></div>
-      <div class="dna-rung" style="animation-delay:-3.06s"></div>
-      <div class="dna-rung" style="animation-delay:-3.4s"></div>
-      <div class="dna-rung" style="animation-delay:-3.74s"></div>
-      <div class="dna-rung" style="animation-delay:-4.08s"></div>
-      <div class="dna-rung" style="animation-delay:-4.42s"></div>
-      <div class="dna-rung" style="animation-delay:-4.76s"></div>
-      <div class="dna-rung" style="animation-delay:-5.1s"></div>
-      <div class="dna-rung" style="animation-delay:-5.44s"></div>
-      <div class="dna-rung" style="animation-delay:-5.78s"></div>
-    </div>
-  </div>
-</div>
 
 <div class="shell">
 
   <nav>
     <span class="nav-logo">Clin<em>iq</em></span>
     <div style="text-align:right">
-      <div class="nav-meta" id="nav-meta">Choose a topic to begin</div>
+      <div class="nav-meta" id="nav-meta">Diagnostic Console</div>
       <div class="nav-built">Dr. Abhinay Poludasu</div>
     </div>
   </nav>
 
-  <!-- ═══ SCREEN: HOME ═══ -->
+  <!-- ═══ SCREEN: HOME (Diagnostic Console) ═══ -->
   <div class="screen active" id="screen-home">
     <div class="home-hero">
-      <div class="home-eyebrow">Cliniq · USMLE Step 1</div>
-      <h1 class="home-title">Learn Medicine. Think Clinically.</h1>
-      <p class="home-desc">Tap an organ to begin. Each one walks you through a layered concept breakdown, then tests your reasoning on a real patient case.</p>
+      <div class="home-eyebrow">Cliniq · USMLE Step 1 · Clinical reasoning</div>
+      <h1 class="home-title">Work up the diagnosis, one system at a time.</h1>
+      <p class="home-desc">Cliniq drills clinical reasoning the way the wards do — learn the mechanism, then take a real patient from presentation to management. Select a system to begin.</p>
     </div>
     <div class="focus-callout" id="focus-callout" style="display:none;"></div>
 
-    <div class="bodymap" id="bodymap">
-      <svg class="bodymap-svg" viewBox="0 0 200 470" aria-hidden="true">
-        <defs>
-          <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stop-color="#7a5cf0" stop-opacity="0.16"/>
-            <stop offset="55%"  stop-color="#9b7bd8" stop-opacity="0.13"/>
-            <stop offset="100%" stop-color="#12a594" stop-opacity="0.14"/>
-          </linearGradient>
-        </defs>
-        <g fill="url(#bodyGrad)">
-          <circle cx="100" cy="40" r="21" />
-          <rect x="93" y="54" width="14" height="20" rx="7" />
-          <path d="M74,94 C74,80 86,74 100,74 C114,74 126,80 126,94 L122,236 C121,246 113,250 100,250 C87,250 79,246 78,236 Z" />
-          <rect x="57" y="90" width="16" height="152" rx="8" transform="rotate(-7 71 98)" />
-          <rect x="127" y="90" width="16" height="152" rx="8" transform="rotate(7 129 98)" />
-          <rect x="77" y="242" width="20" height="212" rx="10" transform="rotate(2 87 250)" />
-          <rect x="103" y="242" width="20" height="212" rx="10" transform="rotate(-2 113 250)" />
-        </g>
-      </svg>
-      <div class="organ-layer" id="organ-layer"></div>
+    <div class="console" id="console">
+      <div class="console-head">
+        <span>Systems</span>
+        <span class="live"><span class="live-dot"></span> Monitoring</span>
+      </div>
+      <div class="systems" id="systems"></div>
+      <div class="console-foot" id="console-foot"></div>
     </div>
-    <div class="bodymap-fallback" id="bodymap-fallback"></div>
   </div>
 
   <!-- ═══ SCREEN: TOPIC ═══ -->
@@ -242,12 +189,12 @@
 
 </div><!-- /shell -->
 
-<footer style="text-align:center; padding: 32px 20px 24px; border-top: 1px solid rgba(63,52,36,0.10); margin-top: 40px;">
-  <div style="font-family:'Instrument Serif',Georgia,serif; font-style:italic; font-size:16px; color:rgba(44,39,32,0.6); margin-bottom:4px;">Cliniq</div>
-  <div style="font-size:12px; color:rgba(116,106,91,0.85); letter-spacing:0.04em;">
-    Built by <span style="color:rgba(44,39,32,0.75);">Dr. Abhinay Poludasu</span>
+<footer style="text-align:center; padding: 32px 20px 24px; border-top: 1px solid rgba(255,255,255,0.07); margin-top: 40px;">
+  <div style="font-family:'Newsreader',Georgia,serif; font-style:italic; font-size:17px; color:rgba(234,240,246,0.55); margin-bottom:5px;">Cliniq</div>
+  <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:rgba(139,153,168,0.7); letter-spacing:0.03em;">
+    Built by <span style="color:rgba(234,240,246,0.7);">Dr. Abhinay Poludasu</span>
     &nbsp;·&nbsp;
-    <a href="https://github.com/1witttdoctor/Cliniq" style="color:#c04a63; text-decoration:none;">github.com/1witttdoctor/Cliniq</a>
+    <a href="https://github.com/1witttdoctor/Cliniq" style="color:#ffb84d; text-decoration:none;">github.com/1witttdoctor/Cliniq</a>
     &nbsp;·&nbsp;
     Free for IMGs worldwide
   </div>

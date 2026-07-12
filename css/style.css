@@ -1,23 +1,24 @@
 :root {
-  --bg:       #f4eee3;
-  --bg2:      #fbf8f1;
-  --bg3:      #efe7d8;
-  --bg4:      #e7ddca;
-  --border:   rgba(63,52,36,0.10);
-  --border2:  rgba(63,52,36,0.17);
-  --accent:   #e0526e;
-  --accent2:  #12a594;
-  --accent3:  #7a5cf0;
-  --grad:     linear-gradient(135deg, #e0526e 0%, #7a5cf0 50%, #12a594 100%);
-  --amber:    #c98a24;
-  --red:      #cf5147;
-  --green:    #2f9e6b;
-  --purple:   #8a6fd0;
-  --text:     #2c2720;
-  --text2:    #746a5b;
-  --text3:    #a99f8d;
-  --serif:    'Instrument Serif', Georgia, serif;
-  --sans:     'DM Sans', system-ui, sans-serif;
+  --bg:       #0a0e13;
+  --bg2:      #111823;
+  --bg3:      #172230;
+  --bg4:      #1e2b3a;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.13);
+  --accent:   #ffb84d;   /* monitor signal amber — the one accent */
+  --accent2:  #5ac8e8;   /* cool data cyan */
+  --accent3:  #b9a4ff;   /* soft indigo */
+  --grad:     linear-gradient(180deg, #ffc76e 0%, #ff9f2e 100%);
+  --amber:    #ffb84d;
+  --red:      #f0524f;
+  --green:    #46c98b;
+  --purple:   #b9a4ff;
+  --text:     #eaf0f6;
+  --text2:    #8b99a8;
+  --text3:    #566472;
+  --serif:    'Newsreader', Georgia, serif;
+  --sans:     'IBM Plex Sans', system-ui, sans-serif;
+  --mono:     'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -484,145 +485,114 @@ nav {
 }
 .topic-card-soon:hover { border-color: var(--border2); background: transparent; transform: none; }
 
-/* ────────────────────────────────────────────────
-   AMBIENT BACKGROUND — minimal heartbeat + DNA helix
-   Fixed behind all content, non-interactive, subtle.
-   ──────────────────────────────────────────────── */
-.ambient {
-  position: fixed; inset: 0; z-index: 0;
-  pointer-events: none; overflow: hidden;
+
+/* ════════════════════════════════════════════════
+   DIAGNOSTIC-CONSOLE REBUILD
+   Dark instrument aesthetic. Mono = readout voice,
+   Newsreader = human display, Plex Sans = body.
+   ════════════════════════════════════════════════ */
+
+/* Mono "readout" voice for every label / code / vital */
+.nav-meta, .home-eyebrow, .topic-eyebrow, .case-eyebrow, .layer-num,
+.lp-label, .action-label, .q-type-label, .review-section-title,
+.v-label, .fa-ref, .tag, .sev-pill, .score-tile-lbl, .mode-card-tag,
+.fb-title, .ddx-status, .ri-fa, .topic-card-meta, .focus-title {
+  font-family: var(--mono);
 }
 
-/* — Heart-monitor line, sweeping pulse at the base — */
-.ambient-ecg {
-  position: absolute; left: 0; right: 0; bottom: 7vh;
-  height: 130px; opacity: 0.75;
+/* Selection + focus (accessibility) */
+::selection { background: rgba(255,184,77,0.25); color: var(--text); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+/* Nav as instrument chrome */
+.nav-logo { letter-spacing: 0; }
+.nav-meta { text-transform: uppercase; }
+
+/* Home hero */
+.home-title { max-width: 15ch; text-wrap: balance; letter-spacing: -0.01em; }
+.home-eyebrow { font-size: 11px; }
+
+/* ── DIAGNOSTIC CONSOLE ── */
+.console {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.02), transparent 120px),
+    var(--bg2);
+  overflow: hidden;
 }
-.ambient-ecg svg { width: 100%; height: 100%; display: block; }
-.ecg-base {
-  fill: none; stroke: rgba(63,52,36,0.13); stroke-width: 2;
-  stroke-linejoin: round; stroke-linecap: round;
+.console-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 20px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text3);
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.015);
 }
-.ecg-pulse {
-  fill: none; stroke: url(#pulseGrad); stroke-width: 2.4;
-  stroke-linejoin: round; stroke-linecap: round;
-  stroke-dasharray: 0.08 0.92;
-  filter: drop-shadow(0 0 4px rgba(224,82,110,0.7));
-  animation: ecg-sweep 3.4s linear infinite;
+.console-head .live { display: inline-flex; align-items: center; gap: 7px; color: var(--accent); }
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  box-shadow: 0 0 8px var(--accent); animation: live-blink 2.4s ease-in-out infinite;
 }
-@keyframes ecg-sweep {
-  from { stroke-dashoffset: 1; }
-  to   { stroke-dashoffset: 0; }
+@keyframes live-blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.systems { display: flex; flex-direction: column; }
+.system-row {
+  display: grid;
+  grid-template-columns: 190px 1fr 92px 20px;
+  align-items: center; gap: 22px;
+  width: 100%; padding: 20px; border: none; background: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; text-align: left; color: inherit;
+  transition: background 0.18s ease;
+}
+.systems .system-row:last-child { border-bottom: none; }
+.system-row:hover { background: rgba(255,184,77,0.05); }
+.sys-id { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.sys-code { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--accent); }
+.sys-name { font-family: var(--serif); font-size: 22px; line-height: 1.1; color: var(--text); }
+.sys-system { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); }
+.sys-ecg { width: 100%; height: 46px; display: block; }
+.sys-status {
+  justify-self: end;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text2); border: 1px solid var(--border2); border-radius: 5px;
+  padding: 4px 9px; white-space: nowrap;
+}
+.sys-status.done { color: var(--green); border-color: rgba(70,201,139,0.4); }
+.sys-go { font-family: var(--mono); font-size: 15px; color: var(--text3); transition: color 0.18s, transform 0.18s; }
+.system-row:hover .sys-go { color: var(--accent); transform: translateX(4px); }
+.system-row:hover .sys-code { text-shadow: 0 0 12px rgba(255,184,77,0.4); }
+
+.console-foot {
+  padding: 13px 20px; border-top: 1px solid var(--border);
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
+  color: var(--text3); background: rgba(255,255,255,0.015);
+}
+.console-foot .up-next { color: var(--text2); }
+
+@media (max-width: 560px) {
+  .system-row { grid-template-columns: 1fr auto; gap: 12px 16px; padding: 16px; }
+  .sys-ecg { grid-column: 1 / -1; order: 3; height: 38px; }
+  .sys-status { order: 2; }
+  .sys-go { display: none; }
 }
 
-/* — Drifting DNA double helix in the side gutter — */
-.ambient-dna {
-  position: absolute; top: 0; bottom: 0; right: 6%;
-  display: flex; align-items: center;
+/* ── Buttons: instrument-grade ── */
+.btn-primary {
+  background: var(--grad); color: #201400;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 6px 20px -10px rgba(255,184,77,0.7);
 }
-.dna {
-  display: flex; flex-direction: column; gap: 15px;
-  perspective: 620px; opacity: 0.5;
-  animation: dna-drift 15s ease-in-out infinite;
-}
-.dna-rung {
-  width: 66px; height: 2px; position: relative;
-  border-radius: 2px;
-  background: linear-gradient(90deg, rgba(224,82,110,0.4), rgba(18,165,148,0.4));
-  transform-style: preserve-3d;
-  animation: dna-twist 6s linear infinite;
-}
-.dna-rung::before, .dna-rung::after {
-  content: ''; position: absolute; top: 50%; margin-top: -4px;
-  width: 8px; height: 8px; border-radius: 50%;
-}
-.dna-rung::before { left: -1px;  background: var(--accent);  box-shadow: 0 0 7px rgba(224,82,110,0.55); }
-.dna-rung::after  { right: -1px; background: var(--accent2); box-shadow: 0 0 7px rgba(18,165,148,0.55); }
-@keyframes dna-twist { to { transform: rotateY(360deg); } }
-@keyframes dna-drift {
-  0%, 100% { transform: translateY(-10px); }
-  50%      { transform: translateY(10px); }
-}
+.btn-primary:hover { filter: brightness(1.06); box-shadow: 0 1px 0 rgba(255,255,255,0.3) inset, 0 8px 24px -10px rgba(255,184,77,0.8); }
 
-/* Hide the helix where the gutter gets tight */
-@media (max-width: 1024px) { .ambient-dna { display: none; } }
+/* ── Focus callout on dark ── */
+.focus-callout {
+  background: rgba(255,184,77,0.06); border: 1px solid rgba(255,184,77,0.22);
+}
+.focus-title { color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; }
 
-/* Respect users who prefer less motion */
-@media (prefers-reduced-motion: reduce) {
-  .ecg-pulse, .dna, .dna-rung { animation: none; }
-  .ecg-pulse { display: none; }
-}
-
-/* ────────────────────────────────────────────────
-   INTERACTIVE BODY MAP (home navigation)
-   ──────────────────────────────────────────────── */
-.bodymap {
-  position: relative; max-width: 232px; margin: 4px auto 0;
-  transition: transform 0.5s cubic-bezier(0.7,0,0.3,1), opacity 0.5s ease;
-  transform-origin: 50% 25%;
-}
-.bodymap.zooming { transform: scale(2.6); opacity: 0; }
-.bodymap-svg {
-  width: 100%; height: auto; display: block; overflow: visible;
-  filter: drop-shadow(0 4px 12px rgba(63,52,36,0.16));
-}
-
-.organ-layer { position: absolute; inset: 0; }
-.organ-hotspot {
-  position: absolute; transform: translate(-50%, -50%);
-  background: none; border: none; padding: 0; cursor: pointer;
-  display: flex; align-items: center; gap: 9px;
-}
-.organ-dot {
-  width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0;
-  background: radial-gradient(circle at 40% 35%, #ef8098, #e0526e 62%);
-  box-shadow: 0 0 0 0 rgba(224,82,110,0.5);
-  animation: organ-pulse 2.4s ease-out infinite;
-}
-.organ-label {
-  font-size: 11px; letter-spacing: 0.04em; color: var(--text2); font-weight: 500;
-  white-space: nowrap; background: rgba(251,248,241,0.85);
-  padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border2);
-  box-shadow: 0 2px 8px -4px rgba(63,52,36,0.35);
-  transition: color 0.2s, border-color 0.2s;
-}
-.organ-hotspot:hover .organ-label { color: var(--text); border-color: var(--accent); }
-.organ-hotspot:hover .organ-dot { animation-duration: 1.1s; }
-@keyframes organ-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(224,82,110,0.55); }
-  70%  { box-shadow: 0 0 0 15px rgba(122,92,240,0); }
-  100% { box-shadow: 0 0 0 0 rgba(122,92,240,0); }
-}
-
-.bodymap-fallback {
-  text-align: center; margin-top: 22px;
-  font-size: 12px; color: var(--text3); letter-spacing: 0.03em;
-}
-.bodymap-fallback a { color: var(--text2); text-decoration: none; transition: color 0.2s; }
-.bodymap-fallback a:hover { color: var(--accent); }
+/* ── Screen-aware body classes retained (no-op without ambient) ── */
 
 @media (prefers-reduced-motion: reduce) {
-  .organ-dot { animation: none; }
-  .bodymap { transition: opacity 0.3s ease; }
-  .bodymap.zooming { transform: none; }
+  .live-dot { animation: none; }
 }
-
-/* ── Screen-aware ambient tiers ── */
-body.screen-home .ambient-dna { display: none; }
-body.reading .ambient-dna { display: none; }
-body.reading .ecg-pulse { display: none; }
-body.reading .ambient-ecg { opacity: 0.4; }
-
-/* ────────────────────────────────────────────────
-   LIGHT-THEME ELEVATION & REFINEMENTS
-   Soft shadows give depth on cream where borders read flat.
-   ──────────────────────────────────────────────── */
-.mode-card, .layer-card, .patient-card, .q-panel, .ddx-panel,
-.score-tile, .teaching-box, .review-item, .info-log, .micro-check {
-  box-shadow: 0 1px 2px rgba(63,52,36,0.04), 0 8px 24px -18px rgba(63,52,36,0.45);
-}
-.mode-card:hover { box-shadow: 0 2px 4px rgba(63,52,36,0.05), 0 14px 30px -18px rgba(224,82,110,0.4); }
-.act-btn { box-shadow: 0 1px 2px rgba(63,52,36,0.04); }
-.vital-chip { box-shadow: 0 1px 2px rgba(63,52,36,0.04); }
-/* keep the info-log scrollbar subtle on light */
-.info-log::-webkit-scrollbar-thumb { background: var(--border2); }

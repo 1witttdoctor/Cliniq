@@ -77,31 +77,37 @@ function show(id) {
   document.body.classList.remove('screen-home', 'reading');
   if (id === 'home') document.body.classList.add('screen-home');
   else if (id === 'learn' || id === 'case' || id === 'review') document.body.classList.add('reading');
+  // pause the console ECG loop when it's off-screen
+  if (id !== 'home' && ecgRAF) { cancelAnimationFrame(ecgRAF); ecgRAF = null; }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ────────────────────────────────────────────────
-// BODY MAP — organ → topic navigation (live organs only)
-// Coordinates are % of the .bodymap box (SVG viewBox 200×470).
+// DIAGNOSTIC CONSOLE — system → topic navigation
 // ────────────────────────────────────────────────
-const ORGANS = [
-  { id: 'lungs', topicId: 'copd-exacerbation',  label: 'Lungs · Respiratory', x: 57.0, y: 19.5 },
-  { id: 'heart', topicId: 'heart-failure',      label: 'Heart · Cardiology',  x: 44.0, y: 27.5 },
-];
+const SYSTEM_CODES = {
+  Cardiology: 'CVS', Respiratory: 'RESP', Renal: 'RENAL',
+  Neurology: 'NEURO', Gastroenterology: 'GI', Endocrine: 'ENDO',
+};
+// Systems on the roadmap but not yet live — shown as the "up next" readout.
+const UPCOMING_SYSTEMS = ['Renal', 'Neurology', 'Endocrine'];
+
+function sysCode(topic) {
+  const code = SYSTEM_CODES[topic.system] || topic.system.slice(0, 4).toUpperCase();
+  return `${code}·${String(topic.number).padStart(2, '0')}`;
+}
 
 // ────────────────────────────────────────────────
 // HOME
 // ────────────────────────────────────────────────
 function goHome() {
   currentTopicId = null;
-  document.getElementById('nav-meta').textContent = 'Choose a topic to begin';
+  document.getElementById('nav-meta').textContent = 'Diagnostic Console';
   renderHome();
   show('home');
 }
 
 function renderHome() {
-  const stats = loadStats();
-
   // focus callout
   const focus = weakestFocusArea();
   const callout = document.getElementById('focus-callout');
@@ -118,47 +124,103 @@ function renderHome() {
     callout.innerHTML = '';
   }
 
-  renderBodyMap();
+  renderConsole();
 }
 
-function renderBodyMap() {
+function renderConsole() {
   const stats = loadStats();
-  const bodymap = document.getElementById('bodymap');
-  if (bodymap) bodymap.classList.remove('zooming');  // reset zoom on return
+  const topics = Object.values(window.TOPICS || {}).sort((a, b) => a.number - b.number);
 
-  const live = ORGANS.filter(o => window.TOPICS && window.TOPICS[o.topicId]);
-
-  const layer = document.getElementById('organ-layer');
-  layer.innerHTML = live.map(o => {
-    const done = stats.topics[o.topicId] && stats.topics[o.topicId].completed;
+  document.getElementById('systems').innerHTML = topics.map(t => {
+    const done = stats.topics[t.id] && stats.topics[t.id].completed;
     return `
-      <button class="organ-hotspot" style="left:${o.x}%; top:${o.y}%"
-        onclick="pressOrgan('${o.topicId}')" aria-label="${o.label}">
-        <span class="organ-dot"></span>
-        <span class="organ-label">${o.label}${done ? ' ✓' : ''}</span>
+      <button class="system-row" onclick="pressSystem('${t.id}')" aria-label="${t.title} — ${t.system}">
+        <span class="sys-id">
+          <span class="sys-code">${sysCode(t)}</span>
+          <span class="sys-name">${t.title}</span>
+          <span class="sys-system">${t.system}</span>
+        </span>
+        <canvas class="sys-ecg" data-topic="${t.id}"></canvas>
+        <span class="sys-status ${done ? 'done' : ''}">${done ? '✓ Worked up' : 'Ready'}</span>
+        <span class="sys-go">→</span>
       </button>`;
   }).join('');
 
-  // Text fallback for accessibility / discoverability
-  const fb = document.getElementById('bodymap-fallback');
-  if (fb) {
-    fb.innerHTML = 'or open a topic directly: ' + live.map(o => {
-      const t = window.TOPICS[o.topicId];
-      return `<a href="#" onclick="selectTopic('${o.topicId}');return false;">${t.title}</a>`;
-    }).join(' · ');
-  }
+  document.getElementById('console-foot').innerHTML =
+    `<span class="up-next">Coming online:</span> ${UPCOMING_SYSTEMS.join(' · ')} — more systems soon`;
+
+  startECG();
 }
 
-function pressOrgan(topicId) {
-  const organ = ORGANS.find(o => o.topicId === topicId);
-  const bodymap = document.getElementById('bodymap');
-  if (organ && bodymap && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    bodymap.style.transformOrigin = `${organ.x}% ${organ.y}%`;
-    bodymap.classList.add('zooming');
-    setTimeout(() => selectTopic(topicId), 460);
-  } else {
-    selectTopic(topicId);
+function pressSystem(topicId) {
+  selectTopic(topicId);
+}
+
+// ────────────────────────────────────────────────
+// CANVAS ECG — live PQRST traces on the console
+// ────────────────────────────────────────────────
+let ecgRAF = null;
+
+// Normalised cardiac waveform over one cycle t∈[0,1). Sum of gaussians (P,Q,R,S,T).
+function ecgWave(t) {
+  const g = (c, w, a) => a * Math.exp(-((t - c) * (t - c)) / (2 * w * w));
+  return g(0.17, 0.022, 0.14)   // P
+       - g(0.32, 0.012, 0.10)   // Q
+       + g(0.36, 0.010, 1.00)   // R
+       - g(0.40, 0.014, 0.26)   // S
+       + g(0.62, 0.040, 0.30);  // T
+}
+
+function drawECG(canvas, phase, active) {
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (!w || !h) return;
+  if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+    canvas.width = w * dpr; canvas.height = h * dpr;
   }
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+
+  const mid = h * 0.56, amp = h * 0.40, cycle = 108;
+  ctx.lineWidth = active ? 1.9 : 1.5;
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.strokeStyle = active ? '#ffb84d' : 'rgba(255,184,77,0.42)';
+  if (active) { ctx.shadowColor = 'rgba(255,184,77,0.55)'; ctx.shadowBlur = 6; }
+  ctx.beginPath();
+  for (let x = 0; x <= w; x++) {
+    const t = (((x + phase) % cycle) + cycle) % cycle / cycle;
+    const y = mid - ecgWave(t) * amp;
+    if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
+
+function startECG() {
+  if (ecgRAF) cancelAnimationFrame(ecgRAF);
+  const canvases = () => [...document.querySelectorAll('.sys-ecg')];
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // hover state → brighter trace
+  canvases().forEach(c => {
+    const row = c.closest('.system-row');
+    row.addEventListener('mouseenter', () => { c.dataset.active = '1'; });
+    row.addEventListener('mouseleave', () => { c.dataset.active = ''; });
+  });
+
+  if (reduce) {
+    canvases().forEach(c => drawECG(c, 0, false));
+    return;
+  }
+  let phase = 0;
+  const loop = () => {
+    phase += 0.9;
+    const list = canvases();
+    if (!list.length) { ecgRAF = null; return; }  // left home screen
+    list.forEach(c => drawECG(c, phase, c.dataset.active === '1'));
+    ecgRAF = requestAnimationFrame(loop);
+  };
+  ecgRAF = requestAnimationFrame(loop);
 }
 
 // ────────────────────────────────────────────────
