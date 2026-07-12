@@ -73,8 +73,21 @@ function weakestFocusArea() {
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
+  // Screen-aware ambient: home = body map (no DNA), reading screens = calm, topic = full
+  document.body.classList.remove('screen-home', 'reading');
+  if (id === 'home') document.body.classList.add('screen-home');
+  else if (id === 'learn' || id === 'case' || id === 'review') document.body.classList.add('reading');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// ────────────────────────────────────────────────
+// BODY MAP — organ → topic navigation (live organs only)
+// Coordinates are % of the .bodymap box (SVG viewBox 200×470).
+// ────────────────────────────────────────────────
+const ORGANS = [
+  { id: 'lungs', topicId: 'copd-exacerbation',  label: 'Lungs · Respiratory', x: 57.0, y: 19.5 },
+  { id: 'heart', topicId: 'heart-failure',      label: 'Heart · Cardiology',  x: 44.0, y: 27.5 },
+];
 
 // ────────────────────────────────────────────────
 // HOME
@@ -105,28 +118,47 @@ function renderHome() {
     callout.innerHTML = '';
   }
 
-  // topic grid
-  const topics = Object.values(window.TOPICS || {}).sort((a, b) => a.number - b.number);
-  const grid = document.getElementById('topic-grid');
-  grid.innerHTML = topics.map(t => {
-    const done = stats.topics[t.id] && stats.topics[t.id].completed;
+  renderBodyMap();
+}
+
+function renderBodyMap() {
+  const stats = loadStats();
+  const bodymap = document.getElementById('bodymap');
+  if (bodymap) bodymap.classList.remove('zooming');  // reset zoom on return
+
+  const live = ORGANS.filter(o => window.TOPICS && window.TOPICS[o.topicId]);
+
+  const layer = document.getElementById('organ-layer');
+  layer.innerHTML = live.map(o => {
+    const done = stats.topics[o.topicId] && stats.topics[o.topicId].completed;
     return `
-      <div class="topic-card" onclick="selectTopic('${t.id}')">
-        <div class="topic-card-num">${String(t.number).padStart(2, '0')}</div>
-        <div class="topic-card-body">
-          <div class="topic-card-title">${t.title}</div>
-          <div class="topic-card-meta"><span>${t.system}</span></div>
-        </div>
-        ${done ? '<span class="topic-card-done">✓ Completed</span>' : ''}
-      </div>`;
-  }).join('') + `
-      <div class="topic-card topic-card-soon">
-        <div class="topic-card-num">···</div>
-        <div class="topic-card-body">
-          <div class="topic-card-title">More systems</div>
-          <div class="topic-card-meta"><span>Renal · Neuro · GI — coming soon</span></div>
-        </div>
-      </div>`;
+      <button class="organ-hotspot" style="left:${o.x}%; top:${o.y}%"
+        onclick="pressOrgan('${o.topicId}')" aria-label="${o.label}">
+        <span class="organ-dot"></span>
+        <span class="organ-label">${o.label}${done ? ' ✓' : ''}</span>
+      </button>`;
+  }).join('');
+
+  // Text fallback for accessibility / discoverability
+  const fb = document.getElementById('bodymap-fallback');
+  if (fb) {
+    fb.innerHTML = 'or open a topic directly: ' + live.map(o => {
+      const t = window.TOPICS[o.topicId];
+      return `<a href="#" onclick="selectTopic('${o.topicId}');return false;">${t.title}</a>`;
+    }).join(' · ');
+  }
+}
+
+function pressOrgan(topicId) {
+  const organ = ORGANS.find(o => o.topicId === topicId);
+  const bodymap = document.getElementById('bodymap');
+  if (organ && bodymap && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    bodymap.style.transformOrigin = `${organ.x}% ${organ.y}%`;
+    bodymap.classList.add('zooming');
+    setTimeout(() => selectTopic(topicId), 460);
+  } else {
+    selectTopic(topicId);
+  }
 }
 
 // ────────────────────────────────────────────────

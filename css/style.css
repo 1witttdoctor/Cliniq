@@ -5,8 +5,10 @@
   --bg4:      #1f2940;
   --border:   rgba(255,255,255,0.07);
   --border2:  rgba(255,255,255,0.12);
-  --accent:   #4ecdc4;
-  --accent2:  #7eb8f7;
+  --accent:   #ff5e8a;
+  --accent2:  #45e0c4;
+  --accent3:  #9b6bff;
+  --grad:     linear-gradient(135deg, #ff5e8a 0%, #9b6bff 50%, #45e0c4 100%);
   --amber:    #f6b84b;
   --red:      #e07070;
   --green:    #5bbf8a;
@@ -29,7 +31,8 @@ body {
 }
 
 /* ── LAYOUT ── */
-.shell { max-width: 720px; margin: 0 auto; padding: 0 20px 100px; }
+.shell { max-width: 720px; margin: 0 auto; padding: 0 20px 100px; position: relative; z-index: 1; }
+footer { position: relative; z-index: 1; }
 
 /* ── NAV ── */
 nav {
@@ -68,9 +71,9 @@ nav {
   font-size: 11px; font-weight: 500; letter-spacing: 0.05em;
   padding: 4px 10px; border-radius: 20px; text-transform: uppercase;
 }
-.tag-cardio { background: rgba(78,205,196,0.1); color: var(--accent); border: 1px solid rgba(78,205,196,0.2); }
+.tag-cardio { background: rgba(255,94,138,0.1); color: var(--accent); border: 1px solid rgba(255,94,138,0.2); }
 .tag-pharma { background: rgba(179,157,219,0.1); color: var(--purple); border: 1px solid rgba(179,157,219,0.2); }
-.tag-renal  { background: rgba(126,184,247,0.1); color: var(--accent2); border: 1px solid rgba(126,184,247,0.2); }
+.tag-renal  { background: rgba(69,224,196,0.1); color: var(--accent2); border: 1px solid rgba(69,224,196,0.2); }
 .tag-fa     { background: rgba(246,184,75,0.1); color: var(--amber); border: 1px solid rgba(246,184,75,0.2); }
 .tag-resp   { background: rgba(91,191,138,0.1); color: var(--green); border: 1px solid rgba(91,191,138,0.2); }
 
@@ -103,7 +106,7 @@ nav {
   transition: background 0.4s;
 }
 .lp-step.done { background: var(--accent); }
-.lp-step.active { background: rgba(78,205,196,0.5); }
+.lp-step.active { background: rgba(255,94,138,0.5); }
 .lp-label { font-size: 11px; color: var(--text3); white-space: nowrap; letter-spacing: 0.06em; text-transform: uppercase; margin-left: 4px; }
 
 .layer-card {
@@ -177,12 +180,13 @@ nav {
 /* learn nav */
 .learn-nav { display: flex; gap: 10px; margin-top: 24px; align-items: center; }
 .btn-primary {
-  background: var(--accent); color: var(--bg); border: none;
-  font-family: var(--sans); font-size: 14px; font-weight: 600;
+  background: var(--grad); color: var(--bg); border: none;
+  font-family: var(--sans); font-size: 14px; font-weight: 700;
   padding: 12px 26px; border-radius: 8px; cursor: pointer;
   transition: all 0.2s; letter-spacing: 0.02em;
+  box-shadow: 0 4px 18px -8px rgba(255,94,138,0.6);
 }
-.btn-primary:hover { background: #5ed8d0; transform: translateY(-1px); }
+.btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 6px 22px -8px rgba(155,107,255,0.6); }
 .btn-ghost {
   background: transparent; color: var(--text2); border: 1px solid var(--border2);
   font-family: var(--sans); font-size: 14px; padding: 12px 20px;
@@ -276,8 +280,8 @@ nav {
 }
 .act-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--text); background: var(--bg3); }
 .act-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.act-btn.used { border-color: rgba(78,205,196,0.25); color: var(--accent); opacity: 0.6; }
-.act-btn.act-active { border-color: var(--accent); background: rgba(78,205,196,0.06); color: var(--text); }
+.act-btn.used { border-color: rgba(255,94,138,0.25); color: var(--accent); opacity: 0.6; }
+.act-btn.act-active { border-color: var(--accent); background: rgba(255,94,138,0.06); color: var(--text); }
 .act-icon { font-size: 20px; }
 .act-name { font-weight: 500; font-size: 13px; }
 .act-hint { font-size: 10px; color: var(--text3); }
@@ -430,7 +434,7 @@ nav {
   padding: 13px 32px; border-radius: 9px; cursor: pointer; transition: all 0.2s;
   letter-spacing: 0.03em;
 }
-.restart-btn:hover { background: var(--accent); color: var(--bg); }
+.restart-btn:hover { background: var(--grad); border-color: transparent; color: var(--bg); }
 
 /* ── HOME SCREEN ── */
 .home-hero { margin-bottom: 36px; }
@@ -479,3 +483,132 @@ nav {
   opacity: 0.55;
 }
 .topic-card-soon:hover { border-color: var(--border2); background: transparent; transform: none; }
+
+/* ────────────────────────────────────────────────
+   AMBIENT BACKGROUND — minimal heartbeat + DNA helix
+   Fixed behind all content, non-interactive, subtle.
+   ──────────────────────────────────────────────── */
+.ambient {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; overflow: hidden;
+}
+
+/* — Heart-monitor line, sweeping pulse at the base — */
+.ambient-ecg {
+  position: absolute; left: 0; right: 0; bottom: 7vh;
+  height: 130px; opacity: 0.75;
+}
+.ambient-ecg svg { width: 100%; height: 100%; display: block; }
+.ecg-base {
+  fill: none; stroke: rgba(255,94,138,0.07); stroke-width: 2;
+  stroke-linejoin: round; stroke-linecap: round;
+}
+.ecg-pulse {
+  fill: none; stroke: url(#pulseGrad); stroke-width: 2.4;
+  stroke-linejoin: round; stroke-linecap: round;
+  stroke-dasharray: 0.08 0.92;
+  filter: drop-shadow(0 0 4px rgba(255,94,138,0.7));
+  animation: ecg-sweep 3.4s linear infinite;
+}
+@keyframes ecg-sweep {
+  from { stroke-dashoffset: 1; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* — Drifting DNA double helix in the side gutter — */
+.ambient-dna {
+  position: absolute; top: 0; bottom: 0; right: 6%;
+  display: flex; align-items: center;
+}
+.dna {
+  display: flex; flex-direction: column; gap: 15px;
+  perspective: 620px; opacity: 0.5;
+  animation: dna-drift 15s ease-in-out infinite;
+}
+.dna-rung {
+  width: 66px; height: 2px; position: relative;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(255,94,138,0.4), rgba(69,224,196,0.4));
+  transform-style: preserve-3d;
+  animation: dna-twist 6s linear infinite;
+}
+.dna-rung::before, .dna-rung::after {
+  content: ''; position: absolute; top: 50%; margin-top: -4px;
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.dna-rung::before { left: -1px;  background: var(--accent);  box-shadow: 0 0 7px rgba(255,94,138,0.55); }
+.dna-rung::after  { right: -1px; background: var(--accent2); box-shadow: 0 0 7px rgba(69,224,196,0.55); }
+@keyframes dna-twist { to { transform: rotateY(360deg); } }
+@keyframes dna-drift {
+  0%, 100% { transform: translateY(-10px); }
+  50%      { transform: translateY(10px); }
+}
+
+/* Hide the helix where the gutter gets tight */
+@media (max-width: 1024px) { .ambient-dna { display: none; } }
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  .ecg-pulse, .dna, .dna-rung { animation: none; }
+  .ecg-pulse { display: none; }
+}
+
+/* ────────────────────────────────────────────────
+   INTERACTIVE BODY MAP (home navigation)
+   ──────────────────────────────────────────────── */
+.bodymap {
+  position: relative; max-width: 232px; margin: 4px auto 0;
+  transition: transform 0.5s cubic-bezier(0.7,0,0.3,1), opacity 0.5s ease;
+  transform-origin: 50% 25%;
+}
+.bodymap.zooming { transform: scale(2.6); opacity: 0; }
+.bodymap-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.bodymap-svg path, .bodymap-svg circle {
+  fill: none; stroke: var(--accent3); stroke-width: 1.5; opacity: 0.5;
+  stroke-linejoin: round; stroke-linecap: round;
+}
+
+.organ-layer { position: absolute; inset: 0; }
+.organ-hotspot {
+  position: absolute; transform: translate(-50%, -50%);
+  background: none; border: none; padding: 0; cursor: pointer;
+  display: flex; align-items: center; gap: 9px;
+}
+.organ-dot {
+  width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0;
+  background: radial-gradient(circle at 40% 35%, #ff9fbb, #ff5e8a 62%);
+  box-shadow: 0 0 0 0 rgba(255,94,138,0.5);
+  animation: organ-pulse 2.4s ease-out infinite;
+}
+.organ-label {
+  font-size: 11px; letter-spacing: 0.04em; color: var(--text2);
+  white-space: nowrap; background: rgba(14,17,23,0.62);
+  padding: 2px 9px; border-radius: 20px; border: 1px solid var(--border);
+  transition: color 0.2s, border-color 0.2s;
+}
+.organ-hotspot:hover .organ-label { color: var(--text); border-color: var(--accent); }
+.organ-hotspot:hover .organ-dot { animation-duration: 1.1s; }
+@keyframes organ-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,94,138,0.55); }
+  70%  { box-shadow: 0 0 0 15px rgba(155,107,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(155,107,255,0); }
+}
+
+.bodymap-fallback {
+  text-align: center; margin-top: 22px;
+  font-size: 12px; color: var(--text3); letter-spacing: 0.03em;
+}
+.bodymap-fallback a { color: var(--text2); text-decoration: none; transition: color 0.2s; }
+.bodymap-fallback a:hover { color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .organ-dot { animation: none; }
+  .bodymap { transition: opacity 0.3s ease; }
+  .bodymap.zooming { transform: none; }
+}
+
+/* ── Screen-aware ambient tiers ── */
+body.screen-home .ambient-dna { display: none; }
+body.reading .ambient-dna { display: none; }
+body.reading .ecg-pulse { display: none; }
+body.reading .ambient-ecg { opacity: 0.4; }
