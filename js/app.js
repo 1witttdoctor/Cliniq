@@ -90,7 +90,7 @@ const SYSTEM_CODES = {
   Neurology: 'NEURO', Gastroenterology: 'GI', Endocrine: 'ENDO',
 };
 // Systems on the roadmap but not yet live — shown as the "up next" readout.
-const UPCOMING_SYSTEMS = ['Renal', 'Neurology', 'Endocrine'];
+const UPCOMING_SYSTEMS = ['Neurology', 'Endocrine', 'Gastroenterology'];
 
 function sysCode(topic) {
   const code = SYSTEM_CODES[topic.system] || topic.system.slice(0, 4).toUpperCase();
