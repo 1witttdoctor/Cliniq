@@ -102,7 +102,7 @@ function sysCode(topic) {
 // ────────────────────────────────────────────────
 function goHome() {
   currentTopicId = null;
-  document.getElementById('nav-meta').textContent = 'Diagnostic Console';
+  document.getElementById('nav-meta').textContent = 'Clinical reasoning';
   renderHome();
   show('home');
 }
@@ -124,44 +124,112 @@ function renderHome() {
     callout.innerHTML = '';
   }
 
-  renderConsole();
+  renderOrganRail();
+  const topics = Object.values(window.TOPICS || {}).sort((a, b) => a.number - b.number);
+  renderCaseboard(featuredId && window.TOPICS[featuredId] ? featuredId : topics[0].id);
 }
 
-function renderConsole() {
-  const stats = loadStats();
-  const topics = Object.values(window.TOPICS || {}).sort((a, b) => a.number - b.number);
+// Which organ lights up in the body diagram, and the rail icon, per system.
+const ORGAN_BY_SYSTEM = {
+  Cardiology:  { organ: 'heart',   label: 'Heart' },
+  Respiratory: { organ: 'lungs',   label: 'Lungs' },
+  Renal:       { organ: 'kidneys', label: 'Kidneys' },
+};
 
-  document.getElementById('systems').innerHTML = topics.map(t => {
-    const done = stats.topics[t.id] && stats.topics[t.id].completed;
+const ORGAN_ICON = {
+  heart:   '<path class="ic" d="M12 20s-7-4.6-7-9.2A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.8C19 15.4 12 20 12 20z"/>',
+  lungs:   '<path class="ic" d="M12 4v7"/><path class="ic" d="M12 11H9.6c-1.6 0-2.6 1.2-3 3.1-.4 1.9-.6 3.4-.6 4.4a1.9 1.9 0 0 0 3.7.5c.6-1.9 1.3-4.6 1.3-6.5"/><path class="ic" d="M12 11h2.4c1.6 0 2.6 1.2 3 3.1.4 1.9.6 3.4.6 4.4a1.9 1.9 0 0 1-3.7.5c-.6-1.9-1.3-4.6-1.3-6.5"/>',
+  kidneys: '<path class="ic" d="M10 4c3.2 0 5.4 3.4 5.4 8s-2.2 8-5.4 8c-2.1 0-3.4-1.5-3.4-3.2 0-1.4.8-2.1.8-4.8S7.9 4 10 4z"/>',
+};
+
+// Clinical body diagram — the kind findings get marked on in a real chart.
+function bodyDiagram(lit) {
+  const on = o => (o === lit ? ' lit' : '');
+  return `
+    <svg viewBox="0 0 120 250" aria-hidden="true">
+      <circle class="fig" cx="60" cy="16" r="10"></circle>
+      <path class="fig" d="M60,26 L60,36"></path>
+      <path class="fig" d="M48,44 C48,38 72,38 72,44 L76,62 L77,98 L73,132 L47,132 L43,98 L44,62 Z"></path>
+      <path class="fig" d="M48,45 C39,50 34,64 32,82 C31,94 31,106 32,116"></path>
+      <path class="fig" d="M72,45 C81,50 86,64 88,82 C89,94 89,106 88,116"></path>
+      <path class="fig" d="M53,132 L51,182 L53,238"></path>
+      <path class="fig" d="M67,132 L69,182 L67,238"></path>
+      <g class="organ${on('lungs')}">
+        <path d="M55,58 C50,58 48,66 49,78 C50,85 55,86 56,82 C58,74 58,64 55,58 Z"></path>
+        <path d="M65,58 C70,58 72,66 71,78 C70,85 65,86 64,82 C62,74 62,64 65,58 Z"></path>
+      </g>
+      <g class="organ${on('kidneys')}">
+        <path d="M53,102 C49,102 47,106 48,111 C49,115 53,116 55,113 C57,110 56,103 53,102 Z"></path>
+        <path d="M67,102 C71,102 73,106 72,111 C71,115 67,116 65,113 C63,110 64,103 67,102 Z"></path>
+      </g>
+      <g class="organ${on('heart')}">
+        <path d="M60,70 C58,67 53,68 53,73 C53,78 60,83 60,83 C60,83 67,78 67,73 C67,68 62,67 60,70 Z"></path>
+      </g>
+    </svg>`;
+}
+
+// ── The live case dashboard on the home screen ──
+let featuredId = null;
+const BOARD_SEV = 'moderate';   // the board always shows a representative presentation
+
+function renderCaseboard(topicId) {
+  const topic = window.TOPICS[topicId];
+  if (!topic) return;
+  featuredId = topicId;
+
+  const sev = topic.sevConf[BOARD_SEV] ? BOARD_SEV : topic.severities[0];
+  const sc = topic.sevConf[sev];
+  const organ = (ORGAN_BY_SYSTEM[topic.system] || {}).organ;
+
+  document.getElementById('cb-body').innerHTML = bodyDiagram(organ);
+  document.getElementById('cb-sev').textContent = sc.label + ' presentation';
+  document.getElementById('cb-name').textContent = topic.patient.name;
+  document.getElementById('cb-meta').textContent = topic.patient.meta;
+  document.getElementById('cb-quote').textContent = topic.patient.cc;
+
+  document.getElementById('cb-vitals').innerHTML = sc.vitals.map(v => `
+    <div class="cb-v ${v.n ? 'abn' : v.w ? 'warn' : ''}">
+      <span class="cb-v-lbl">${v.l}</span>
+      <span class="cb-v-val">${v.v}</span>
+    </div>`).join('');
+
+  const acts = [['history', 'History'], ['exam', 'Examine'], ['labs', 'Labs'], ['imaging', 'Imaging']];
+  document.getElementById('cb-btns').innerHTML = acts.map(([k, name]) =>
+    `<button class="cb-btn" onclick="cbAction('${k}')">${name}</button>`).join('');
+
+  // rail state
+  [...document.querySelectorAll('.organ-btn')].forEach(b =>
+    b.classList.toggle('on', b.dataset.topic === topicId));
+
+  startBoardECG();
+}
+
+function renderOrganRail() {
+  const topics = Object.values(window.TOPICS || {}).sort((a, b) => a.number - b.number);
+  document.getElementById('organ-rail').innerHTML = topics.map(t => {
+    const o = ORGAN_BY_SYSTEM[t.system] || { organ: 'heart', label: t.system };
     return `
-      <button class="system-row" onclick="pressSystem('${t.id}')" aria-label="${t.title} — ${t.system}">
-        <span class="sys-id">
-          <span class="sys-code">${sysCode(t)}</span>
-          <span class="sys-name">${t.title}</span>
-          <span class="sys-system">${t.system}</span>
-        </span>
-        <canvas class="sys-ecg" data-topic="${t.id}"></canvas>
-        <span class="sys-status ${done ? 'done' : ''}">${done ? '✓ Worked up' : 'Ready'}</span>
-        <span class="sys-go">→</span>
+      <button class="organ-btn" data-topic="${t.id}" onclick="renderCaseboard('${t.id}')" aria-label="${o.label} — ${t.title}">
+        <svg viewBox="0 0 24 24">${ORGAN_ICON[o.organ] || ''}</svg>
+        <span class="organ-lbl">${o.label}</span>
       </button>`;
   }).join('');
-
-  document.getElementById('console-foot').innerHTML =
-    `<span class="up-next">Coming online:</span> ${UPCOMING_SYSTEMS.join(' · ')} — more systems soon`;
-
-  startECG();
 }
 
-function pressSystem(topicId) {
-  selectTopic(topicId);
+// Pressing an action drops you straight into that case, at that step.
+function cbAction(type) {
+  if (!featuredId) return;
+  selectTopic(featuredId);
+  startCase(BOARD_SEV);
+  openQ(type);
 }
 
 // ────────────────────────────────────────────────
-// CANVAS ECG — live PQRST traces on the console
+// CANVAS ECG — live PQRST trace
 // ────────────────────────────────────────────────
 let ecgRAF = null;
 
-// Normalised cardiac waveform over one cycle t∈[0,1). Sum of gaussians (P,Q,R,S,T).
+// Normalised cardiac waveform over one cycle t in [0,1). Sum of gaussians (P,Q,R,S,T).
 function ecgWave(t) {
   const g = (c, w, a) => a * Math.exp(-((t - c) * (t - c)) / (2 * w * w));
   return g(0.17, 0.022, 0.14)   // P
@@ -171,7 +239,7 @@ function ecgWave(t) {
        + g(0.62, 0.040, 0.30);  // T
 }
 
-function drawECG(canvas, phase, active) {
+function drawECG(canvas, phase) {
   const dpr = window.devicePixelRatio || 1;
   const w = canvas.clientWidth, h = canvas.clientHeight;
   if (!w || !h) return;
@@ -182,42 +250,28 @@ function drawECG(canvas, phase, active) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, w, h);
 
-  const mid = h * 0.56, amp = h * 0.40, cycle = 108;
-  ctx.lineWidth = active ? 1.9 : 1.5;
-  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-  ctx.strokeStyle = active ? '#ffb84d' : 'rgba(255,184,77,0.42)';
-  if (active) { ctx.shadowColor = 'rgba(255,184,77,0.55)'; ctx.shadowBlur = 6; }
+  const mid = h * 0.56, amp = h * 0.40, cycle = 118;
+  ctx.lineWidth = 1.7; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.strokeStyle = '#ffb84d';
+  ctx.shadowColor = 'rgba(255,184,77,0.5)'; ctx.shadowBlur = 6;
   ctx.beginPath();
   for (let x = 0; x <= w; x++) {
-    const t = (((x + phase) % cycle) + cycle) % cycle / cycle;
+    const t = ((((x + phase) % cycle) + cycle) % cycle) / cycle;
     const y = mid - ecgWave(t) * amp;
     if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
 }
 
-function startECG() {
+function startBoardECG() {
   if (ecgRAF) cancelAnimationFrame(ecgRAF);
-  const canvases = () => [...document.querySelectorAll('.sys-ecg')];
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  // hover state → brighter trace
-  canvases().forEach(c => {
-    const row = c.closest('.system-row');
-    row.addEventListener('mouseenter', () => { c.dataset.active = '1'; });
-    row.addEventListener('mouseleave', () => { c.dataset.active = ''; });
-  });
-
-  if (reduce) {
-    canvases().forEach(c => drawECG(c, 0, false));
-    return;
-  }
+  const c = document.getElementById('cb-ecg');
+  if (!c) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { drawECG(c, 0); return; }
   let phase = 0;
   const loop = () => {
     phase += 0.9;
-    const list = canvases();
-    if (!list.length) { ecgRAF = null; return; }  // left home screen
-    list.forEach(c => drawECG(c, phase, c.dataset.active === '1'));
+    drawECG(c, phase);
     ecgRAF = requestAnimationFrame(loop);
   };
   ecgRAF = requestAnimationFrame(loop);
@@ -288,7 +342,7 @@ function nextLayer() {
 // ────────────────────────────────────────────────
 // CASE INIT
 // ────────────────────────────────────────────────
-function startCase() {
+function startCase(forceSev) {
   const topic = window.TOPICS[currentTopicId];
   S.learnDone = true;
 
@@ -296,7 +350,9 @@ function startCase() {
   document.getElementById('pt-meta').textContent = topic.patient.meta;
   document.getElementById('pt-cc').textContent = topic.patient.cc;
 
-  const sev = topic.severities[Math.floor(Math.random() * topic.severities.length)];
+  const sev = (forceSev && topic.sevConf[forceSev])
+    ? forceSev
+    : topic.severities[Math.floor(Math.random() * topic.severities.length)];
   S.severity = sev;
   const sc = topic.sevConf[sev];
 

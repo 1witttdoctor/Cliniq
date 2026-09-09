@@ -8,7 +8,7 @@
 <meta name="description" content="Cliniq — AI-powered clinical reasoning tool for USMLE Step 1. Free for IMGs worldwide.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -23,23 +23,50 @@
     </div>
   </nav>
 
-  <!-- ═══ SCREEN: HOME (Diagnostic Console) ═══ -->
+  <!-- ═══ SCREEN: HOME ═══ -->
   <div class="screen active" id="screen-home">
-    <div class="home-hero">
-      <div class="home-eyebrow">Cliniq · USMLE Step 1 · Clinical reasoning</div>
-      <h1 class="home-title">Work up the diagnosis, one system at a time.</h1>
-      <p class="home-desc">Cliniq drills clinical reasoning the way the wards do — learn the mechanism, then take a real patient from presentation to management. Select a system to begin.</p>
+
+    <div class="hero">
+      <h1 class="hero-title">Diagnose. Don't memorise.</h1>
+      <p class="hero-sub">A real patient, right now. Free, and no signup.</p>
     </div>
+
     <div class="focus-callout" id="focus-callout" style="display:none;"></div>
 
-    <div class="console" id="console">
-      <div class="console-head">
-        <span>Systems</span>
-        <span class="live"><span class="live-dot"></span> Monitoring</span>
+    <!-- Live case dashboard — the product is the hero -->
+    <div class="caseboard" id="caseboard">
+      <div class="cb-top">
+
+        <div class="cb-patient">
+          <div class="cb-body" id="cb-body"></div>
+          <div class="cb-id">
+            <span class="cb-sev" id="cb-sev">Moderate</span>
+            <span class="cb-name" id="cb-name"></span>
+            <span class="cb-meta" id="cb-meta"></span>
+          </div>
+        </div>
+
+        <div class="cb-monitor">
+          <div class="cb-vitals" id="cb-vitals"></div>
+          <div class="cb-trace">
+            <canvas class="cb-ecg" id="cb-ecg"></canvas>
+            <span class="cb-trace-lbl">ECG · Lead II</span>
+          </div>
+        </div>
+
       </div>
-      <div class="systems" id="systems"></div>
-      <div class="console-foot" id="console-foot"></div>
+
+      <p class="cb-quote" id="cb-quote"></p>
+
+      <div class="cb-actions">
+        <span class="cb-prompt">What do you do next?</span>
+        <div class="cb-btns" id="cb-btns"></div>
+      </div>
     </div>
+
+    <!-- Organ rail — pick the system -->
+    <div class="organ-rail" id="organ-rail"></div>
+
   </div>
 
   <!-- ═══ SCREEN: TOPIC ═══ -->
