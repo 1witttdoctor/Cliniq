@@ -168,6 +168,103 @@ function bodyDiagram(lit) {
     </svg>`;
 }
 
+// ────────────────────────────────────────────────
+// PATIENT SPRITE — pixel figure drawn from the case
+// Build, posture, age and props are CLINICAL DATA
+// (general inspection), never randomised.
+// ────────────────────────────────────────────────
+const SKIN   = { light: '#e0aa80', mid: '#c98a5e', deep: '#8d5a3b' };
+const BUILDS = {
+  cachectic: { x: 8, w: 6,  leg: 2 },
+  lean:      { x: 8, w: 6,  leg: 2 },
+  average:   { x: 7, w: 8,  leg: 2 },
+  heavy:     { x: 6, w: 10, leg: 3 },
+};
+
+function patientSprite(a) {
+  a = a || {};
+  const build   = BUILDS[a.build] || BUILDS.average;
+  const posture = a.posture || 'upright';
+  const skin    = SKIN[a.skin] || SKIN.mid;
+  const grey    = a.age === 'older';
+  const hairCol = grey ? '#c3c7d1' : '#3a3a44';
+  const gown    = '#b9c6d6';
+  const gownSh  = '#95a4b8';
+  const ink     = '#2b2b33';
+
+  const px = (x, y, w, h, f) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}"/>`;
+  const out = [];
+
+  const cx = build.x + build.w / 2;          // body centre
+  let headDX = 0, headDY = 0, torsoDX = 0;
+  if (posture === 'tripod')  { headDX = 2;  headDY = 1; torsoDX = 2; }
+  if (posture === 'slumped') { headDX = -1; headDY = 2; torsoDX = 0; }
+
+  // pillow behind a propped-up patient (orthopnoea)
+  if (posture === 'propped') out.push(px(build.x - 3, 7, build.w + 6, 6, 'rgba(255,255,255,0.10)'));
+
+  // ── torso ──
+  const ty = 9;
+  if (posture === 'tripod') {
+    out.push(px(build.x + 2, ty,     build.w, 5, gown));      // upper, leant forward
+    out.push(px(build.x,     ty + 5, build.w, 5, gown));
+  } else {
+    out.push(px(build.x, ty, build.w, 10, gown));
+    if (a.build === 'heavy') out.push(px(build.x - 1, ty + 5, build.w + 2, 5, gown));
+  }
+  out.push(px(build.x, ty + 9, build.w, 1, gownSh));
+
+  // ── head ──
+  const hx = Math.round(cx - 3 + headDX), hy = 2 + headDY;
+  out.push(px(hx, hy, 6, 6, skin));
+  out.push(px(hx + 2, hy + 6, 2, 1, skin));                    // neck
+  // hair
+  if (a.hair !== 'bald') {
+    out.push(px(hx, hy - 1, 6, 2, hairCol));
+    if (a.hair === 'long') { out.push(px(hx - 1, hy, 1, 5, hairCol)); out.push(px(hx + 6, hy, 1, 5, hairCol)); }
+    else { out.push(px(hx - 1, hy, 1, 2, hairCol)); out.push(px(hx + 6, hy, 1, 2, hairCol)); }
+  }
+  // eyes + glasses
+  if (a.glasses) {
+    out.push(px(hx, hy + 2, 2, 2, '#eaf0f6'));
+    out.push(px(hx + 4, hy + 2, 2, 2, '#eaf0f6'));
+    out.push(px(hx + 2, hy + 3, 2, 1, '#eaf0f6'));
+    out.push(px(hx + 1, hy + 3, 1, 1, ink));
+    out.push(px(hx + 4, hy + 3, 1, 1, ink));
+  } else {
+    out.push(px(hx + 1, hy + 3, 1, 1, ink));
+    out.push(px(hx + 4, hy + 3, 1, 1, ink));
+  }
+  // pursed lips — the COPD breathing pattern
+  if (a.pursedLips) out.push(px(hx + 2, hy + 5, 2, 1, '#a4606a'));
+  // nasal cannula
+  if (a.cannula) {
+    out.push(px(hx + 2, hy + 4, 2, 1, '#eaf0f6'));            // prongs under the nose
+    out.push(px(hx - 1, hy + 2, 1, 4, '#eaf0f6'));            // tubing down the cheek
+  }
+
+  // ── arms ──
+  const ay = ty + 1;
+  if (posture === 'tripod') {                                  // braced forward on knees
+    out.push(px(build.x + build.w,     ay,     2, 4, skin));   // upper arm, braced
+    out.push(px(build.x + build.w + 1, ay + 4, 2, 5, skin));   // forearm down to knee
+    out.push(px(build.x - 2,           ay,     2, 7, skin));   // other arm still at side
+  } else {
+    out.push(px(build.x - 2, ay, 2, 8, skin));
+    out.push(px(build.x + build.w, ay, 2, 8, skin));
+  }
+
+  // ── legs + feet ──
+  const ly = 19, lw = build.leg;
+  const lL = Math.round(cx - 1 - lw), lR = Math.round(cx + 1);
+  out.push(px(lL, ly, lw, 9, gownSh));
+  out.push(px(lR, ly, lw, 9, gownSh));
+  out.push(px(lL - 1, ly + 9, lw + 1, 1, ink));
+  out.push(px(lR, ly + 9, lw + 1, 1, ink));
+
+  return `<svg viewBox="0 0 22 30" shape-rendering="crispEdges" aria-hidden="true">${out.join('')}</svg>`;
+}
+
 // ── The live case dashboard on the home screen ──
 let featuredId = null;
 const BOARD_SEV = 'moderate';   // the board always shows a representative presentation
@@ -181,7 +278,7 @@ function renderCaseboard(topicId) {
   const sc = topic.sevConf[sev];
   const organ = (ORGAN_BY_SYSTEM[topic.system] || {}).organ;
 
-  document.getElementById('cb-body').innerHTML = bodyDiagram(organ);
+  document.getElementById('cb-body').innerHTML = patientSprite(topic.patient.appearance);
   document.getElementById('cb-sev').textContent = sc.label + ' presentation';
   document.getElementById('cb-name').textContent = topic.patient.name;
   document.getElementById('cb-meta').textContent = topic.patient.meta;

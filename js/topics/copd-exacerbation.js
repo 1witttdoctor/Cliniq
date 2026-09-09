@@ -21,6 +21,8 @@ window.TOPICS['copd-exacerbation'] = {
     name: 'Mrs. Sandra Cole',
     meta: '71F · 40-pack-year smoker, known COPD on home inhalers · Brought by daughter',
     cc: '"I can\'t catch my breath, doctor. I\'ve been coughing up much more phlegm than usual — it\'s gone yellow-green — for about three days now."',
+    // General inspection: tripod position, pursed-lip breathing, thin.
+    appearance: { build: 'lean', posture: 'tripod', age: 'older', hair: 'long', skin: 'light', pursedLips: true },
   },
 
   // ── LEARN DATA (3 layers, each a function) ──

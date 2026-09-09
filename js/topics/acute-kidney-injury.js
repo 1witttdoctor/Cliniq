@@ -21,6 +21,8 @@ window.TOPICS['acute-kidney-injury'] = {
     name: 'Mr. Harold Whitfield',
     meta: '72M · HTN, osteoarthritis · on lisinopril + ibuprofen · Brought by wife',
     cc: '"He\'s been vomiting and off his food for three or four days, doctor, and he\'s barely passed water today. He just seems slower and more tired than himself."',
+    // General inspection: dehydrated and lethargic, slumped.
+    appearance: { build: 'lean', posture: 'slumped', age: 'older', hair: 'short', skin: 'deep', glasses: true },
   },
 
   // ── LEARN DATA (3 layers) ──
