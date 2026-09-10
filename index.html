@@ -8,7 +8,7 @@
 <meta name="description" content="Cliniq — AI-powered clinical reasoning tool for USMLE Step 1. Free for IMGs worldwide.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -23,23 +23,27 @@
     </div>
   </nav>
 
-  <!-- ═══ SCREEN: HOME (Diagnostic Console) ═══ -->
+  <!-- ═══ SCREEN: HOME ═══ -->
   <div class="screen active" id="screen-home">
-    <div class="home-hero">
-      <div class="home-eyebrow">Cliniq · USMLE Step 1 · Clinical reasoning</div>
-      <h1 class="home-title">Work up the diagnosis, one system at a time.</h1>
-      <p class="home-desc">Cliniq drills clinical reasoning the way the wards do — learn the mechanism, then take a real patient from presentation to management. Select a system to begin.</p>
+
+    <div class="hero">
+      <h1 class="hero-title">Diagnose. Don't memorise.</h1>
+      <p class="hero-sub">Scroll the body. Every system, a real patient.</p>
     </div>
+
     <div class="focus-callout" id="focus-callout" style="display:none;"></div>
 
-    <div class="console" id="console">
-      <div class="console-head">
-        <span>Systems</span>
-        <span class="live"><span class="live-dot"></span> Monitoring</span>
+    <!-- Scroll the body: sections on the left, pinned anatomy on the right -->
+    <div class="anatomy">
+      <div class="anat-sections" id="anat-sections"></div>
+      <div class="anat-stage">
+        <div class="anat-pin">
+          <div class="anat-figure" id="anat-figure"></div>
+          <div class="anat-caption" id="anat-caption"></div>
+        </div>
       </div>
-      <div class="systems" id="systems"></div>
-      <div class="console-foot" id="console-foot"></div>
     </div>
+
   </div>
 
   <!-- ═══ SCREEN: TOPIC ═══ -->
@@ -202,6 +206,7 @@
 
 <script src="js/topics/heart-failure.js"></script>
 <script src="js/topics/copd-exacerbation.js"></script>
+<script src="js/topics/acute-kidney-injury.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

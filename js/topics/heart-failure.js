@@ -21,6 +21,9 @@ window.TOPICS['heart-failure'] = {
     name: 'Mr. Ramesh Iyer',
     meta: '68M · HTN, DM Type 2, MI (2019) · Brought by family',
     cc: '"Doctor, I am feeling very breathless since 3–4 days. Cannot sleep lying flat. My legs have also become heavy and swollen."',
+    // General inspection: propped upright (orthopnoea), on oxygen.
+    appearance: { build: 'average', posture: 'propped', age: 'older', hair: 'short', skin: 'mid', clothes: 'gown', cannula: true },
+    inspection: 'Sat bolt upright in bed, breathless at rest, on 2L oxygen. Ankles visibly swollen.'
   },
 
   // ── LEARN DATA (3 layers, each a function) ──
