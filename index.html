@@ -28,44 +28,21 @@
 
     <div class="hero">
       <h1 class="hero-title">Diagnose. Don't memorise.</h1>
-      <p class="hero-sub">A real patient, right now. Free, and no signup.</p>
+      <p class="hero-sub">Scroll the body. Every system, a real patient.</p>
     </div>
 
     <div class="focus-callout" id="focus-callout" style="display:none;"></div>
 
-    <!-- Live case dashboard — the product is the hero -->
-    <div class="caseboard" id="caseboard">
-      <div class="cb-top">
-
-        <div class="cb-patient">
-          <div class="cb-id">
-            <span class="cb-sev" id="cb-sev">Moderate</span>
-            <span class="cb-name" id="cb-name"></span>
-            <span class="cb-meta" id="cb-meta"></span>
-            <span class="cb-inspect" id="cb-inspect"></span>
-          </div>
+    <!-- Scroll the body: sections on the left, pinned anatomy on the right -->
+    <div class="anatomy">
+      <div class="anat-sections" id="anat-sections"></div>
+      <div class="anat-stage">
+        <div class="anat-pin">
+          <div class="anat-figure" id="anat-figure"></div>
+          <div class="anat-caption" id="anat-caption"></div>
         </div>
-
-        <div class="cb-monitor">
-          <div class="cb-vitals" id="cb-vitals"></div>
-          <div class="cb-trace">
-            <canvas class="cb-ecg" id="cb-ecg"></canvas>
-            <span class="cb-trace-lbl">ECG · Lead II</span>
-          </div>
-        </div>
-
-      </div>
-
-      <p class="cb-quote" id="cb-quote"></p>
-
-      <div class="cb-actions">
-        <span class="cb-prompt">What do you do next?</span>
-        <div class="cb-btns" id="cb-btns"></div>
       </div>
     </div>
-
-    <!-- Organ rail — pick the system -->
-    <div class="organ-rail" id="organ-rail"></div>
 
   </div>
 

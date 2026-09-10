@@ -124,160 +124,125 @@ function renderHome() {
     callout.innerHTML = '';
   }
 
-  renderOrganRail();
-  const topics = Object.values(window.TOPICS || {}).sort((a, b) => a.number - b.number);
-  renderCaseboard(featuredId && window.TOPICS[featuredId] ? featuredId : topics[0].id);
+  renderAnatomy();
 }
 
-// Which organ lights up in the body diagram, and the rail icon, per system.
-const ORGAN_BY_SYSTEM = {
-  Cardiology:  { organ: 'heart',   label: 'Heart' },
-  Respiratory: { organ: 'lungs',   label: 'Lungs' },
-  Renal:       { organ: 'kidneys', label: 'Kidneys' },
-};
+// ────────────────────────────────────────────────
+// ANATOMY SCROLL — the body is the navigation.
+// Sections run top-to-bottom in anatomical order;
+// the figure pins and the active organ lights up.
+// ────────────────────────────────────────────────
+const REGIONS = [
+  { organ: 'brain',   system: 'Neurology',   label: 'The brain',   cy: 42,
+    teaches: 'Stroke, seizures and the localising signs that tell you where the lesion is.' },
+  { organ: 'lungs',   system: 'Respiratory', label: 'The lungs',   cy: 150,
+    teaches: 'Breathlessness, gas exchange, and telling an airway problem from a pump problem.' },
+  { organ: 'heart',   system: 'Cardiology',  label: 'The heart',   cy: 168,
+    teaches: 'Pump failure, chest pain, and reading the circulation from the bedside.' },
+  { organ: 'liver',   system: 'Hepatology',  label: 'The liver',   cy: 228,
+    teaches: 'Jaundice, deranged LFTs, and the failing liver.' },
+  { organ: 'kidneys', system: 'Renal',       label: 'The kidneys', cy: 268,
+    teaches: 'Falling filtration, fluid balance and the electrolytes that kill.' },
+];
 
-const ORGAN_ICON = {
-  heart:   '<path class="ic" d="M12 20s-7-4.6-7-9.2A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.8C19 15.4 12 20 12 20z"/>',
-  lungs:   '<path class="ic" d="M12 4v7"/><path class="ic" d="M12 11H9.6c-1.6 0-2.6 1.2-3 3.1-.4 1.9-.6 3.4-.6 4.4a1.9 1.9 0 0 0 3.7.5c.6-1.9 1.3-4.6 1.3-6.5"/><path class="ic" d="M12 11h2.4c1.6 0 2.6 1.2 3 3.1.4 1.9.6 3.4.6 4.4a1.9 1.9 0 0 1-3.7.5c-.6-1.9-1.3-4.6-1.3-6.5"/>',
-  kidneys: '<path class="ic" d="M10 4c3.2 0 5.4 3.4 5.4 8s-2.2 8-5.4 8c-2.1 0-3.4-1.5-3.4-3.2 0-1.4.8-2.1.8-4.8S7.9 4 10 4z"/>',
-};
-
-// Clinical body diagram — the kind findings get marked on in a real chart.
-function bodyDiagram(lit) {
-  const on = o => (o === lit ? ' lit' : '');
+function anatomyFigure() {
   return `
-    <svg viewBox="0 0 120 250" aria-hidden="true">
-      <circle class="fig" cx="60" cy="16" r="10"></circle>
-      <path class="fig" d="M60,26 L60,36"></path>
-      <path class="fig" d="M48,44 C48,38 72,38 72,44 L76,62 L77,98 L73,132 L47,132 L43,98 L44,62 Z"></path>
-      <path class="fig" d="M48,45 C39,50 34,64 32,82 C31,94 31,106 32,116"></path>
-      <path class="fig" d="M72,45 C81,50 86,64 88,82 C89,94 89,106 88,116"></path>
-      <path class="fig" d="M53,132 L51,182 L53,238"></path>
-      <path class="fig" d="M67,132 L69,182 L67,238"></path>
-      <g class="organ${on('lungs')}">
-        <path d="M55,58 C50,58 48,66 49,78 C50,85 55,86 56,82 C58,74 58,64 55,58 Z"></path>
-        <path d="M65,58 C70,58 72,66 71,78 C70,85 65,86 64,82 C62,74 62,64 65,58 Z"></path>
-      </g>
-      <g class="organ${on('kidneys')}">
-        <path d="M53,102 C49,102 47,106 48,111 C49,115 53,116 55,113 C57,110 56,103 53,102 Z"></path>
-        <path d="M67,102 C71,102 73,106 72,111 C71,115 67,116 65,113 C63,110 64,103 67,102 Z"></path>
-      </g>
-      <g class="organ${on('heart')}">
-        <path d="M60,70 C58,67 53,68 53,73 C53,78 60,83 60,83 C60,83 67,78 67,73 C67,68 62,67 60,70 Z"></path>
-      </g>
-    </svg>`;
+  <svg class="anat-svg" id="anat-svg" viewBox="0 0 200 470" aria-hidden="true">
+    <g class="body">
+      <ellipse cx="100" cy="44" rx="27" ry="31"/>
+      <path d="M92,74 h16 v14 h-16 z"/>
+      <path d="M100,86 C126,86 142,98 146,116 L152,168 L150,236 C150,262 142,286 138,300 L62,300 C58,286 50,262 50,236 L48,168 L54,116 C58,98 74,86 100,86 Z"/>
+      <path d="M56,112 C40,120 32,146 29,178 C27,202 27,224 29,242 L43,242 C41,222 41,200 43,178 C45,152 50,130 60,120 Z"/>
+      <path d="M144,112 C160,120 168,146 171,178 C173,202 173,224 171,242 L157,242 C159,222 159,200 157,178 C155,152 150,130 140,120 Z"/>
+      <path d="M66,300 L60,380 L58,450 L82,450 L84,380 L96,306 Z"/>
+      <path d="M134,300 L140,380 L142,450 L118,450 L116,380 L104,306 Z"/>
+    </g>
+
+    <g class="organ" data-organ="brain">
+      <path d="M100,26 C88,26 80,33 80,42 C80,52 88,60 100,60 C112,60 120,52 120,42 C120,33 112,26 100,26 Z"/>
+      <path class="det" d="M100,27 V59 M88,32 C93,37 93,45 88,52 M112,32 C107,37 107,45 112,52"/>
+    </g>
+
+    <g class="organ" data-organ="lungs">
+      <path d="M92,120 C78,122 70,140 68,164 C66,182 70,196 80,197 C89,198 92,188 93,172 C94,152 94,132 92,120 Z"/>
+      <path d="M108,120 C122,122 130,140 132,164 C134,182 130,196 120,197 C111,198 108,188 107,172 C106,152 106,132 108,120 Z"/>
+      <path class="det" d="M86,132 C82,146 80,162 80,178 M114,132 C118,146 120,162 120,178"/>
+    </g>
+
+    <g class="organ" data-organ="heart">
+      <path d="M100,150 C96,142 84,143 82,153 C80,164 90,176 100,186 C110,176 120,164 118,153 C116,143 104,142 100,150 Z"/>
+      <path class="det" d="M100,152 V184 M86,158 C92,162 108,162 114,158"/>
+    </g>
+
+    <g class="organ" data-organ="liver">
+      <path d="M62,212 C82,206 112,208 120,216 C126,222 120,238 106,242 C88,247 68,240 62,230 C58,224 58,214 62,212 Z"/>
+      <path class="det" d="M96,209 C98,222 98,234 96,242"/>
+    </g>
+
+    <g class="organ" data-organ="kidneys">
+      <path d="M78,254 C70,254 65,262 66,272 C67,282 74,286 80,281 C86,276 85,256 78,254 Z"/>
+      <path d="M122,254 C130,254 135,262 134,272 C133,282 126,286 120,281 C114,276 115,256 122,254 Z"/>
+      <path class="det" d="M79,262 C83,266 83,272 79,276 M121,262 C117,266 117,272 121,276"/>
+    </g>
+  </svg>`;
 }
 
-// ────────────────────────────────────────────────
-// PATIENT SPRITE — pixel figure drawn from the case
-// Build, posture, age and props are CLINICAL DATA
-// (general inspection), never randomised.
-// ────────────────────────────────────────────────
-const SKIN   = { light: '#e0aa80', mid: '#c98a5e', deep: '#8d5a3b' };
-const BUILDS = {
-  cachectic: { x: 8, w: 6,  leg: 2 },
-  lean:      { x: 8, w: 6,  leg: 2 },
-  average:   { x: 7, w: 8,  leg: 2 },
-  heavy:     { x: 6, w: 10, leg: 3 },
-};
+function renderAnatomy() {
+  const stage = document.getElementById('anat-figure');
+  if (!stage) return;
+  stage.innerHTML = anatomyFigure();
 
-function patientSprite(a) {
-  a = a || {};
-  const build   = BUILDS[a.build] || BUILDS.average;
-  const posture = a.posture || 'upright';
-  const skin    = SKIN[a.skin] || SKIN.mid;
-  const grey    = a.age === 'older';
-  const hairCol = grey ? '#c3c7d1' : '#3a3a44';
-  const CLOTHES = {
-    gown:     ['#b9c6d6', '#95a4b8'],   // hospital gown
-    cardigan: ['#c9b6d8', '#a690bb'],   // came from home
-    shirt:    ['#9fc2b4', '#7ea394'],
-  };
-  const [gown, gownSh] = CLOTHES[a.clothes] || CLOTHES.gown;
-  const ink     = '#2b2b33';
+  const bySystem = {};
+  Object.values(window.TOPICS || {}).forEach(t => (bySystem[t.system] = bySystem[t.system] || []).push(t));
 
-  const px = (x, y, w, h, f) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}"/>`;
-  const out = [];
+  document.getElementById('anat-sections').innerHTML = REGIONS.map((r, i) => {
+    const cases = bySystem[r.system] || [];
+    const body = cases.length
+      ? cases.map(t => `
+          <button class="anat-case" onclick="selectTopic('${t.id}')">
+            <span class="ac-title">${t.title}</span>
+            <span class="ac-patient">${t.patient.name} · ${t.patient.meta.split('·')[0].trim()}</span>
+            <span class="ac-cc">${t.patient.cc.replace(/^"|"$/g, '')}</span>
+            <span class="ac-go">Start the case →</span>
+          </button>`).join('')
+      : `<div class="anat-soon">Cases in development</div>`;
+    return `
+      <section class="anat-sec${cases.length ? '' : ' is-soon'}" data-i="${i}">
+        <span class="anat-sys">${r.system}</span>
+        <h2 class="anat-h">${r.label}</h2>
+        <p class="anat-teach">${r.teaches}</p>
+        ${body}
+      </section>`;
+  }).join('');
 
-  const cx = build.x + build.w / 2;          // body centre
-  let headDX = 0, headDY = 0, torsoDX = 0;
-  if (posture === 'tripod')  { headDX = 4;  headDY = 2; torsoDX = 3; }
-  if (posture === 'slumped') { headDX = 1;  headDY = 4; torsoDX = 0; }
+  setActiveRegion(0);
+  observeSections();
+}
 
-  // pillow behind a propped-up patient (orthopnoea)
-  if (posture === 'propped') {                                  // clearly in a bed, sat up
-    out.push(px(build.x - 4, 6,  build.w + 8, 3, 'rgba(255,255,255,0.07)'));
-    out.push(px(build.x - 5, 9,  build.w + 10, 3, 'rgba(255,255,255,0.10)'));
-    out.push(px(build.x - 6, 12, build.w + 12, 2, 'rgba(255,255,255,0.13)'));
-    out.push(px(build.x - 6, 26, build.w + 12, 2, 'rgba(255,255,255,0.13)'));
-  }
+function setActiveRegion(i) {
+  const r = REGIONS[i];
+  if (!r) return;
+  const svg = document.getElementById('anat-svg');
+  if (!svg) return;
+  svg.querySelectorAll('.organ').forEach(g =>
+    g.classList.toggle('on', g.dataset.organ === r.organ));
+  // drift the figure so the active organ settles toward the centre
+  svg.style.transform = `translateY(${(200 - r.cy) * 0.22}px) scale(1.05)`;
+  const cap = document.getElementById('anat-caption');
+  if (cap) cap.textContent = r.label;
+}
 
-  // ── torso ──
-  const ty = 9;
-  if (posture === 'tripod') {
-    out.push(px(build.x + 3, ty,     build.w, 4, gown));      // rounded back, leant right forward
-    out.push(px(build.x + 2, ty + 4, build.w, 3, gown));
-    out.push(px(build.x,     ty + 7, build.w, 3, gown));
-  } else if (posture === 'slumped') {
-    out.push(px(build.x, ty + 2, build.w, 8, gown));          // shoulders dropped
-  } else {
-    out.push(px(build.x, ty, build.w, 10, gown));
-    if (a.build === 'heavy') out.push(px(build.x - 1, ty + 5, build.w + 2, 5, gown));
-  }
-  out.push(px(build.x, ty + 9, build.w, 1, gownSh));
-
-  // ── head ──
-  const hx = Math.round(cx - 3 + headDX), hy = 2 + headDY;
-  out.push(px(hx, hy, 6, 6, skin));
-  out.push(px(hx + 2, hy + 6, 2, 1, skin));                    // neck
-  // hair
-  if (a.hair !== 'bald') {
-    out.push(px(hx, hy - 1, 6, 2, hairCol));
-    if (a.hair === 'long') { out.push(px(hx - 1, hy, 1, 5, hairCol)); out.push(px(hx + 6, hy, 1, 5, hairCol)); }
-    else { out.push(px(hx - 1, hy, 1, 2, hairCol)); out.push(px(hx + 6, hy, 1, 2, hairCol)); }
-  }
-  // eyes + glasses
-  if (a.glasses) {
-    out.push(px(hx, hy + 2, 2, 2, '#eaf0f6'));
-    out.push(px(hx + 4, hy + 2, 2, 2, '#eaf0f6'));
-    out.push(px(hx + 2, hy + 3, 2, 1, '#eaf0f6'));
-    out.push(px(hx + 1, hy + 3, 1, 1, ink));
-    out.push(px(hx + 4, hy + 3, 1, 1, ink));
-  } else {
-    out.push(px(hx + 1, hy + 3, 1, 1, ink));
-    out.push(px(hx + 4, hy + 3, 1, 1, ink));
-  }
-  // pursed lips — the COPD breathing pattern
-  if (a.pursedLips) out.push(px(hx + 2, hy + 5, 2, 1, '#a4606a'));
-  // nasal cannula
-  if (a.cannula) {
-    out.push(px(hx + 2, hy + 4, 2, 1, '#eaf0f6'));            // prongs under the nose
-    out.push(px(hx - 1, hy + 2, 1, 4, '#eaf0f6'));            // tubing down the cheek
-  }
-
-  // ── arms ──
-  const ay = ty + 1;
-  if (posture === 'tripod') {                                  // braced forward on knees
-    out.push(px(build.x + build.w,     ay,     2, 4, skin));   // upper arm, braced
-    out.push(px(build.x + build.w + 1, ay + 4, 2, 5, skin));   // forearm down to knee
-    out.push(px(build.x - 2,           ay,     2, 7, skin));   // other arm still at side
-  } else if (posture === 'slumped') {
-    out.push(px(build.x - 2, ay + 2, 2, 9, skin));
-    out.push(px(build.x + build.w, ay + 2, 2, 9, skin));
-  } else {
-    out.push(px(build.x - 2, ay, 2, 8, skin));
-    out.push(px(build.x + build.w, ay, 2, 8, skin));
-  }
-
-  // ── legs + feet ──
-  const ly = 19, lw = build.leg;
-  const lL = Math.round(cx - 1 - lw), lR = Math.round(cx + 1);
-  out.push(px(lL, ly, lw, 9, gownSh));
-  out.push(px(lR, ly, lw, 9, gownSh));
-  out.push(px(lL - 1, ly + 9, lw + 1, 1, ink));
-  out.push(px(lR, ly + 9, lw + 1, 1, ink));
-
-  return `<svg viewBox="0 0 22 30" shape-rendering="crispEdges" aria-hidden="true">${out.join('')}</svg>`;
+let anatObserver = null;
+function observeSections() {
+  if (anatObserver) anatObserver.disconnect();
+  const secs = [...document.querySelectorAll('.anat-sec')];
+  if (!secs.length) return;
+  anatObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) setActiveRegion(Number(e.target.dataset.i));
+    });
+  }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+  secs.forEach(s => anatObserver.observe(s));
 }
 
 // ── The live case dashboard on the home screen ──
