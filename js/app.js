@@ -293,7 +293,6 @@ function renderCaseboard(topicId) {
   const sc = topic.sevConf[sev];
   const organ = (ORGAN_BY_SYSTEM[topic.system] || {}).organ;
 
-  document.getElementById('cb-body').innerHTML = patientSprite(topic.patient.appearance);
   document.getElementById('cb-sev').textContent = sc.label + ' presentation';
   document.getElementById('cb-name').textContent = topic.patient.name;
   document.getElementById('cb-meta').textContent = topic.patient.meta;

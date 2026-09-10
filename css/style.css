@@ -712,3 +712,8 @@ body.screen-home .shell { max-width: 940px; }
   font-size: 12.5px; line-height: 1.5; color: var(--text2);
   border-left: 2px solid rgba(255,255,255,0.14); padding-left: 10px; margin-top: 4px;
 }
+
+/* Patient block: data carries it — no figure */
+.cb-patient { display: block; }
+.cb-name { font-size: 24px; }
+.cb-inspect { margin-top: 8px; }
