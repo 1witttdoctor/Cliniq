@@ -705,3 +705,10 @@ body.screen-home .shell { max-width: 940px; }
 .cb-body .fig { stroke: rgba(255,255,255,0.32); stroke-width: 1.5; }
 .cb-body .organ { fill: rgba(255,255,255,0.055); }
 .cb-body .organ.lit { fill: var(--accent); filter: drop-shadow(0 0 8px rgba(255,184,77,0.8)); }
+
+/* Bigger sprite so posture, props and build actually resolve */
+.cb-body svg { width: 150px; }
+.cb-inspect {
+  font-size: 12.5px; line-height: 1.5; color: var(--text2);
+  border-left: 2px solid rgba(255,255,255,0.14); padding-left: 10px; margin-top: 4px;
+}

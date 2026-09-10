@@ -188,8 +188,12 @@ function patientSprite(a) {
   const skin    = SKIN[a.skin] || SKIN.mid;
   const grey    = a.age === 'older';
   const hairCol = grey ? '#c3c7d1' : '#3a3a44';
-  const gown    = '#b9c6d6';
-  const gownSh  = '#95a4b8';
+  const CLOTHES = {
+    gown:     ['#b9c6d6', '#95a4b8'],   // hospital gown
+    cardigan: ['#c9b6d8', '#a690bb'],   // came from home
+    shirt:    ['#9fc2b4', '#7ea394'],
+  };
+  const [gown, gownSh] = CLOTHES[a.clothes] || CLOTHES.gown;
   const ink     = '#2b2b33';
 
   const px = (x, y, w, h, f) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}"/>`;
@@ -197,17 +201,25 @@ function patientSprite(a) {
 
   const cx = build.x + build.w / 2;          // body centre
   let headDX = 0, headDY = 0, torsoDX = 0;
-  if (posture === 'tripod')  { headDX = 2;  headDY = 1; torsoDX = 2; }
-  if (posture === 'slumped') { headDX = -1; headDY = 2; torsoDX = 0; }
+  if (posture === 'tripod')  { headDX = 4;  headDY = 2; torsoDX = 3; }
+  if (posture === 'slumped') { headDX = 1;  headDY = 4; torsoDX = 0; }
 
   // pillow behind a propped-up patient (orthopnoea)
-  if (posture === 'propped') out.push(px(build.x - 3, 7, build.w + 6, 6, 'rgba(255,255,255,0.10)'));
+  if (posture === 'propped') {                                  // clearly in a bed, sat up
+    out.push(px(build.x - 4, 6,  build.w + 8, 3, 'rgba(255,255,255,0.07)'));
+    out.push(px(build.x - 5, 9,  build.w + 10, 3, 'rgba(255,255,255,0.10)'));
+    out.push(px(build.x - 6, 12, build.w + 12, 2, 'rgba(255,255,255,0.13)'));
+    out.push(px(build.x - 6, 26, build.w + 12, 2, 'rgba(255,255,255,0.13)'));
+  }
 
   // ── torso ──
   const ty = 9;
   if (posture === 'tripod') {
-    out.push(px(build.x + 2, ty,     build.w, 5, gown));      // upper, leant forward
-    out.push(px(build.x,     ty + 5, build.w, 5, gown));
+    out.push(px(build.x + 3, ty,     build.w, 4, gown));      // rounded back, leant right forward
+    out.push(px(build.x + 2, ty + 4, build.w, 3, gown));
+    out.push(px(build.x,     ty + 7, build.w, 3, gown));
+  } else if (posture === 'slumped') {
+    out.push(px(build.x, ty + 2, build.w, 8, gown));          // shoulders dropped
   } else {
     out.push(px(build.x, ty, build.w, 10, gown));
     if (a.build === 'heavy') out.push(px(build.x - 1, ty + 5, build.w + 2, 5, gown));
@@ -249,6 +261,9 @@ function patientSprite(a) {
     out.push(px(build.x + build.w,     ay,     2, 4, skin));   // upper arm, braced
     out.push(px(build.x + build.w + 1, ay + 4, 2, 5, skin));   // forearm down to knee
     out.push(px(build.x - 2,           ay,     2, 7, skin));   // other arm still at side
+  } else if (posture === 'slumped') {
+    out.push(px(build.x - 2, ay + 2, 2, 9, skin));
+    out.push(px(build.x + build.w, ay + 2, 2, 9, skin));
   } else {
     out.push(px(build.x - 2, ay, 2, 8, skin));
     out.push(px(build.x + build.w, ay, 2, 8, skin));
@@ -283,6 +298,9 @@ function renderCaseboard(topicId) {
   document.getElementById('cb-name').textContent = topic.patient.name;
   document.getElementById('cb-meta').textContent = topic.patient.meta;
   document.getElementById('cb-quote').textContent = topic.patient.cc;
+  const insp = document.getElementById('cb-inspect');
+  insp.textContent = topic.patient.inspection || '';
+  insp.style.display = topic.patient.inspection ? 'block' : 'none';
 
   document.getElementById('cb-vitals').innerHTML = sc.vitals.map(v => `
     <div class="cb-v ${v.n ? 'abn' : v.w ? 'warn' : ''}">
