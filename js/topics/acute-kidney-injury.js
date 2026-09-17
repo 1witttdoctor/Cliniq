@@ -34,7 +34,7 @@ window.TOPICS['acute-kidney-injury'] = {
         <div class="layer-num">Layer 1 of 3</div>
         <h2 class="layer-title">What AKI is — and the only framework you need</h2>
         <div class="layer-body">
-          <p><strong>AKI</strong> is an abrupt drop in GFR, defined by a rise in creatinine (<em>≥0.3 mg/dL in 48h</em>, or ≥1.5× baseline) or oliguria (&lt;0.5 mL/kg/h). Every cause fits into one of three buckets:</p>
+          <p><strong>AKI</strong> is an abrupt drop in GFR. KDIGO defines it by a rise in creatinine (<em>≥0.3 mg/dL within 48 hours</em>, or <em>≥1.5× baseline within the prior 7 days</em>) or urine output <em>&lt;0.5 mL/kg/h for 6 hours</em>. The time windows are part of the definition — without them a slow chronic decline would qualify. Every cause fits into one of three buckets:</p>
           <div class="fact-grid">
             <div class="fact-item">
               <div class="fact-dot"></div>
@@ -82,6 +82,7 @@ window.TOPICS['acute-kidney-injury'] = {
               <div class="compare-head left">Pre-renal</div>
               <div class="compare-item">BUN:Cr &gt; 20:1</div>
               <div class="compare-item">FENa &lt; 1% · Urine Na &lt; 20</div>
+              <div class="compare-item">(on diuretics use FEurea &lt; 35%)</div>
               <div class="compare-item">Urine osmolality &gt; 500 (concentrated)</div>
               <div class="compare-item">Bland sediment ± hyaline casts</div>
               <div class="compare-item">Responds to fluids</div>
@@ -233,7 +234,7 @@ window.TOPICS['acute-kidney-injury'] = {
       opts: [
         { t: 'Urinalysis with microscopy plus urine electrolytes for the FENa', type: 'correct', d: "Reads the sediment and how the kidney is handling sodium.",
           fb_title: 'This is the categorising test.',
-          fb: 'FENa &lt; 1% with a bland sediment says pre-renal; FENa &gt; 2% with muddy-brown granular casts says ATN; RBC casts say glomerulonephritis; WBC casts and eosinophils say AIN. No other single test partitions the diagnosis like the urine does.' },
+          fb: 'FENa &lt; 1% with a bland sediment says pre-renal; FENa &gt; 2% with muddy-brown granular casts says ATN; RBC casts say glomerulonephritis; WBC casts and eosinophils say AIN. No other single test partitions the diagnosis like the urine does. One caveat that matters at the bedside: a diuretic raises urine sodium whatever the volume status, so FENa is unreliable in anyone recently diuresed — use FEurea (&lt; 35% suggests pre-renal) instead. FENa also falls below 1% in glomerulonephritis, cardiorenal and hepatorenal syndrome, and contrast nephropathy, none of which are pre-renal.' },
         { t: 'A basic metabolic panel for creatinine and potassium', type: 'near', d: "Quantifies the fall in filtration and flags hyperkalaemia.",
           fb_title: 'Essential — but it confirms AKI, it doesn\'t localise it.',
           fb: 'You must have the BMP: it defines the AKI and catches dangerous hyperkalaemia. But a rising creatinine and K⁺ tell you the kidney is failing, not why. The urine studies are what sort pre- from intra- from post-renal.' },
@@ -292,7 +293,7 @@ window.TOPICS['acute-kidney-injury'] = {
     rows: [
       { f: 'Mechanism',        a: 'Reduced perfusion, tubules intact',    b: 'Ischaemic or toxic tubular injury' },
       { f: 'Urine sodium',     a: 'Below 20 mmol/L',                      b: 'Above 40 mmol/L' },
-      { f: 'FENa',             a: 'Below 1%',                             b: 'Above 2%' },
+      { f: 'FENa',             a: 'Below 1% — unreliable on diuretics; use FEurea below 35%', b: 'Above 2%' },
       { f: 'Urine osmolality', a: 'Above 500 mOsm/kg — concentrated',     b: 'Around 300 mOsm/kg — isosthenuric' },
       { f: 'Sediment',         a: 'Bland, or hyaline casts',              b: 'Muddy-brown granular casts, tubular cells' },
       { f: 'Urea : creatinine',a: 'Raised — urea rises out of proportion', b: 'Proportionate' },

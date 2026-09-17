@@ -143,7 +143,7 @@ window.TOPICS['copd-exacerbation'] = {
             </div>
             <div class="fact-item purple-border">
               <div class="fact-dot purple"></div>
-              <div class="fact-text"><strong>NIV (BiPAP)</strong> is first-line respiratory support when there's respiratory acidosis (pH &lt;7.35) with preserved consciousness — it reduces work of breathing and avoids intubation. Reserve intubation for NIV failure, exhaustion, or reduced consciousness.</div>
+              <div class="fact-text"><strong>NIV (BiPAP)</strong> is first-line respiratory support for hypercapnic respiratory acidosis with preserved consciousness — pH ≤ 7.35 with PaCO₂ &gt; 45 mmHg, or a respiratory rate above 20–24 despite standard therapy. It reduces work of breathing, intubation and mortality. Reserve intubation for NIV failure, exhaustion, or reduced consciousness.</div>
             </div>
           </div>
         </div>
@@ -270,7 +270,7 @@ window.TOPICS['copd-exacerbation'] = {
       opts: [
         { t: 'Nebulised SABA + SAMA + systemic corticosteroids + antibiotics + controlled O₂ titrated to SpO₂ 88–92%', type: 'correct', d: "Bronchodilate, suppress inflammation, treat infection, oxygenate to target.",
           fb_title: 'Correct — the full evidence-based bundle.',
-          fb: 'Bronchodilators relieve obstruction, steroids reduce inflammation and shorten recovery, antibiotics are indicated given purulent sputum, and controlled oxygen avoids precipitating CO₂ retention. This is the standard bundle for a moderate–severe exacerbation.' },
+          fb: 'Bronchodilators relieve obstruction. Steroids shorten recovery — 40 mg prednisolone or equivalent for 5 days, and no longer, since a longer course adds harm without benefit. Antibiotics are indicated here because the sputum is purulent. Controlled oxygen corrects hypoxaemia without precipitating CO₂ retention. This is the standard bundle for a moderate–severe exacerbation.' },
         { t: 'High-flow 100% oxygen by non-rebreather mask + IV fluids', type: 'wrong', d: "Maximal oxygen delivery with volume support.",
           fb_title: 'DANGEROUS — risks CO₂ narcosis.',
           fb: 'Uncontrolled high-flow oxygen in COPD can worsen V/Q mismatch and blunt respiratory drive, precipitating CO₂ retention and respiratory acidosis. Always titrate oxygen to a target range (typically SpO₂ 88–92%) in known or suspected COPD.' },
@@ -296,6 +296,7 @@ window.TOPICS['copd-exacerbation'] = {
       { f: 'Chest X-ray',        a: 'Hyperinflation, no new opacity',         b: 'Lobar or segmental consolidation' },
       { f: 'Inflammatory markers', a: 'Mildly raised',                        b: 'Markedly raised CRP and white cell count' },
       { f: 'Blood gas',          a: 'CO₂ retention with respiratory acidosis', b: 'Hypoxaemia, often with respiratory alkalosis' },
+      { f: 'Natriuretic peptide', a: 'Often raised — hypoxaemia and cor pulmonale drive release from the right ventricle, so it does not exclude a lung cause', b: 'May be mildly raised; not a discriminator' },
       { f: 'Basis for antibiotics', a: 'Sputum purulence',                    b: 'Consolidation on the film' },
     ],
   },
@@ -317,7 +318,7 @@ window.TOPICS['copd-exacerbation'] = {
   teaching: [
     'Anthonisen criteria define an exacerbation: increased dyspnoea, increased sputum volume, increased sputum purulence. Purulence is the strongest driver for antibiotics.',
     'Controlled oxygen — target SpO₂ 88–92%, not 100%. Uncontrolled high-flow O₂ can worsen V/Q mismatch and blunt respiratory drive, precipitating CO₂ narcosis.',
-    'NIV (BiPAP) is first-line for respiratory acidosis (pH <7.35) with preserved consciousness — reduces work of breathing and avoids intubation.',
+    'NIV (BiPAP) is first-line for hypercapnic respiratory acidosis with preserved consciousness: pH ≤ 7.35 with PaCO₂ &gt; 45 mmHg, or RR above 20–24 despite therapy. It reduces intubation and mortality.',
     'A "silent chest" with minimal wheeze is a red flag, not reassurance — it can mean too little air is moving to generate a wheeze at all.',
     'CXR in COPD shows hyperinflation, flattened diaphragms, and increased retrosternal airspace — but its main acute use is excluding mimics (pneumonia, pneumothorax), not diagnosing COPD itself.',
     'Clubbing is NOT a feature of COPD — its presence should prompt you to reconsider the diagnosis (lung cancer, bronchiectasis, ILD).',
