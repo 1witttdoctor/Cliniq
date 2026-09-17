@@ -8,7 +8,7 @@
 <meta name="description" content="Cliniq — AI-powered clinical reasoning tool for USMLE Step 1. Free for IMGs worldwide.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -23,23 +23,27 @@
     </div>
   </nav>
 
-  <!-- ═══ SCREEN: HOME (Diagnostic Console) ═══ -->
+  <!-- ═══ SCREEN: HOME ═══ -->
   <div class="screen active" id="screen-home">
-    <div class="home-hero">
-      <div class="home-eyebrow">Cliniq · USMLE Step 1 · Clinical reasoning</div>
-      <h1 class="home-title">Work up the diagnosis, one system at a time.</h1>
-      <p class="home-desc">Cliniq drills clinical reasoning the way the wards do — learn the mechanism, then take a real patient from presentation to management. Select a system to begin.</p>
+
+    <div class="hero">
+      <h1 class="hero-title">Diagnose. Don't memorise.</h1>
+      <p class="hero-sub">Scroll the body. Every system, a real patient.</p>
     </div>
+
     <div class="focus-callout" id="focus-callout" style="display:none;"></div>
 
-    <div class="console" id="console">
-      <div class="console-head">
-        <span>Systems</span>
-        <span class="live"><span class="live-dot"></span> Monitoring</span>
+    <!-- Scroll the body: sections on the left, pinned anatomy on the right -->
+    <div class="anatomy">
+      <div class="anat-sections" id="anat-sections"></div>
+      <div class="anat-stage">
+        <div class="anat-pin">
+          <div class="anat-figure" id="anat-figure"></div>
+          <div class="anat-caption" id="anat-caption"></div>
+        </div>
       </div>
-      <div class="systems" id="systems"></div>
-      <div class="console-foot" id="console-foot"></div>
     </div>
+
   </div>
 
   <!-- ═══ SCREEN: TOPIC ═══ -->
@@ -79,112 +83,86 @@
   </div>
 
   <!-- ═══ SCREEN: CASE ═══ -->
-  <div class="screen" id="screen-case">
-    <div class="case-header">
-      <div class="case-eyebrow"><span id="case-eyebrow-text">Clinical Case</span></div>
+  <div class="screen wide" id="screen-case">
+
+    <!-- top rail -->
+    <div class="sim-bar">
+      <span class="sim-brand">Clin<em>iq</em></span>
+      <span class="sim-rule"></span>
+      <span class="sim-ctx" id="sim-ctx"></span>
+      <span class="sim-spacer"></span>
+      <span class="sim-case" id="sim-case-no"></span>
+      <span class="sim-rule"></span>
+      <span class="sim-elapsed">Elapsed <b id="sim-clock">00:00</b></span>
     </div>
 
-    <div class="patient-card">
-      <div><span class="sev-pill" id="sev-pill"></span></div>
-      <div class="pt-name" id="pt-name"></div>
-      <div class="pt-meta" id="pt-meta"></div>
-      <div class="pt-cc" id="pt-cc"></div>
-      <div class="vitals-row" id="vitals-row"></div>
-    </div>
-
-    <div class="twist-box" id="twist-box">
-      <span>⚠️</span><span id="twist-text"></span>
-    </div>
-
-    <div class="info-log" id="info-log">
-      <div class="log-row">
-        <span class="log-ico">·</span>
-        <span class="log-txt starter">Patient arrived. Use the action buttons below to gather information and build your diagnosis.</span>
+    <!-- patient monitor -->
+    <div class="monitor">
+      <div class="mon-pt">
+        <div class="mon-name" id="pt-name"></div>
+        <div class="mon-meta" id="pt-meta"></div>
+        <div class="mon-cc" id="pt-cc"></div>
+      </div>
+      <div class="mon-vitals" id="vitals-row"></div>
+      <div class="mon-trace">
+        <div class="trace-top">ECG Lead II</div>
+        <canvas class="trace-canvas" id="case-ecg" width="760" height="76"></canvas>
+        <div class="trace-foot">
+          <span>25 mm/s</span><span>10 mm/mV</span><span id="trace-rhythm"></span>
+        </div>
       </div>
     </div>
 
-    <div class="action-label">What do you do next?</div>
-    <div class="action-grid">
-      <button class="act-btn" id="ab-history"  onclick="openQ('history')">
-        <span class="act-icon">💬</span>
-        <span class="act-name">History</span>
-        <span class="act-hint">Ask the patient</span>
-      </button>
-      <button class="act-btn" id="ab-exam"     onclick="openQ('exam')">
-        <span class="act-icon">🩺</span>
-        <span class="act-name">Examine</span>
-        <span class="act-hint">Physical exam</span>
-      </button>
-      <button class="act-btn" id="ab-labs"     onclick="openQ('labs')">
-        <span class="act-icon">🧪</span>
-        <span class="act-name">Labs</span>
-        <span class="act-hint">Order bloods</span>
-      </button>
-      <button class="act-btn" id="ab-imaging"  onclick="openQ('imaging')">
-        <span class="act-icon">📷</span>
-        <span class="act-name">Imaging</span>
-        <span class="act-hint">CXR / Echo</span>
-      </button>
-      <button class="act-btn" id="ab-diagnose" onclick="openDDx()">
-        <span class="act-icon">🎯</span>
-        <span class="act-name">Diagnose</span>
-        <span class="act-hint">Build DDx</span>
-      </button>
-      <button class="act-btn" id="ab-treat" onclick="openQ('treat')" disabled>
-        <span class="act-icon">💊</span>
-        <span class="act-name">Treat</span>
-        <span class="act-hint">Diagnose first</span>
-      </button>
+    <!-- deterioration band -->
+    <div class="alert-band" id="alert-band">
+      <span class="ab-ico" id="alert-ico"></span>
+      <span class="ab-text" id="alert-text"></span>
+      <span class="ab-cta">Act now</span>
     </div>
 
-    <div class="q-panel" id="q-panel">
-      <div class="q-type-label" id="q-type-label">History</div>
-      <div class="q-stem" id="q-stem"></div>
-      <div class="opts" id="opts"></div>
-      <div class="feedback" id="feedback">
-        <div class="fb-title" id="fb-title"></div>
-        <div id="fb-body"></div>
-        <div class="fb-fa" id="fb-fa"></div>
-      </div>
-      <button class="continue-btn" id="continue-btn" onclick="closeQ()">Continue →</button>
-    </div>
+    <!-- three-column cockpit -->
+    <div class="cockpit">
 
-    <div class="ddx-panel" id="ddx-panel">
-      <div class="ddx-head">Build your differential</div>
-      <div class="ddx-sub">Click each diagnosis — work through the list to confirm or rule out based on what you've found so far.</div>
-      <div class="ddx-items" id="ddx-items"></div>
-      <button class="continue-btn show" id="ddx-proceed" onclick="openQ('treat')" style="display:none; margin-top:14px;">Proceed to treatment →</button>
+      <aside class="ck-left">
+        <div class="col-label">Orders</div>
+        <div class="order-nav" id="order-nav"></div>
+        <div class="col-label" style="margin-top:22px">Findings <span class="cl-dim">chronological</span></div>
+        <div class="chart-log" id="info-log"></div>
+      </aside>
+
+      <main class="ck-mid" id="ck-mid">
+        <!-- idle prompt / question / ddx all render here -->
+      </main>
+
+      <aside class="ck-right" id="ck-right"></aside>
+
     </div>
   </div>
 
   <!-- ═══ SCREEN: REVIEW ═══ -->
-  <div class="screen" id="screen-review">
-    <div class="review-header">
-      <div class="review-grade" id="review-grade"></div>
-      <div class="review-summary" id="review-summary"></div>
-      <div class="score-row">
-        <div class="score-tile"><div class="score-tile-val" id="sc-learn">–</div><div class="score-tile-lbl">Learn</div></div>
-        <div class="score-tile"><div class="score-tile-val" id="sc-case">0</div><div class="score-tile-lbl">Case</div></div>
-        <div class="score-tile"><div class="score-tile-val" id="sc-ddx">0</div><div class="score-tile-lbl">Diagnosis</div></div>
-      </div>
+  <div class="screen wide" id="screen-review">
+
+    <div class="sim-bar">
+      <span class="sim-brand">Clin<em>iq</em></span>
+      <span class="sim-rule"></span>
+      <span class="sim-ctx" id="rv-ctx"></span>
+      <span class="sim-spacer"></span>
+      <span class="sim-case">Review mode</span>
+      <span class="sim-rule"></span>
+      <span class="sim-elapsed">Elapsed <b id="rv-clock">00:00</b></span>
     </div>
 
-    <div class="review-section">
-      <div class="review-section-title">Question review</div>
-      <div id="q-review-items"></div>
-    </div>
+    <div class="monitor" id="rv-monitor"></div>
 
-    <div class="review-section">
-      <div class="review-section-title">Differential diagnosis review</div>
-      <div id="ddx-review-items"></div>
+    <div class="cockpit">
+      <aside class="ck-left">
+        <div class="rv-grade" id="rv-grade"></div>
+        <div class="col-label" style="margin-top:22px">Walk the case back</div>
+        <div class="order-nav" id="rv-nav"></div>
+      </aside>
+      <main class="ck-mid" id="rv-mid"></main>
+      <aside class="ck-right" id="rv-right"></aside>
     </div>
-
-    <div class="teaching-box">
-      <div class="teaching-title">High-yield teaching points</div>
-      <div id="teaching-list"></div>
-    </div>
-
-    <button class="restart-btn" onclick="restart()">↺ Try another case variant</button>
   </div>
 
 </div><!-- /shell -->
@@ -200,8 +178,10 @@
   </div>
 </footer>
 
+<script src="js/icons.js"></script>
 <script src="js/topics/heart-failure.js"></script>
 <script src="js/topics/copd-exacerbation.js"></script>
+<script src="js/topics/acute-kidney-injury.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
