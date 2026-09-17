@@ -28,143 +28,107 @@ window.TOPICS['heart-failure'] = {
 
   // ── LEARN DATA (3 layers, each a function) ──
   layers: [
-    // LAYER 1: Physiology + Pathophysiology
-    () => `
-      <div class="layer-card">
-        <div class="layer-num">Layer 1 of 3</div>
-        <h2 class="layer-title">How the normal heart works — and how it fails</h2>
-        <div class="layer-body">
-          <p>The heart's job is to maintain <strong>cardiac output (CO)</strong>. It does this through two variables:</p>
-          <div class="fact-grid">
-            <div class="fact-item">
-              <div class="fact-dot"></div>
-              <div class="fact-text"><strong>CO = Heart Rate × Stroke Volume.</strong> Stroke volume depends on three things: <em>preload</em> (how full the ventricle is), <em>afterload</em> (resistance it must pump against), and <em>contractility</em> (force of contraction).</div>
-            </div>
-            <div class="fact-item amber-border">
-              <div class="fact-dot amber"></div>
-              <div class="fact-text"><strong>Frank-Starling Law:</strong> up to a point, the more you stretch the ventricle (more preload), the stronger it contracts. In HF, this curve shifts right and flattens — more stretch gives no more force.</div>
-            </div>
-            <div class="fact-item blue-border">
-              <div class="fact-dot blue"></div>
-              <div class="fact-text"><strong>When CO falls,</strong> the body compensates: RAAS activates (retains Na⁺/H₂O → more preload), sympathetic system surges (↑HR, ↑contractility), ventricle remodels (hypertrophies). These help short-term but worsen HF long-term.</div>
-            </div>
-            <div class="fact-item purple-border">
-              <div class="fact-dot purple"></div>
-              <div class="fact-text"><strong>BNP</strong> (Brain Natriuretic Peptide) is released by ventricular myocytes when the wall is stretched by pressure/volume overload. It is the rule-OUT test: BNP &lt;100 pg/mL (NT-proBNP &lt;300) makes heart failure very unlikely. Ruling it IN needs age-adjusted NT-proBNP — &gt;450 under 50, &gt;900 at 50–75, &gt;1800 over 75.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="micro-check">
-        <div class="micro-q">Quick check — Which compensatory mechanism in HF leads to fluid retention?</div>
-        <div class="micro-opts">
-          <button class="micro-btn" onclick="microAns(this, false)">Sympathetic activation → ↑HR</button>
-          <button class="micro-btn" onclick="microAns(this, true)">RAAS activation → Na⁺/H₂O retention</button>
-          <button class="micro-btn" onclick="microAns(this, false)">Ventricular hypertrophy → ↑stroke volume</button>
-        </div>
-        <div class="micro-ans" id="micro-ans-0">Correct. RAAS (Renin–Angiotensin–Aldosterone System) is the key. Low renal perfusion → renin → angiotensin II → aldosterone → Na⁺ and water retention → more preload. This initially helps but worsens congestion.</div>
-      </div>
-      <div class="learn-nav">
-        <button class="btn-primary" onclick="nextLayer()">Next layer →</button>
-        <button class="btn-ghost" onclick="startCase()">Skip to case</button>
-      </div>
-    `,
+    {
+      kicker: 'Physiology',
+      title: 'How the normal heart works — and how it fails',
+      blocks: [
+        { k: 'text', t: 'The heart has one job: maintain <strong>cardiac output</strong>. Everything that goes wrong in heart failure is a consequence of failing at that, or of the body trying too hard to compensate.' },
+        { k: 'point', t: 'CO = heart rate × stroke volume',
+          d: 'Stroke volume rests on three things: <em>preload</em> (how full the ventricle is), <em>afterload</em> (what it pumps against), and <em>contractility</em> (how hard it squeezes). Every heart failure drug moves one of these.' },
+        { k: 'point', hi: true, t: 'Frank-Starling: stretch buys force, until it does not',
+          d: 'Up to a point, a fuller ventricle contracts harder. In heart failure the curve shifts right and flattens — more stretch gives no more force, only congestion. This is why the failing heart drowns rather than pumps.' },
+        { k: 'chain', t: 'The compensation that becomes the disease',
+          steps: [
+            'Cardiac output falls',
+            'Renal perfusion drops — RAAS activates',
+            'Aldosterone retains sodium and water',
+            'Preload rises: more stretch, no more force',
+            'Sympathetic surge raises rate and afterload',
+            'Ventricle remodels and stiffens — output falls further',
+          ] },
+        { k: 'point', t: 'BNP is a rule-out test',
+          d: 'Released by ventricular myocytes when the wall is stretched. Below 100 pg/mL (NT-proBNP below 300) heart failure is very unlikely — that is high sensitivity at work. Ruling it <em>in</em> needs age-adjusted NT-proBNP: above 450 under 50, 900 at 50–75, 1800 over 75.' },
+        { k: 'check',
+          q: 'Which compensatory mechanism is the one that drives fluid retention?',
+          opts: [
+            { t: 'Sympathetic activation raising heart rate' },
+            { t: 'RAAS activation retaining sodium and water', ok: true },
+            { t: 'Ventricular hypertrophy raising stroke volume' },
+          ],
+          why: 'RAAS is the fluid pathway. Low renal perfusion releases renin, which yields angiotensin II, which yields aldosterone, which holds onto sodium and water — and that is preload. The sympathetic surge raises rate and contractility rather than volume, and hypertrophy is a structural response over months, not a fluid one.' },
+      ],
+    },
 
-    // LAYER 2: Clinical + Diagnosis
-    () => `
-      <div class="layer-card">
-        <div class="layer-num">Layer 2 of 3</div>
-        <h2 class="layer-title">What you see — and how you confirm it</h2>
-        <div class="layer-body">
-          <p>Left and right HF present differently because they back up into different circuits.</p>
-          <div class="compare">
-            <div class="compare-col">
-              <div class="compare-head left">Left HF (↑PCWP)</div>
-              <div class="compare-item">Pulmonary oedema → crackles</div>
-              <div class="compare-item">Orthopnoea (can't lie flat)</div>
-              <div class="compare-item">PND (paroxysmal nocturnal dyspnoea)</div>
-              <div class="compare-item">S3 gallop (volume overload)</div>
-              <div class="compare-item">Pink frothy sputum (severe)</div>
-            </div>
-            <div class="compare-col">
-              <div class="compare-head right">Right HF (↑CVP/JVP)</div>
-              <div class="compare-item">Elevated JVP</div>
-              <div class="compare-item">Bilateral pitting oedema</div>
-              <div class="compare-item">Hepatomegaly / ascites</div>
-              <div class="compare-item">Most common cause: Left HF</div>
-              <div class="compare-item">JVP = most specific sign</div>
-            </div>
-          </div>
-          <div class="fact-grid">
-            <div class="fact-item">
-              <div class="fact-dot"></div>
-              <div class="fact-text"><strong>CXR findings:</strong> Cardiomegaly (CTR >0.5) + upper lobe blood diversion + Kerley B lines (engorged lymphatics) + bat-wing perihilar oedema.</div>
-            </div>
-            <div class="fact-item blue-border">
-              <div class="fact-dot blue"></div>
-              <div class="fact-text"><strong>Echo</strong> gives you EF. <em>HFrEF</em> = EF &lt;40% (systolic failure). <em>HFpEF</em> = EF ≥50% (diastolic failure — stiff ventricle, can't fill). Different pathophysiology, different management: ACEi and beta-blockers do not improve survival in HFpEF, but SGLT2 inhibitors do reduce hospitalisation and cardiovascular death.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="micro-check">
-        <div class="micro-q">Which finding most specifically points to cardiac cause of dyspnoea vs respiratory?</div>
-        <div class="micro-opts">
-          <button class="micro-btn" onclick="microAns(this, false)">Bilateral lung crackles</button>
-          <button class="micro-btn" onclick="microAns(this, true)">Elevated JVP + S3 gallop</button>
-          <button class="micro-btn" onclick="microAns(this, false)">Bilateral leg oedema</button>
-        </div>
-        <div class="micro-ans" id="micro-ans-1">Correct. JVP elevation reflects raised right-heart filling pressures — purely cardiac. Crackles and oedema both occur in non-cardiac causes. The S3 gallop specifically indicates volume-overloaded ventricle.</div>
-      </div>
-      <div class="learn-nav">
-        <button class="btn-primary" onclick="nextLayer()">Next layer →</button>
-        <button class="btn-ghost" onclick="startCase()">Skip to case</button>
-      </div>
-    `,
+    {
+      kicker: 'Clinical',
+      title: 'What you see — and how you confirm it',
+      blocks: [
+        { k: 'text', t: 'Left and right heart failure look different because they back up into different circuits. Left backs up into the lungs; right backs up into the body.' },
+        { k: 'compare',
+          a: { h: 'Left HF — raised PCWP', items: [
+            'Pulmonary oedema, so crackles',
+            'Orthopnoea — cannot lie flat',
+            'Paroxysmal nocturnal dyspnoea',
+            'S3 gallop from a volume-loaded ventricle',
+            'Pink frothy sputum when severe',
+          ] },
+          b: { h: 'Right HF — raised JVP', items: [
+            'Elevated JVP, the most specific sign',
+            'Bilateral pitting oedema',
+            'Hepatomegaly, later ascites',
+            'Most common cause is left heart failure',
+            'Congestive hepatopathy is a late finding',
+          ] } },
+        { k: 'point', t: 'The chest film shows redistributed fluid, and it is bilateral',
+          d: 'Cardiomegaly (cardiothoracic ratio above 0.5), upper lobe blood diversion, Kerley B lines from engorged lymphatics, and bat-wing perihilar opacity. Unilateral or focal changes should make you reconsider the diagnosis.' },
+        { k: 'point', t: 'Echo gives you the ejection fraction, and the EF decides the treatment',
+          d: '<em>HFrEF</em> is EF below 40% — a ventricle that cannot squeeze. <em>HFpEF</em> is EF at or above 50% — a stiff ventricle that cannot fill. ACE inhibitors and beta-blockers do not improve survival in HFpEF, but SGLT2 inhibitors reduce hospitalisation and cardiovascular death.' },
+        { k: 'check',
+          q: 'A breathless patient could be cardiac or respiratory. Which finding separates them most specifically?',
+          opts: [
+            { t: 'Bilateral crackles at both lung bases' },
+            { t: 'Elevated JVP with an S3 gallop', ok: true },
+            { t: 'Bilateral pitting oedema of the legs' },
+          ],
+          why: 'Specificity is what you need here, not sensitivity. A raised JVP reflects right-heart filling pressure and is purely cardiac; the S3 marks a volume-loaded ventricle. Crackles occur in pneumonia and fibrosis, and bilateral oedema has a long non-cardiac list — venous insufficiency, low albumin, calcium channel blockers, nephrotic syndrome. Both are sensitive and neither is specific.' },
+      ],
+    },
 
-    // LAYER 3: Management
-    () => `
-      <div class="layer-card">
-        <div class="layer-num">Layer 3 of 3</div>
-        <h2 class="layer-title">How you treat it — acute and chronic</h2>
-        <div class="layer-body">
-          <p>Management splits into <strong>acute decompensation</strong> (stabilise now) and <strong>chronic HFrEF</strong> (reduce mortality long-term).</p>
-          <div class="fact-grid">
-            <div class="fact-item">
-              <div class="fact-dot"></div>
-              <div class="fact-text"><strong>Acute ADHF bundle:</strong> Sit upright + O₂ <em>only if hypoxaemic</em> (SpO₂ &lt;90% or PaO₂ &lt;60 mmHg) + <em>IV furosemide</em> (venodilates before diuresis → rapid preload reduction). Monitor closely. Oxygen given to a non-hypoxaemic patient causes vasoconstriction and drops cardiac output.</div>
-            </div>
-            <div class="fact-item amber-border">
-              <div class="fact-dot amber"></div>
-              <div class="fact-text"><strong>NEVER start beta-blockers in acute decompensation</strong> — they reduce contractility acutely and worsen haemodynamics. Start only once the patient is euvolemic and stable.</div>
-            </div>
-            <div class="fact-item blue-border">
-              <div class="fact-dot blue"></div>
-              <div class="fact-text"><strong>Chronic HFrEF mortality-reducing triad:</strong>
-                <br>1. <em>ACE inhibitor / ARB</em> — blocks RAAS, prevents remodelling
-                <br>2. <em>Beta-blocker</em> (metoprolol succinate / carvedilol) — blocks catecholamine toxicity, reverse remodelling
-                <br>3. <em>MRA</em> (spironolactone) — blocks aldosterone, reduces fibrosis</div>
-            </div>
-            <div class="fact-item purple-border">
-              <div class="fact-dot purple"></div>
-              <div class="fact-text"><strong>Furosemide mechanism:</strong> Inhibits Na⁺/K⁺/2Cl⁻ co-transporter in thick ascending limb of loop of Henle. Reduces preload. Monitor K⁺ (hypokalaemia risk).</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="micro-check">
-        <div class="micro-q">A patient with HFrEF (EF 28%) is newly stable after diuresis. Which drug reduces mortality most in this scenario?</div>
-        <div class="micro-opts">
-          <button class="micro-btn" onclick="microAns(this, false)">Digoxin</button>
-          <button class="micro-btn" onclick="microAns(this, true)">ACE inhibitor (e.g. lisinopril)</button>
-          <button class="micro-btn" onclick="microAns(this, false)">Furosemide</button>
-        </div>
-        <div class="micro-ans" id="micro-ans-2">Correct. ACE inhibitors are the cornerstone of HFrEF management. They block RAAS, reduce afterload, prevent remodelling, and significantly reduce mortality. Furosemide helps symptoms but does not reduce mortality. Digoxin reduces hospitalisations but not mortality.</div>
-      </div>
-      <div class="learn-nav">
-        <button class="btn-primary" onclick="startCase()">Start the case →</button>
-      </div>
-    `,
+    {
+      kicker: 'Management',
+      title: 'How you treat it — acute and chronic',
+      blocks: [
+        { k: 'text', t: 'Treatment splits cleanly in two, and confusing them is the classic error. <strong>Acute decompensation</strong> is about unloading the ventricle now. <strong>Chronic HFrEF</strong> is about reducing mortality over years. A drug that helps one can harm the other.' },
+        { k: 'chain', t: 'The acute bundle',
+          steps: [
+            'Sit the patient upright — drops venous return',
+            'Oxygen only if hypoxaemic: SpO₂ below 90% or PaO₂ below 60 mmHg',
+            'IV furosemide — venodilates within minutes, then diureses',
+            'Continuous monitoring for arrhythmia and deterioration',
+          ] },
+        { k: 'point', hi: true, t: 'Never start a beta-blocker during acute decompensation',
+          d: 'They reduce contractility exactly when you need it. If the patient is already established on one, continue it at a lower dose. Start one only once the patient is euvolaemic and stable — and then it saves lives.' },
+        { k: 'point', t: 'Oxygen is a drug, not a comfort measure',
+          d: 'Given to a patient who is not hypoxaemic it raises systemic vascular resistance, lowers cardiac output and reduces coronary flow. Treat the hypoxaemia; do not chase a number.' },
+        { k: 'chain', t: 'Chronic HFrEF — the drugs that reduce mortality',
+          steps: [
+            'ACE inhibitor or ARB — blocks RAAS, prevents remodelling',
+            'Beta-blocker (metoprolol succinate or carvedilol) — reverses remodelling',
+            'MRA such as spironolactone — blocks aldosterone, reduces fibrosis',
+            'SGLT2 inhibitor — now part of the foundation, and it works in HFpEF too',
+          ] },
+        { k: 'point', t: 'Furosemide relieves symptoms; it does not extend life',
+          d: 'It inhibits the Na⁺/K⁺/2Cl⁻ co-transporter in the thick ascending limb, dropping preload. Essential for congestion, and worth knowing it has never shown a mortality benefit. Watch the potassium.' },
+        { k: 'check',
+          q: 'A patient with HFrEF, EF 28%, is newly stable after diuresis. Which drug does most for survival now?',
+          opts: [
+            { t: 'Digoxin' },
+            { t: 'An ACE inhibitor such as lisinopril', ok: true },
+            { t: 'Continuing furosemide alone' },
+          ],
+          why: 'The word doing the work is <em>survival</em>. ACE inhibitors block RAAS, reduce afterload and prevent remodelling, and they reduce mortality. Furosemide makes the patient feel better without extending life. Digoxin reduces hospitalisations but not mortality. Note the timing too: now that the patient is stable, this is exactly the moment to start the chronic regimen.' },
+      ],
+    },
   ],
 
   // ── CASE DATA ──

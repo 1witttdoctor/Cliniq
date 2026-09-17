@@ -12,6 +12,7 @@ let S = {
   ddxDone: false,
   twistShown: false,
   vit: [], pressure: 0, deteriorated: false, openPanel: null,
+  learnChecks: {},
   log: [],          // { type, picked, correct, q, fb, fa }
   ddxLog: [],       // { name, correct, picked }
 };
@@ -75,11 +76,11 @@ function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
   // Screen-aware ambient: home = body map (no DNA), reading screens = calm, topic = full
-  document.body.classList.remove('screen-home', 'screen-case', 'screen-review', 'reading');
+  document.body.classList.remove('screen-home', 'screen-case', 'screen-review', 'screen-learn', 'reading');
   if (id === 'home') document.body.classList.add('screen-home');
   else if (id === 'case') document.body.classList.add('screen-case', 'reading');
   else if (id === 'review') document.body.classList.add('screen-review', 'reading');
-  else if (id === 'learn') document.body.classList.add('reading');
+  else if (id === 'learn') document.body.classList.add('screen-learn', 'reading');
   if (id !== 'case') {
     if (caseECGRAF) { cancelAnimationFrame(caseECGRAF); caseECGRAF = null; }
     stopClock();
@@ -293,46 +294,120 @@ function selectTopic(id) {
 }
 
 // ────────────────────────────────────────────────
-// LEARN
+// LEARN — concepts as data, not hand-written HTML
+//
+// A layer is { kicker, title, blocks: [...] }. Each block is a typed
+// object the renderer below turns into markup, so a new topic is
+// written as content and never as tags.
 // ────────────────────────────────────────────────
-let microAnswered = [false, false, false];
 
-function microAns(btn, correct) {
-  const parent = btn.closest('.micro-check');
-  const allBtns = parent.querySelectorAll('.micro-btn');
-  const idx = [...document.querySelectorAll('.micro-check')].indexOf(parent);
-  if (microAnswered[idx]) return;
-  microAnswered[idx] = true;
-  allBtns.forEach(b => {
-    b.disabled = true;
-    if (b === btn) b.classList.add(correct ? 'mc-correct' : 'mc-wrong');
-  });
-  const ans = parent.querySelector('[id^="micro-ans"]');
-  if (ans) ans.classList.add('show');
+function lnText(b)  { return `<p class="ln-p">${b.t}</p>`; }
+
+function lnPoint(b) {
+  return `<div class="ln-point ${b.hi ? 'hi' : ''}">
+            <div class="ln-point-t">${b.t}</div>
+            ${b.d ? `<div class="ln-point-d">${b.d}</div>` : ''}
+          </div>`;
+}
+
+/* A causal chain — the shape almost every one of these topics actually
+   has. Reading "A drives B drives C" as a list loses the arrow. */
+function lnChain(b) {
+  return `<div class="ln-chain">
+    ${b.t ? `<div class="col-label">${b.t}</div>` : ''}
+    <div class="ln-steps">
+      ${b.steps.map((st, i) => `
+        <div class="ln-step">
+          <span class="ln-step-n">${String(i + 1).padStart(2, '0')}</span>
+          <span class="ln-step-t">${st}</span>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function lnCompare(b) {
+  const col = (c, side) => `
+    <div class="ln-col">
+      <div class="ln-col-h ${side}">${c.h}</div>
+      ${c.items.map(i => `<div class="ln-col-i">${i}</div>`).join('')}
+    </div>`;
+  return `<div class="ln-compare">${col(b.a, 'left')}${col(b.b, 'right')}</div>`;
+}
+
+/* Same grammar as the case screen: commit first, then read why.
+   Lower stakes here, but the habit is the point. */
+function lnCheck(b, li, bi) {
+  const key = li + '-' + bi;
+  const done = S.learnChecks[key];
+  return `<div class="ln-check" id="chk-${key}">
+    <div class="col-label">Check yourself</div>
+    <div class="ln-check-q">${b.q}</div>
+    <div class="ln-opts">
+      ${b.opts.map((o, i) => `
+        <button class="ln-opt ${done ? (o.ok ? 'ok' : (done.i === i ? 'no' : 'dim')) : ''}"
+                ${done ? 'disabled' : ''} onclick="learnCheck(${li}, ${bi}, ${i})">
+          <span class="ln-opt-t">${o.t}</span>
+          ${done && o.ok ? '<span class="ln-opt-tag">Correct</span>' : ''}
+          ${done && !o.ok && done.i === i ? '<span class="ln-opt-tag">Your pick</span>' : ''}
+        </button>`).join('')}
+    </div>
+    <div class="ln-why ${done ? 'show' : ''}">${b.why}</div>
+  </div>`;
+}
+
+const LN_BLOCKS = { text: lnText, point: lnPoint, chain: lnChain, compare: lnCompare, check: lnCheck };
+
+function renderLearnBlocks(blocks, li) {
+  return blocks.map((b, bi) => (LN_BLOCKS[b.k] || lnText)(b, li, bi)).join('');
+}
+
+function learnCheck(li, bi, i) {
+  const key = li + '-' + bi;
+  if (S.learnChecks[key]) return;
+  const layer = window.TOPICS[currentTopicId].layers[li];
+  const blk = layer.blocks[bi];
+  S.learnChecks[key] = { i, ok: !!blk.opts[i].ok };
+  document.getElementById('chk-' + key).outerHTML = lnCheck(blk, li, bi);
 }
 
 function startLearn() {
   S.learnLayer = 0;
+  S.learnChecks = {};
+  const topic = window.TOPICS[currentTopicId];
+  document.getElementById('ln-ctx').textContent = topic.system + ' · ' + topic.title;
   show('learn');
   renderLayer(0);
 }
 
-function renderLayer(i) {
+function renderLayerNav() {
   const layers = window.TOPICS[currentTopicId].layers;
-  for (let j = 0; j < layers.length; j++) {
-    const el = document.getElementById('lp' + j);
-    if (el) el.className = 'lp-step' + (j < i ? ' done' : j === i ? ' active' : '');
-  }
-  document.getElementById('lp-label').textContent = `Layer ${i + 1} of ${layers.length}`;
-  document.getElementById('layer-content').innerHTML = layers[i]();
-  microAnswered = [false, false, false];
+  document.getElementById('ln-nav').innerHTML = layers.map((L, i) => `
+    <button class="onav ${i === S.learnLayer ? 'on' : ''} ${i < S.learnLayer ? 'done' : ''}"
+            onclick="renderLayer(${i})">
+      <span>${L.kicker}</span>
+      ${i < S.learnLayer ? `<span class="onav-tick">${icon('check')}</span>` : ''}
+    </button>`).join('');
 }
 
-function nextLayer() {
+function renderLayer(i) {
   const layers = window.TOPICS[currentTopicId].layers;
-  S.learnLayer++;
-  if (S.learnLayer >= layers.length) { startCase(); return; }
-  renderLayer(S.learnLayer);
+  const L = layers[i];
+  S.learnLayer = i;
+  document.getElementById('ln-prog').textContent = `Layer ${i + 1} of ${layers.length}`;
+
+  const last = i === layers.length - 1;
+  document.getElementById('ln-mid').innerHTML = `
+    <div class="ws-head"><span class="ws-kicker">${L.kicker}</span></div>
+    <h2 class="ws-stem">${L.title}</h2>
+    <div class="ln-body">${renderLearnBlocks(L.blocks, i)}</div>
+    <div class="ws-foot">
+      ${i > 0 ? `<button class="btn-ghost" onclick="renderLayer(${i - 1})">Back</button>` : ''}
+      <button class="btn-go" onclick="${last ? 'startCase()' : `renderLayer(${i + 1})`}">
+        ${last ? 'Start the case' : 'Next layer'}
+      </button>
+    </div>`;
+
+  renderLayerNav();
   document.getElementById('screen-learn').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -954,9 +1029,9 @@ function restart() {
     pts: 0, ddxPts: 0, learnDone: false, learnLayer: 0, severity: '',
     usedActions: new Set(), ddxAnswered: 0, ddxDone: false, twistShown: false,
     vit: [], pressure: 0, deteriorated: false, openPanel: null,
-    log: [], ddxLog: [],
+  learnChecks: {},
+    log: [], ddxLog: [], learnChecks: {},
   };
-  microAnswered = [false, false, false];
   show('topic');
 }
 

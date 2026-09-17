@@ -28,141 +28,103 @@ window.TOPICS['acute-kidney-injury'] = {
 
   // ── LEARN DATA (3 layers) ──
   layers: [
-    // LAYER 1: Definition + the pre/intra/post framework + autoregulation
-    () => `
-      <div class="layer-card">
-        <div class="layer-num">Layer 1 of 3</div>
-        <h2 class="layer-title">What AKI is — and the only framework you need</h2>
-        <div class="layer-body">
-          <p><strong>AKI</strong> is an abrupt drop in GFR. KDIGO defines it by a rise in creatinine (<em>≥0.3 mg/dL within 48 hours</em>, or <em>≥1.5× baseline within the prior 7 days</em>) or urine output <em>&lt;0.5 mL/kg/h for 6 hours</em>. The time windows are part of the definition — without them a slow chronic decline would qualify. Every cause fits into one of three buckets:</p>
-          <div class="fact-grid">
-            <div class="fact-item">
-              <div class="fact-dot"></div>
-              <div class="fact-text"><strong>Pre-renal (≈60%):</strong> the kidney is fine but <em>under-perfused</em> — hypovolaemia, haemorrhage, heart failure, sepsis. Reversible if you restore perfusion fast, but prolonged ischaemia tips into ATN.</div>
-            </div>
-            <div class="fact-item amber-border">
-              <div class="fact-dot amber"></div>
-              <div class="fact-text"><strong>Intrinsic:</strong> the parenchyma is damaged. Most common is <em>acute tubular necrosis (ATN)</em> — from ischaemia or nephrotoxins (aminoglycosides, contrast, myoglobin, cisplatin). Also AIN (drug-induced, allergic) and glomerulonephritis.</div>
-            </div>
-            <div class="fact-item blue-border">
-              <div class="fact-dot blue"></div>
-              <div class="fact-text"><strong>Post-renal:</strong> <em>obstruction</em> to outflow — BPH, stones, pelvic malignancy. Needs obstruction of both kidneys (or one in a single-kidney patient) to raise creatinine. Always excluded early because it's so reversible.</div>
-            </div>
-            <div class="fact-item purple-border">
-              <div class="fact-dot purple"></div>
-              <div class="fact-text"><strong>Autoregulation — the "triple whammy":</strong> the afferent arteriole dilates (prostaglandins) and the efferent constricts (angiotensin II) to hold GFR. <em>NSAIDs</em> block afferent dilation; <em>ACE inhibitors/ARBs</em> block efferent constriction. Add <em>volume depletion</em> and GFR collapses.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="micro-check">
-        <div class="micro-q">Quick check — Which combination most predictably precipitates pre-renal AKI?</div>
-        <div class="micro-opts">
-          <button class="micro-btn" onclick="microAns(this, false)">A beta-blocker + a statin</button>
-          <button class="micro-btn" onclick="microAns(this, true)">Volume depletion + an NSAID + an ACE inhibitor</button>
-          <button class="micro-btn" onclick="microAns(this, false)">A proton-pump inhibitor + paracetamol</button>
-        </div>
-        <div class="micro-ans" id="micro-ans-0">Correct — the classic "triple whammy." Hypovolaemia lowers renal perfusion, the NSAID blocks the afferent (prostaglandin-mediated) dilation that would defend GFR, and the ACE inhibitor blocks the efferent (angiotensin II) constriction. Together they strip away autoregulation and GFR falls sharply.</div>
-      </div>
-      <div class="learn-nav">
-        <button class="btn-primary" onclick="nextLayer()">Next layer →</button>
-        <button class="btn-ghost" onclick="startCase()">Skip to case</button>
-      </div>
-    `,
+    {
+      kicker: 'Framework',
+      title: 'What AKI is — and the only framework you need',
+      blocks: [
+        { k: 'text', t: '<strong>AKI</strong> is an abrupt drop in GFR. KDIGO defines it by a rise in creatinine — <em>≥0.3 mg/dL within 48 hours</em>, or <em>≥1.5× baseline within the prior 7 days</em> — or urine output <em>below 0.5 mL/kg/h for 6 hours</em>. The time windows are part of the definition; without them a slow chronic decline would qualify.' },
+        { k: 'point', t: 'Pre-renal — about 60% of cases',
+          d: 'The kidney is structurally fine but <em>under-perfused</em>: hypovolaemia, haemorrhage, heart failure, sepsis. Fully reversible if you restore perfusion quickly — and it tips into ATN if you do not.' },
+        { k: 'point', t: 'Intrinsic — the parenchyma is damaged',
+          d: 'Most often <em>acute tubular necrosis</em>, from ischaemia or nephrotoxins (aminoglycosides, contrast, myoglobin, cisplatin). Also acute interstitial nephritis, which is usually drug-induced, and glomerulonephritis.' },
+        { k: 'point', t: 'Post-renal — obstruction to outflow',
+          d: 'BPH, stones, pelvic malignancy. It takes obstruction of <em>both</em> kidneys — or of one kidney in someone who only has one — to raise the creatinine. Excluded early precisely because it is so reversible.' },
+        { k: 'chain', t: 'Autoregulation, and the triple whammy that breaks it',
+          steps: [
+            'The afferent arteriole dilates — prostaglandin-mediated',
+            'The efferent arteriole constricts — angiotensin II-mediated',
+            'Between them, GFR is held steady across a wide range of pressures',
+            'An NSAID blocks the afferent dilation',
+            'An ACE inhibitor or ARB blocks the efferent constriction',
+            'Add volume depletion and there is nothing left defending GFR',
+          ] },
+        { k: 'check',
+          q: 'Which combination most predictably precipitates pre-renal AKI?',
+          opts: [
+            { t: 'A beta-blocker plus a statin' },
+            { t: 'Volume depletion plus an NSAID plus an ACE inhibitor', ok: true },
+            { t: 'A proton-pump inhibitor plus paracetamol' },
+          ],
+          why: 'The classic triple whammy, and it is worth seeing <em>why</em> it is three rather than two. Hypovolaemia lowers perfusion pressure. The NSAID removes the afferent dilation that would defend GFR. The ACE inhibitor removes the efferent constriction that would defend it from the other side. Each alone is often tolerated; all three together strip autoregulation bare.' },
+      ],
+    },
 
-    // LAYER 2: Localising it — urine studies + ultrasound
-    () => `
-      <div class="layer-card">
-        <div class="layer-num">Layer 2 of 3</div>
-        <h2 class="layer-title">Reading the urine — pre-renal vs ATN</h2>
-        <div class="layer-body">
-          <p>The urine tells you the bucket. A pre-renal kidney is <em>avidly reabsorbing</em> sodium and water; a necrotic tubule <em>cannot</em>.</p>
-          <div class="compare">
-            <div class="compare-col">
-              <div class="compare-head left">Pre-renal</div>
-              <div class="compare-item">BUN:Cr &gt; 20:1</div>
-              <div class="compare-item">FENa &lt; 1% · Urine Na &lt; 20</div>
-              <div class="compare-item">(on diuretics use FEurea &lt; 35%)</div>
-              <div class="compare-item">Urine osmolality &gt; 500 (concentrated)</div>
-              <div class="compare-item">Bland sediment ± hyaline casts</div>
-              <div class="compare-item">Responds to fluids</div>
-            </div>
-            <div class="compare-col">
-              <div class="compare-head right">ATN (intrinsic)</div>
-              <div class="compare-item">BUN:Cr ≈ 10–15:1</div>
-              <div class="compare-item">FENa &gt; 2% · Urine Na &gt; 40</div>
-              <div class="compare-item">Urine osmolality &lt; 350 (isosthenuric)</div>
-              <div class="compare-item">Muddy-brown granular casts</div>
-              <div class="compare-item">Does NOT respond to fluids</div>
-            </div>
-          </div>
-          <div class="fact-grid">
-            <div class="fact-item">
-              <div class="fact-dot"></div>
-              <div class="fact-text"><strong>Renal ultrasound</strong> is the key structural test — it detects <em>hydronephrosis</em> (post-renal obstruction) and shows kidney size. Small, echogenic kidneys suggest chronic disease, not AKI. No contrast, no nephrotoxicity.</div>
-            </div>
-            <div class="fact-item amber-border">
-              <div class="fact-dot amber"></div>
-              <div class="fact-text"><strong>Sediment is a shortcut:</strong> muddy-brown granular casts → ATN. RBC casts → glomerulonephritis. WBC casts + eosinophils → acute interstitial nephritis. Bland → pre-renal or post-renal.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="micro-check">
-        <div class="micro-q">Muddy-brown granular casts with a FENa of 3% point to which diagnosis?</div>
-        <div class="micro-opts">
-          <button class="micro-btn" onclick="microAns(this, false)">Pre-renal azotaemia</button>
-          <button class="micro-btn" onclick="microAns(this, true)">Acute tubular necrosis</button>
-          <button class="micro-btn" onclick="microAns(this, false)">Post-renal obstruction</button>
-        </div>
-        <div class="micro-ans" id="micro-ans-1">Correct. Muddy-brown granular casts are the signature of ATN, and a FENa &gt; 2% confirms the tubules have lost their ability to reabsorb sodium. A pre-renal kidney would show FENa &lt; 1% and a bland sediment.</div>
-      </div>
-      <div class="learn-nav">
-        <button class="btn-primary" onclick="nextLayer()">Next layer →</button>
-        <button class="btn-ghost" onclick="startCase()">Skip to case</button>
-      </div>
-    `,
+    {
+      kicker: 'Localising',
+      title: 'Reading the urine — pre-renal against ATN',
+      blocks: [
+        { k: 'text', t: 'Creatinine tells you the kidney is failing. The urine tells you <em>why</em>. The question it answers is simple: is the tubule still working? A pre-renal kidney is avidly reabsorbing sodium and concentrating urine. A necrotic tubule cannot.' },
+        { k: 'compare',
+          a: { h: 'Pre-renal — tubule intact', items: [
+            'Urea:creatinine above 20:1',
+            'FENa below 1%, urine Na below 20',
+            'Urine osmolality above 500 — concentrated',
+            'Bland sediment, or hyaline casts',
+            'Creatinine falls with fluid',
+          ] },
+          b: { h: 'ATN — tubule injured', items: [
+            'Urea:creatinine around 10–15:1',
+            'FENa above 2%, urine Na above 40',
+            'Urine osmolality around 300 — isosthenuric',
+            'Muddy-brown granular casts',
+            'No improvement on volume alone',
+          ] } },
+        { k: 'point', hi: true, t: 'FENa is not as clean as the table makes it look',
+          d: 'A diuretic raises urine sodium whatever the volume status, so FENa is unreliable in anyone recently diuresed — use <em>FEurea below 35%</em> instead. FENa also falls below 1% in glomerulonephritis, cardiorenal and hepatorenal syndrome and contrast nephropathy, none of which are pre-renal.' },
+        { k: 'point', t: 'The sediment is a shortcut worth memorising',
+          d: 'Muddy-brown granular casts point to ATN. RBC casts point to glomerulonephritis. WBC casts with eosinophils point to interstitial nephritis. A bland sediment points to pre-renal or post-renal.' },
+        { k: 'point', t: 'Ultrasound answers the structural question without adding an insult',
+          d: 'It finds hydronephrosis and shows kidney size. Small echogenic kidneys mean chronic disease rather than acute injury. No contrast, no added nephrotoxicity — which is exactly why it comes before CT.' },
+        { k: 'check',
+          q: 'Muddy-brown granular casts with a FENa of 3%. Which diagnosis?',
+          opts: [
+            { t: 'Pre-renal azotaemia' },
+            { t: 'Acute tubular necrosis', ok: true },
+            { t: 'Post-renal obstruction' },
+          ],
+          why: 'Both findings say the same thing, which is what makes this confident. The casts are shed tubular epithelium — the tubule is physically injured. A FENa above 2% says it has lost the ability to reabsorb sodium. A pre-renal kidney would give you the opposite on both counts: a bland sediment and a FENa below 1%. Obstruction typically gives a bland sediment too.' },
+      ],
+    },
 
-    // LAYER 3: Management + hyperkalaemia + dialysis
-    () => `
-      <div class="layer-card">
-        <div class="layer-num">Layer 3 of 3</div>
-        <h2 class="layer-title">Managing it — and the emergency inside it</h2>
-        <div class="layer-body">
-          <p>Treatment is <strong>cause-directed</strong>, plus vigilant management of the complications that actually kill people.</p>
-          <div class="fact-grid">
-            <div class="fact-item">
-              <div class="fact-dot"></div>
-              <div class="fact-text"><strong>By bucket:</strong> pre-renal → restore perfusion with <em>IV isotonic fluids</em> and stop nephrotoxins. Post-renal → relieve the obstruction (catheter, nephrostomy). ATN → supportive; avoid further insults; most tubules recover over days–weeks.</div>
-            </div>
-            <div class="fact-item amber-border">
-              <div class="fact-dot amber"></div>
-              <div class="fact-text"><strong>Stop the offenders:</strong> hold NSAIDs, ACEi/ARBs, and renally-cleared or nephrotoxic drugs. Dose-adjust everything to the current GFR. Diuretics do <em>not</em> treat AKI — they only manage volume overload once the patient is filled.</div>
-            </div>
-            <div class="fact-item blue-border">
-              <div class="fact-dot blue"></div>
-              <div class="fact-text"><strong>Hyperkalaemia is the emergency.</strong> With ECG changes (peaked T waves → widened QRS), give <em>IV calcium gluconate first</em> to stabilise the myocardium, then <em>insulin + glucose</em> (± salbutamol) to shift K⁺ into cells, then remove it (diuresis, K⁺-binder, or dialysis).</div>
-            </div>
-            <div class="fact-item purple-border">
-              <div class="fact-dot purple"></div>
-              <div class="fact-text"><strong>Dialysis indications — "AEIOU":</strong> <em>A</em>cidosis (refractory), <em>E</em>lectrolytes (refractory hyperkalaemia), <em>I</em>ngestions (dialysable toxins), <em>O</em>verload (refractory pulmonary oedema), <em>U</em>raemia (pericarditis, encephalopathy).</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="micro-check">
-        <div class="micro-q">AKI with K⁺ 6.9 and peaked T waves on ECG. What is the FIRST drug you give?</div>
-        <div class="micro-opts">
-          <button class="micro-btn" onclick="microAns(this, false)">Insulin with dextrose</button>
-          <button class="micro-btn" onclick="microAns(this, true)">IV calcium gluconate</button>
-          <button class="micro-btn" onclick="microAns(this, false)">Oral potassium binder (resin)</button>
-        </div>
-        <div class="micro-ans" id="micro-ans-2">Correct. When there are ECG changes, calcium gluconate comes first — it stabilises the cardiac membrane within minutes (it does not lower K⁺). Only then do you shift K⁺ intracellularly with insulin + glucose (± salbutamol), and finally remove it with a binder, diuresis, or dialysis.</div>
-      </div>
-      <div class="learn-nav">
-        <button class="btn-primary" onclick="startCase()">Start the case →</button>
-      </div>
-    `,
+    {
+      kicker: 'Management',
+      title: 'Managing it — and the emergency hidden inside it',
+      blocks: [
+        { k: 'text', t: 'Treatment is <strong>cause-directed</strong>. What actually kills people, though, is not the creatinine — it is the potassium.' },
+        { k: 'point', t: 'Treat by bucket',
+          d: 'Pre-renal: restore perfusion with isotonic fluid and stop the nephrotoxins. Post-renal: relieve the obstruction with a catheter or nephrostomy. ATN: supportive, avoid further insults, and most tubules recover over days to weeks.' },
+        { k: 'point', t: 'Stop the offenders, and re-dose everything else',
+          d: 'Hold NSAIDs and ACE inhibitors or ARBs, and review every renally-cleared drug against the current GFR. Diuretics do <em>not</em> treat AKI — forcing urine out of an under-perfused kidney deepens the injury. They manage volume overload, and only once the patient is filled.' },
+        { k: 'chain', t: 'Hyperkalaemia with ECG changes — the order matters',
+          steps: [
+            'IV calcium gluconate — stabilises the myocardium within minutes',
+            'Insulin with glucose, with or without salbutamol — shifts K⁺ into cells',
+            'Then remove it: diuresis, a potassium binder, or dialysis',
+          ] },
+        { k: 'point', hi: true, t: 'Calcium does not lower the potassium',
+          d: 'It buys you time by raising the threshold potential so the myocardium stops being irritable. The potassium is unchanged until you shift it and then remove it. Giving insulin first without stabilising the membrane leaves the patient arrhythmic while you wait.' },
+        { k: 'point', t: 'Dialysis indications — AEIOU',
+          d: '<em>A</em>cidosis that is refractory, <em>E</em>lectrolytes meaning refractory hyperkalaemia, <em>I</em>ngestions that are dialysable, <em>O</em>verload that is refractory, <em>U</em>raemia with pericarditis or encephalopathy. Note that every one of them says refractory or severe — dialysis is for failure of everything else.' },
+        { k: 'check',
+          q: 'AKI with K⁺ 6.9 and peaked T waves on the ECG. What is the first drug?',
+          opts: [
+            { t: 'Insulin with dextrose' },
+            { t: 'IV calcium gluconate', ok: true },
+            { t: 'An oral potassium binder' },
+          ],
+          why: 'The ECG changes are what make this urgent, and they are a membrane problem, not a number problem. Calcium stabilises the myocardium within minutes without touching the potassium. Insulin and glucose come next and do lower it, but they take longer and leave the heart vulnerable in the meantime. A binder removes potassium over hours and has no place as the first move in an arrhythmic patient.' },
+      ],
+    },
   ],
 
   // ── CASE DATA ──
