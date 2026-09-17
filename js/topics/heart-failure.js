@@ -50,7 +50,7 @@ window.TOPICS['heart-failure'] = {
             </div>
             <div class="fact-item purple-border">
               <div class="fact-dot purple"></div>
-              <div class="fact-text"><strong>BNP</strong> (Brain Natriuretic Peptide) is released by ventricular myocytes when the wall is stretched by pressure/volume overload. It's the biomarker of HF. BNP >100 pg/mL = cardiac dyspnea confirmed.</div>
+              <div class="fact-text"><strong>BNP</strong> (Brain Natriuretic Peptide) is released by ventricular myocytes when the wall is stretched by pressure/volume overload. It is the rule-OUT test: BNP &lt;100 pg/mL (NT-proBNP &lt;300) makes heart failure very unlikely. Ruling it IN needs age-adjusted NT-proBNP — &gt;450 under 50, &gt;900 at 50–75, &gt;1800 over 75.</div>
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@ window.TOPICS['heart-failure'] = {
             </div>
             <div class="fact-item blue-border">
               <div class="fact-dot blue"></div>
-              <div class="fact-text"><strong>Echo</strong> gives you EF. <em>HFrEF</em> = EF &lt;40% (systolic failure). <em>HFpEF</em> = EF ≥50% (diastolic failure — stiff ventricle, can't fill). Different pathophysiology, different management.</div>
+              <div class="fact-text"><strong>Echo</strong> gives you EF. <em>HFrEF</em> = EF &lt;40% (systolic failure). <em>HFpEF</em> = EF ≥50% (diastolic failure — stiff ventricle, can't fill). Different pathophysiology, different management: ACEi and beta-blockers do not improve survival in HFpEF, but SGLT2 inhibitors do reduce hospitalisation and cardiovascular death.</div>
             </div>
           </div>
         </div>
@@ -132,7 +132,7 @@ window.TOPICS['heart-failure'] = {
           <div class="fact-grid">
             <div class="fact-item">
               <div class="fact-dot"></div>
-              <div class="fact-text"><strong>Acute ADHF bundle:</strong> Sit upright + O₂ (target SpO₂ ≥94%) + <em>IV furosemide</em> (venodilates before diuresis → rapid preload reduction). Monitor closely.</div>
+              <div class="fact-text"><strong>Acute ADHF bundle:</strong> Sit upright + O₂ <em>only if hypoxaemic</em> (SpO₂ &lt;90% or PaO₂ &lt;60 mmHg) + <em>IV furosemide</em> (venodilates before diuresis → rapid preload reduction). Monitor closely. Oxygen given to a non-hypoxaemic patient causes vasoconstriction and drops cardiac output.</div>
             </div>
             <div class="fact-item amber-border">
               <div class="fact-dot amber"></div>
@@ -231,15 +231,15 @@ window.TOPICS['heart-failure'] = {
     },
     labs: {
       label: 'Ordering Labs',
-      stem: 'Which single lab result best confirms the diagnosis AND helps gauge severity?',
+      stem: 'Which single lab result does most to settle whether this breathlessness is cardiac, and how bad it is?',
       concept: "Concept — one test confirms the syndrome (ventricular wall stress), another excludes its trigger (myocyte injury). They answer different questions.",
       opts: [
         { t: 'BNP (Brain Natriuretic Peptide)', type: 'correct', d: "Ventricular wall-stress biomarker, released under volume load.",
-          fb_title: 'BNP — the definitive HF biomarker.',
-          fb: "BNP >100 pg/mL (or NT-proBNP >300) confirms cardiac dyspnoea with high sensitivity. It's released by ventricular myocytes under wall stress. BNP also correlates with severity and guides discharge — should fall >30% before safe discharge." },
+          fb_title: 'BNP — the right test, read the right way.',
+          fb: "BNP is the natriuretic peptide test, released by ventricular myocytes under wall stress. Read its direction carefully: it has high SENSITIVITY, so a low value excludes — BNP &lt;100 pg/mL (NT-proBNP &lt;300) makes heart failure very unlikely. A high value does not confirm on its own, because ruling in needs age-adjusted NT-proBNP thresholds (&gt;450 under 50, &gt;900 at 50–75, &gt;1800 over 75). A fall of &gt;30% during admission predicts lower readmission, but targeting that number has not been shown to improve outcomes." },
         { t: 'Troponin I', type: 'near', d: "Marker of myocardial injury.",
           fb_title: 'Important — but confirms ACS, not HF.',
-          fb: 'Troponin is essential to rule out ACS as the precipitant (always order it). Mildly elevated troponin also occurs in ADHF itself ("demand ischaemia"). But troponin doesn\'t confirm HF — BNP does. Order both.' },
+          fb: 'Troponin is essential to rule out ACS as the precipitant (always order it). Mildly elevated troponin also occurs in ADHF itself ("demand ischaemia"). But troponin speaks to myocyte injury, not to ventricular loading — BNP is the test that addresses the breathlessness itself. Order both.' },
         { t: 'Full blood count', type: 'near', d: "Screens for anaemia and infection as precipitants.",
           fb_title: 'Useful for triggers — not diagnostic.',
           fb: 'Anaemia (Hb <10) can precipitate or worsen HF by increasing cardiac demand. Always check FBC. But it doesn\'t confirm the diagnosis. BNP, troponin, and U&E/renal function are your priority labs.' },
@@ -274,7 +274,7 @@ window.TOPICS['heart-failure'] = {
       opts: [
         { t: 'Supplemental O₂ + sit upright + IV furosemide + continuous monitoring', type: 'correct', d: "Oxygenate, offload preload, and watch for deterioration.",
           fb_title: 'Correct acute ADHF bundle.',
-          fb: 'O₂ targets SpO₂ ≥94%. Sitting upright reduces venous return to the heart (↓preload). IV furosemide causes immediate venodilation (within minutes) then diuresis — rapid preload reduction. Continuous monitoring for arrhythmias and haemodynamic deterioration.' },
+          fb: 'Oxygen here is to correct hypoxaemia — this patient is at 88% — not to push a well-saturated patient higher. Give it for SpO₂ &lt;90% or PaO₂ &lt;60 mmHg; routine oxygen in a non-hypoxaemic patient raises systemic vascular resistance and lowers cardiac output. Sitting upright reduces venous return (↓preload). IV furosemide venodilates within minutes, then diureses — rapid preload reduction. Continuous monitoring for arrhythmias and haemodynamic deterioration.' },
         { t: 'Start oral metoprolol 25mg + lisinopril immediately', type: 'wrong', d: "Begin long-term neurohormonal blockade now.",
           fb_title: 'DANGEROUS — never start BB in acute decompensation.',
           fb: 'Beta-blockers are CONTRAINDICATED in acute ADHF — they reduce contractility and worsen haemodynamics acutely. If patient is already on a BB, continue at lower dose. Only initiate after achieving euvolaemia. Lisinopril can be started once stable.' },
@@ -321,12 +321,12 @@ window.TOPICS['heart-failure'] = {
   ],
 
   teaching: [
-    'BNP >100 pg/mL confirms cardiac dyspnoea. Falls >30% = safe to discharge. It is produced by ventricular myocytes under wall stress.',
+    'BNP is a rule-OUT test. Below 100 pg/mL (NT-proBNP below 300) heart failure is very unlikely — that is its high sensitivity at work. Ruling IN needs age-adjusted NT-proBNP: above 450 under 50, 900 at 50–75, 1800 over 75.',
     'JVP + S3 gallop + bilateral basal crackles = the ADHF triad. Memorise this. JVP is most specific for cardiac cause.',
     'NEVER initiate beta-blockers in acute decompensation — acutely worsens haemodynamics. Start only once euvolemic and stable.',
     'CXR in ADHF: cardiomegaly + upper lobe blood diversion + Kerley B lines + perihilar bat-wing opacity.',
     'HFrEF long-term mortality triad: ACEi/ARB + beta-blocker (metoprolol succinate) + MRA (spironolactone).',
     'Furosemide: inhibits Na⁺/K⁺/2Cl⁻ in thick ascending limb. Venodilates BEFORE diuresis — immediate preload reduction. Watch K⁺.',
-    'HFpEF (EF ≥50%) = diastolic failure. Cannot fill properly. Managed differently from HFrEF — no mortality benefit from ACEi/BB proven.',
+    'HFpEF (EF ≥50%) = diastolic failure — a stiff ventricle that cannot fill. ACE inhibitors and beta-blockers have never shown a mortality benefit here, but SGLT2 inhibitors have: they carry a Class 2a recommendation in HFpEF and reduce heart failure hospitalisation and cardiovascular death.',
   ],
 };
