@@ -28,139 +28,106 @@ window.TOPICS['copd-exacerbation'] = {
 
   // ── LEARN DATA (3 layers, each a function) ──
   layers: [
-    // LAYER 1: Physiology + Pathophysiology
-    () => `
-      <div class="layer-card">
-        <div class="layer-num">Layer 1 of 3</div>
-        <h2 class="layer-title">Why the airways stay open on the way in — and collapse on the way out</h2>
-        <div class="layer-body">
-          <p>COPD is <strong>obstructive</strong> lung disease: airflow OUT is limited. Two overlapping processes drive it:</p>
-          <div class="fact-grid">
-            <div class="fact-item">
-              <div class="fact-dot"></div>
-              <div class="fact-text"><strong>Emphysema</strong> destroys alveolar walls and elastic recoil (often α1-antitrypsin-related or smoking-driven protease/antiprotease imbalance). Without recoil, small airways collapse on expiration → air trapping.</div>
-            </div>
-            <div class="fact-item amber-border">
-              <div class="fact-dot amber"></div>
-              <div class="fact-text"><strong>Chronic bronchitis</strong> = productive cough ≥3 months/year for 2+ consecutive years. Mucous gland hyperplasia and inflammation narrow the airway lumen itself.</div>
-            </div>
-            <div class="fact-item blue-border">
-              <div class="fact-dot blue"></div>
-              <div class="fact-text"><strong>Air trapping → hyperinflation.</strong> Residual volume rises, the diaphragm flattens and loses mechanical advantage, and the patient starts breathing near total lung capacity — hugely increasing the work of breathing.</div>
-            </div>
-            <div class="fact-item purple-border">
-              <div class="fact-dot purple"></div>
-              <div class="fact-text"><strong>V/Q mismatch</strong> from destroyed alveoli and mucus-plugged airways causes hypoxaemia. Chronic CO₂ retention can blunt the central chemoreceptor drive over time — relevant later when you choose an O₂ target.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="micro-check">
-        <div class="micro-q">Quick check — What is the PRIMARY mechanical consequence of lost elastic recoil in emphysema?</div>
-        <div class="micro-opts">
-          <button class="micro-btn" onclick="microAns(this, false)">Increased FEV1/FVC ratio</button>
-          <button class="micro-btn" onclick="microAns(this, true)">Air trapping and hyperinflation</button>
-          <button class="micro-btn" onclick="microAns(this, false)">Restrictive reduction in TLC</button>
-        </div>
-        <div class="micro-ans" id="micro-ans-0">Correct. Without elastic recoil, small airways collapse during expiration before the lung fully empties. Air gets trapped, residual volume and TLC rise, and FEV1/FVC ratio FALLS (obstructive pattern) — the opposite of restrictive disease.</div>
-      </div>
-      <div class="learn-nav">
-        <button class="btn-primary" onclick="nextLayer()">Next layer →</button>
-        <button class="btn-ghost" onclick="startCase()">Skip to case</button>
-      </div>
-    `,
+    {
+      kicker: 'Physiology',
+      title: 'Why the airways stay open on the way in — and collapse on the way out',
+      blocks: [
+        { k: 'text', t: 'COPD is <strong>obstructive</strong> disease: air gets in, and then struggles to get out. Two processes overlap in most patients, and they obstruct by different mechanisms.' },
+        { k: 'compare',
+          a: { h: 'Emphysema — loss of recoil', items: [
+            'Alveolar walls destroyed',
+            'Elastic recoil lost',
+            'Small airways collapse on expiration',
+            'Protease / antiprotease imbalance',
+            'Smoking, or α1-antitrypsin deficiency',
+          ] },
+          b: { h: 'Chronic bronchitis — narrowed lumen', items: [
+            'Productive cough ≥3 months/year, 2 years running',
+            'Mucous gland hyperplasia',
+            'Airway inflammation and mucus plugging',
+            'The lumen itself is narrowed',
+            'Obstruction without alveolar destruction',
+          ] } },
+        { k: 'chain', t: 'How lost recoil becomes breathlessness',
+          steps: [
+            'Elastic recoil is lost',
+            'Small airways collapse before the lung empties',
+            'Air is trapped — residual volume rises',
+            'The chest hyperinflates and the diaphragm flattens',
+            'A flat diaphragm has no mechanical advantage',
+            'The patient breathes near total lung capacity, at enormous cost',
+          ] },
+        { k: 'point', t: 'Hypoxaemia comes from V/Q mismatch',
+          d: 'Destroyed alveoli and mucus-plugged airways put ventilation and perfusion out of step. Over years, chronic CO₂ retention blunts the central chemoreceptor — which is exactly why the oxygen target matters later.' },
+        { k: 'check',
+          q: 'What is the primary mechanical consequence of losing elastic recoil?',
+          opts: [
+            { t: 'A rise in the FEV1/FVC ratio' },
+            { t: 'Air trapping and hyperinflation', ok: true },
+            { t: 'A restrictive fall in total lung capacity' },
+          ],
+          why: 'Without recoil the small airways collapse during expiration before the lung has emptied, so air is trapped and residual volume rises. Note the two distractors are both the <em>opposite</em> of obstruction: in COPD the FEV1/FVC ratio <em>falls</em>, and total lung capacity <em>rises</em> rather than falling. If you find yourself picking a restrictive answer for an obstructive disease, go back to the ratio.' },
+      ],
+    },
 
-    // LAYER 2: Clinical + Diagnosis
-    () => `
-      <div class="layer-card">
-        <div class="layer-num">Layer 2 of 3</div>
-        <h2 class="layer-title">What you see — and how you confirm an exacerbation</h2>
-        <div class="layer-body">
-          <p>Classic teaching contrasts two phenotypes, though most patients are a mix of both.</p>
-          <div class="compare">
-            <div class="compare-col">
-              <div class="compare-head left">"Pink Puffer" (emphysema)</div>
-              <div class="compare-item">Thin, older, dyspnoeic</div>
-              <div class="compare-item">Pursed-lip breathing</div>
-              <div class="compare-item">Barrel chest, hyperresonant</div>
-              <div class="compare-item">Minimal cyanosis — "fights" for gas exchange</div>
-            </div>
-            <div class="compare-col">
-              <div class="compare-head right">"Blue Bloater" (bronchitis)</div>
-              <div class="compare-item">Overweight, productive cough</div>
-              <div class="compare-item">Cyanotic — chronic hypoxaemia</div>
-              <div class="compare-item">Signs of cor pulmonale (RHF)</div>
-              <div class="compare-item">Wheeze, coarse crackles</div>
-            </div>
-          </div>
-          <p><strong>Anthonisen criteria</strong> define an exacerbation — look for any of: (1) increased dyspnoea, (2) increased sputum volume, (3) increased sputum purulence. Purulent sputum is the strongest trigger for antibiotics.</p>
-          <div class="fact-grid">
-            <div class="fact-item">
-              <div class="fact-dot"></div>
-              <div class="fact-text"><strong>CXR:</strong> hyperinflation, flattened diaphragms, increased retrosternal airspace, attenuated peripheral vessels. Mainly used to exclude a mimic (pneumonia, pneumothorax) rather than confirm COPD itself.</div>
-            </div>
-            <div class="fact-item blue-border">
-              <div class="fact-dot blue"></div>
-              <div class="fact-text"><strong>ABG</strong> is the key test in a moderate–severe exacerbation: look for respiratory acidosis (↓pH, ↑PaCO₂). A chronically elevated bicarbonate on a baseline ABG shows renal metabolic compensation for chronic CO₂ retention.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="micro-check">
-        <div class="micro-q">Which single history finding most strongly indicates antibiotics are needed for this exacerbation?</div>
-        <div class="micro-opts">
-          <button class="micro-btn" onclick="microAns(this, false)">Increased breathlessness alone</button>
-          <button class="micro-btn" onclick="microAns(this, true)">Sputum turning purulent (yellow-green)</button>
-          <button class="micro-btn" onclick="microAns(this, false)">Mild fatigue</button>
-        </div>
-        <div class="micro-ans" id="micro-ans-1">Correct. Increased sputum purulence is the strongest single predictor of a bacterial trigger and the criterion most tied to antibiotic benefit. Dyspnoea and sputum volume matter too (Anthonisen type I = all three present), but purulence is the one to anchor on.</div>
-      </div>
-      <div class="learn-nav">
-        <button class="btn-primary" onclick="nextLayer()">Next layer →</button>
-        <button class="btn-ghost" onclick="startCase()">Skip to case</button>
-      </div>
-    `,
+    {
+      kicker: 'Clinical',
+      title: 'What you see — and how you confirm an exacerbation',
+      blocks: [
+        { k: 'text', t: 'Classic teaching contrasts two phenotypes. Real patients sit somewhere between them, but the extremes are worth knowing because they explain the signs.' },
+        { k: 'compare',
+          a: { h: 'Pink puffer — emphysema', items: [
+            'Thin, older, markedly dyspnoeic',
+            'Pursed-lip breathing',
+            'Barrel chest, hyperresonant',
+            'Little cyanosis — still winning at gas exchange',
+          ] },
+          b: { h: 'Blue bloater — bronchitis', items: [
+            'Overweight, productive cough',
+            'Cyanotic from chronic hypoxaemia',
+            'Signs of cor pulmonale',
+            'Wheeze and coarse crackles',
+          ] } },
+        { k: 'point', hi: true, t: 'An exacerbation is a change from baseline on three axes',
+          d: 'The <em>Anthonisen criteria</em>: increased breathlessness, increased sputum volume, increased sputum purulence. All three present is type I. Purulence is the one that decides antibiotics.' },
+        { k: 'point', t: 'The chest film is ordered to exclude, not to confirm',
+          d: 'Hyperinflation, flattened diaphragms, increased retrosternal airspace, attenuated peripheral vessels. None of that diagnoses COPD. You order it to find the pneumonia or pneumothorax making this exacerbation worse.' },
+        { k: 'point', t: 'The blood gas is what grades severity',
+          d: 'Look for respiratory acidosis — a falling pH with a rising PaCO₂. A high bicarbonate on a baseline gas tells you the kidney has been compensating for chronic retention for a long time, which changes how you read today\'s numbers.' },
+        { k: 'check',
+          q: 'Which single history finding argues most strongly for antibiotics in this exacerbation?',
+          opts: [
+            { t: 'Increased breathlessness on its own' },
+            { t: 'Sputum turning yellow-green', ok: true },
+            { t: 'Mild fatigue over several days' },
+          ],
+          why: 'Purulence is the criterion most closely tied to a bacterial trigger and to antibiotic benefit, and GOLD names it directly: antibiotics for purulent sputum, documented prior bacterial infection, or a patient needing ventilatory support. Breathlessness and sputum volume are the other two Anthonisen axes and they matter for the diagnosis of an exacerbation — but neither of them decides the antibiotic.' },
+      ],
+    },
 
-    // LAYER 3: Management
-    () => `
-      <div class="layer-card">
-        <div class="layer-num">Layer 3 of 3</div>
-        <h2 class="layer-title">How you treat it — the O₂ trap everyone falls into</h2>
-        <div class="layer-body">
-          <p>The core bundle for an acute exacerbation is <strong>bronchodilators + steroids ± antibiotics ± controlled oxygen ± NIV</strong>.</p>
-          <div class="fact-grid">
-            <div class="fact-item">
-              <div class="fact-dot"></div>
-              <div class="fact-text"><strong>Nebulised SABA + SAMA</strong> (e.g. albuterol + ipratropium) first-line — bronchodilation via β2-agonism and antimuscarinic action, combined for additive effect.</div>
-            </div>
-            <div class="fact-item amber-border">
-              <div class="fact-dot amber"></div>
-              <div class="fact-text"><strong>Controlled oxygen — target SpO₂ 88–92%, NOT 100%.</strong> High-flow O₂ can worsen V/Q mismatch and reduce hypoxic respiratory drive, precipitating CO₂ narcosis and worsening respiratory acidosis. This is the single most-tested pitfall in COPD management.</div>
-            </div>
-            <div class="fact-item blue-border">
-              <div class="fact-dot blue"></div>
-              <div class="fact-text"><strong>Systemic corticosteroids</strong> (e.g. prednisone, short 5-day course) reduce inflammation, shorten recovery, and reduce relapse — a standard part of every exacerbation, mild or severe.</div>
-            </div>
-            <div class="fact-item purple-border">
-              <div class="fact-dot purple"></div>
-              <div class="fact-text"><strong>NIV (BiPAP)</strong> is first-line respiratory support for hypercapnic respiratory acidosis with preserved consciousness — pH ≤ 7.35 with PaCO₂ &gt; 45 mmHg, or a respiratory rate above 20–24 despite standard therapy. It reduces work of breathing, intubation and mortality. Reserve intubation for NIV failure, exhaustion, or reduced consciousness.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="micro-check">
-        <div class="micro-q">A COPD patient arrives hypoxic. Why not simply give high-flow 100% oxygen?</div>
-        <div class="micro-opts">
-          <button class="micro-btn" onclick="microAns(this, false)">It has no meaningful physiological effect</button>
-          <button class="micro-btn" onclick="microAns(this, true)">Can worsen V/Q mismatch and blunt respiratory drive → CO₂ narcosis</button>
-          <button class="micro-btn" onclick="microAns(this, false)">It immediately causes pneumothorax</button>
-        </div>
-        <div class="micro-ans" id="micro-ans-2">Correct. Uncontrolled high-flow O₂ can release hypoxic pulmonary vasoconstriction (worsening V/Q mismatch) and reduce respiratory drive in CO₂ retainers, both of which raise PaCO₂ and can precipitate acidosis and confusion. Titrate to SpO₂ 88–92%.</div>
-      </div>
-      <div class="learn-nav">
-        <button class="btn-primary" onclick="startCase()">Start the case →</button>
-      </div>
-    `,
+    {
+      kicker: 'Management',
+      title: 'How you treat it — and the oxygen trap everyone falls into',
+      blocks: [
+        { k: 'text', t: 'The bundle is <strong>bronchodilators, steroids, antibiotics when indicated, controlled oxygen, and NIV if the gas demands it</strong>. One of those five is where most people lose the mark.' },
+        { k: 'point', t: 'Nebulised SABA plus SAMA, first line',
+          d: 'Salbutamol and ipratropium together — β2-agonism and antimuscarinic blockade work through different receptors, so the effect is additive.' },
+        { k: 'point', hi: true, t: 'Controlled oxygen: target 88–92%, never 100%',
+          d: 'High-flow oxygen releases hypoxic pulmonary vasoconstriction, worsening V/Q mismatch, and blunts respiratory drive in a chronic retainer. Both push the PaCO₂ up. This is the single most-tested pitfall in COPD, and the reasoning matters more than the number.' },
+        { k: 'point', t: 'Steroids: 40 mg prednisolone or equivalent, for 5 days',
+          d: 'They shorten recovery and reduce relapse. Five days, not longer — a longer course adds harm without adding benefit.' },
+        { k: 'point', t: 'NIV before intubation',
+          d: 'First line for hypercapnic respiratory acidosis with preserved consciousness: pH at or below 7.35 with PaCO₂ above 45 mmHg, or a respiratory rate above 20–24 despite therapy. It reduces intubation, length of stay and mortality. Reserve intubation for NIV failure, exhaustion or a falling conscious level.' },
+        { k: 'check',
+          q: 'A COPD patient arrives hypoxic. Why not simply give high-flow 100% oxygen?',
+          opts: [
+            { t: 'It has no meaningful physiological effect' },
+            { t: 'It worsens V/Q mismatch and blunts respiratory drive, risking CO₂ narcosis', ok: true },
+            { t: 'It causes a pneumothorax' },
+          ],
+          why: 'Two mechanisms, both raising PaCO₂. Uncontrolled oxygen releases hypoxic pulmonary vasoconstriction, so blood returns to poorly ventilated alveoli and the mismatch worsens. It also removes the hypoxic drive in a chronic retainer. The result is rising CO₂, falling pH, then confusion. Titrate to 88–92% — enough to correct tissue hypoxia, not so much that you remove the stimulus to breathe.' },
+      ],
+    },
   ],
 
   // ── CASE DATA ──

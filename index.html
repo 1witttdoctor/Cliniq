@@ -72,14 +72,23 @@
   </div>
 
   <!-- ═══ SCREEN: LEARN ═══ -->
-  <div class="screen" id="screen-learn">
-    <div class="learn-progress">
-      <div class="lp-step active" id="lp0"></div>
-      <div class="lp-step" id="lp1"></div>
-      <div class="lp-step" id="lp2"></div>
-      <span class="lp-label" id="lp-label">Layer 1 of 3</span>
+  <div class="screen wide" id="screen-learn">
+    <div class="sim-bar">
+      <span class="sim-brand">Clin<em>iq</em></span>
+      <span class="sim-rule"></span>
+      <span class="sim-ctx" id="ln-ctx"></span>
+      <span class="sim-spacer"></span>
+      <span class="sim-case">Concept</span>
+      <span class="sim-rule"></span>
+      <span class="sim-elapsed" id="ln-prog"></span>
     </div>
-    <div id="layer-content"></div>
+    <div class="cockpit learn-grid">
+      <aside class="ck-left">
+        <div class="col-label">Layers</div>
+        <div class="order-nav" id="ln-nav"></div>
+      </aside>
+      <main class="ck-mid" id="ln-mid"></main>
+    </div>
   </div>
 
   <!-- ═══ SCREEN: CASE ═══ -->
