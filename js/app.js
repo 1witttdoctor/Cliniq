@@ -80,28 +80,11 @@ function show(id) {
   else if (id === 'case') document.body.classList.add('screen-case', 'reading');
   else if (id === 'review') document.body.classList.add('screen-review', 'reading');
   else if (id === 'learn') document.body.classList.add('reading');
-  // pause the console ECG loop when it's off-screen
-  if (id !== 'home' && ecgRAF) { cancelAnimationFrame(ecgRAF); ecgRAF = null; }
   if (id !== 'case') {
     if (caseECGRAF) { cancelAnimationFrame(caseECGRAF); caseECGRAF = null; }
     stopClock();
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ────────────────────────────────────────────────
-// DIAGNOSTIC CONSOLE — system → topic navigation
-// ────────────────────────────────────────────────
-const SYSTEM_CODES = {
-  Cardiology: 'CVS', Respiratory: 'RESP', Renal: 'RENAL',
-  Neurology: 'NEURO', Gastroenterology: 'GI', Endocrine: 'ENDO',
-};
-// Systems on the roadmap but not yet live — shown as the "up next" readout.
-const UPCOMING_SYSTEMS = ['Neurology', 'Endocrine', 'Gastroenterology'];
-
-function sysCode(topic) {
-  const code = SYSTEM_CODES[topic.system] || topic.system.slice(0, 4).toUpperCase();
-  return `${code}·${String(topic.number).padStart(2, '0')}`;
 }
 
 // ────────────────────────────────────────────────
@@ -253,68 +236,6 @@ function observeSections() {
 }
 
 // ── The live case dashboard on the home screen ──
-let featuredId = null;
-const BOARD_SEV = 'moderate';   // the board always shows a representative presentation
-
-function renderCaseboard(topicId) {
-  const topic = window.TOPICS[topicId];
-  if (!topic) return;
-  featuredId = topicId;
-
-  const sev = topic.sevConf[BOARD_SEV] ? BOARD_SEV : topic.severities[0];
-  const sc = topic.sevConf[sev];
-  const organ = (ORGAN_BY_SYSTEM[topic.system] || {}).organ;
-
-  document.getElementById('cb-sev').textContent = sc.label + ' presentation';
-  document.getElementById('cb-name').textContent = topic.patient.name;
-  document.getElementById('cb-meta').textContent = topic.patient.meta;
-  document.getElementById('cb-quote').textContent = topic.patient.cc;
-  const insp = document.getElementById('cb-inspect');
-  insp.textContent = topic.patient.inspection || '';
-  insp.style.display = topic.patient.inspection ? 'block' : 'none';
-
-  document.getElementById('cb-vitals').innerHTML = sc.vitals.map(v => `
-    <div class="cb-v ${v.n ? 'abn' : v.w ? 'warn' : ''}">
-      <span class="cb-v-lbl">${v.l}</span>
-      <span class="cb-v-val">${v.v}</span>
-    </div>`).join('');
-
-  const acts = [['history', 'History'], ['exam', 'Examine'], ['labs', 'Labs'], ['imaging', 'Imaging']];
-  document.getElementById('cb-btns').innerHTML = acts.map(([k, name]) =>
-    `<button class="cb-btn" onclick="cbAction('${k}')">${name}</button>`).join('');
-
-  // rail state
-  [...document.querySelectorAll('.organ-btn')].forEach(b =>
-    b.classList.toggle('on', b.dataset.topic === topicId));
-
-  startBoardECG();
-}
-
-function renderOrganRail() {
-  const topics = Object.values(window.TOPICS || {}).sort((a, b) => a.number - b.number);
-  document.getElementById('organ-rail').innerHTML = topics.map(t => {
-    const o = ORGAN_BY_SYSTEM[t.system] || { organ: 'heart', label: t.system };
-    return `
-      <button class="organ-btn" data-topic="${t.id}" onclick="renderCaseboard('${t.id}')" aria-label="${o.label} — ${t.title}">
-        <svg viewBox="0 0 24 24">${ORGAN_ICON[o.organ] || ''}</svg>
-        <span class="organ-lbl">${o.label}</span>
-      </button>`;
-  }).join('');
-}
-
-// Pressing an action drops you straight into that case, at that step.
-function cbAction(type) {
-  if (!featuredId) return;
-  selectTopic(featuredId);
-  startCase(BOARD_SEV);
-  openQ(type);
-}
-
-// ────────────────────────────────────────────────
-// CANVAS ECG — live PQRST trace
-// ────────────────────────────────────────────────
-let ecgRAF = null;
-
 // Normalised cardiac waveform over one cycle t in [0,1). Sum of gaussians (P,Q,R,S,T).
 function ecgWave(t) {
   const g = (c, w, a) => a * Math.exp(-((t - c) * (t - c)) / (2 * w * w));
@@ -352,20 +273,6 @@ function drawECG(canvas, phase, opts) {
   }
   ctx.stroke();
   ctx.shadowBlur = 0;
-}
-
-function startBoardECG() {
-  if (ecgRAF) cancelAnimationFrame(ecgRAF);
-  const c = document.getElementById('cb-ecg');
-  if (!c) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { drawECG(c, 0); return; }
-  let phase = 0;
-  const loop = () => {
-    phase += 0.9;
-    drawECG(c, phase);
-    ecgRAF = requestAnimationFrame(loop);
-  };
-  ecgRAF = requestAnimationFrame(loop);
 }
 
 // ────────────────────────────────────────────────
