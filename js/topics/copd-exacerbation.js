@@ -53,7 +53,6 @@ window.TOPICS['copd-exacerbation'] = {
               <div class="fact-text"><strong>V/Q mismatch</strong> from destroyed alveoli and mucus-plugged airways causes hypoxaemia. Chronic CO₂ retention can blunt the central chemoreceptor drive over time — relevant later when you choose an O₂ target.</div>
             </div>
           </div>
-          <div class="fa-ref">📖 FA p.674–676 — Obstructive lung disease &amp; COPD physiology</div>
         </div>
       </div>
       <div class="micro-check">
@@ -105,7 +104,6 @@ window.TOPICS['copd-exacerbation'] = {
               <div class="fact-text"><strong>ABG</strong> is the key test in a moderate–severe exacerbation: look for respiratory acidosis (↓pH, ↑PaCO₂). A chronically elevated bicarbonate on a baseline ABG shows renal metabolic compensation for chronic CO₂ retention.</div>
             </div>
           </div>
-          <div class="fa-ref">📖 FA p.677–678 — COPD exacerbation diagnosis &amp; Anthonisen criteria</div>
         </div>
       </div>
       <div class="micro-check">
@@ -148,7 +146,6 @@ window.TOPICS['copd-exacerbation'] = {
               <div class="fact-text"><strong>NIV (BiPAP)</strong> is first-line respiratory support when there's respiratory acidosis (pH &lt;7.35) with preserved consciousness — it reduces work of breathing and avoids intubation. Reserve intubation for NIV failure, exhaustion, or reduced consciousness.</div>
             </div>
           </div>
-          <div class="fa-ref">📖 FA p.678–680 — COPD management + Bronchodilators FA Pharmacology p.663</div>
         </div>
       </div>
       <div class="micro-check">
@@ -193,18 +190,18 @@ window.TOPICS['copd-exacerbation'] = {
     history: {
       label: 'Taking History',
       stem: 'She reports worsening breathlessness and more sputum over 3 days. What is the single most important history question right now?',
-      fa: 'FA p.677 — Anthonisen criteria: dyspnoea, sputum volume, sputum purulence',
+      concept: "Concept — an exacerbation is a change from baseline across three axes: breathlessness, sputum volume and sputum purulence. Purulence is the one that decides antibiotics.",
       opts: [
-        { t: 'Has the colour or thickness of your sputum changed — is it yellow or green?', type: 'correct',
+        { t: 'Has the colour or thickness of your sputum changed — is it yellow or green?', type: 'correct', d: "Establishes whether the sputum has turned purulent.",
           fb_title: 'Correct — sputum purulence drives the antibiotic decision.',
           fb: "Purulent sputum is the strongest of the three Anthonisen criteria and the finding most closely tied to bacterial trigger and antibiotic benefit. Establishing this early shapes your entire management plan." },
-        { t: 'Have you been using your rescue inhaler more than usual?', type: 'near',
+        { t: 'Have you been using your rescue inhaler more than usual?', type: 'near', d: "Gauges symptom escalation and failure of home therapy.",
           fb_title: 'Useful, but not the priority question.',
           fb: 'Rescue inhaler overuse confirms worsening symptoms and treatment failure at home — helpful context. But it does not tell you whether this is infective, and sputum character is the higher-yield question here.' },
-        { t: 'Do you have any chest pain radiating to your jaw or arm?', type: 'wrong',
+        { t: 'Do you have any chest pain radiating to your jaw or arm?', type: 'wrong', d: "Screens for an acute coronary syndrome.",
           fb_title: 'Low pre-test probability here.',
           fb: 'Always keep ACS on your differential for breathlessness, but this patient has a clear obstructive picture (known COPD, purulent-sounding cough, wheeze). Anchoring on cardiac chest pain here delays the more relevant respiratory workup.' },
-        { t: 'How many years have you been smoking?', type: 'wrong',
+        { t: 'How many years have you been smoking?', type: 'wrong', d: "Quantifies cumulative smoking exposure.",
           fb_title: 'Background information, not acute priority.',
           fb: 'Smoking history matters for long-term risk stratification and is presumably already known (COPD diagnosis implies significant smoking history). It does not change today\'s acute management the way sputum character does.' },
       ],
@@ -212,18 +209,18 @@ window.TOPICS['copd-exacerbation'] = {
     exam: {
       label: 'Physical Examination',
       stem: 'What is the MOST important physical exam finding to check for immediately in this breathless COPD patient?',
-      fa: 'FA p.678 — Accessory muscle use, silent chest, and altered consciousness signal severe exacerbation',
+      concept: "Concept — severity in obstructive disease is read from effort and consciousness, not from how loud the chest is. A quiet chest means air is not moving.",
       opts: [
-        { t: 'Use of accessory muscles, pursed-lip breathing, and mental status', type: 'correct',
+        { t: 'Use of accessory muscles, pursed-lip breathing, and mental status', type: 'correct', d: "Measures work of breathing and conscious level.",
           fb_title: 'These flag severity and impending respiratory failure.',
           fb: 'Accessory muscle use and pursed-lip breathing show markedly increased work of breathing. Altered mental status suggests CO₂ narcosis or hypoxaemia — both are red flags for imminent respiratory failure requiring urgent escalation (NIV).' },
-        { t: 'Presence of wheeze on auscultation', type: 'near',
+        { t: 'Presence of wheeze on auscultation', type: 'near', d: "Confirms audible airflow obstruction.",
           fb_title: 'Expected, but can be falsely reassuring.',
           fb: 'Wheeze confirms airflow obstruction but is not itself a severity marker — in fact, a "silent chest" (wheeze disappearing) with minimal air movement is more ominous than loud wheeze. Don\'t stop at "wheeze present, therefore mild."' },
-        { t: 'Bilateral ankle oedema', type: 'near',
+        { t: 'Bilateral ankle oedema', type: 'near', d: "Looks for right heart strain from chronic lung disease.",
           fb_title: 'Relevant for cor pulmonale, not the acute priority.',
           fb: 'Peripheral oedema suggests chronic right heart strain (cor pulmonale) from long-standing COPD — useful chronic-disease context, but it does not tell you how the patient is doing right now the way work-of-breathing signs do.' },
-        { t: 'Clubbing of the fingers', type: 'wrong',
+        { t: 'Clubbing of the fingers', type: 'wrong', d: "Screens for chronic suppurative or malignant lung disease.",
           fb_title: 'Not expected and not the priority.',
           fb: "Clubbing is NOT typically a feature of COPD — its presence should make you reconsider the diagnosis (e.g. lung cancer, bronchiectasis, ILD). It is not a useful sign for judging this exacerbation's severity." },
       ],
@@ -231,18 +228,18 @@ window.TOPICS['copd-exacerbation'] = {
     labs: {
       label: 'Ordering Labs',
       stem: 'Which single test best confirms respiratory failure and guides your escalation decision?',
-      fa: 'FA p.678 — ABG: respiratory acidosis with compensation defines severity in COPD',
+      concept: "Concept — hypoxaemia is survivable; a rising CO₂ with a falling pH is the failure that decides escalation. Only a gas shows you that.",
       opts: [
-        { t: 'Arterial blood gas (ABG)', type: 'correct',
+        { t: 'Arterial blood gas (ABG)', type: 'correct', d: "Direct measure of oxygenation, CO₂ and acid-base status.",
           fb_title: 'ABG — the test that defines severity here.',
           fb: 'ABG directly shows PaO₂, PaCO₂, and pH. A falling pH with rising PaCO₂ (respiratory acidosis) tells you the patient is tiring and retaining CO₂ — this is exactly what determines whether NIV is needed. No other single test gives you this.' },
-        { t: 'Sputum culture', type: 'near',
+        { t: 'Sputum culture', type: 'near', d: "Identifies the organism and its sensitivities.",
           fb_title: 'Useful for targeted therapy, not urgent severity assessment.',
           fb: 'Sputum culture can guide antibiotic choice if the patient fails empiric therapy or has resistant organism risk factors, but results take days and do not inform your immediate escalation decision the way an ABG does.' },
-        { t: 'Full blood count', type: 'near',
+        { t: 'Full blood count', type: 'near', d: "Screens for anaemia and infection as precipitants.",
           fb_title: 'Supportive, not the priority.',
           fb: 'A raised white cell count supports an infective trigger and polycythaemia can reflect chronic hypoxaemia, but neither tells you the patient\'s CURRENT acid-base and ventilatory status the way ABG does.' },
-        { t: 'D-dimer', type: 'wrong',
+        { t: 'D-dimer', type: 'wrong', d: "Fibrin degradation product used to screen for thromboembolism.",
           fb_title: 'Non-specific and not the priority here.',
           fb: 'D-dimer is useful when PE is a real competing diagnosis with low pre-test probability. In a patient with a classic infective COPD exacerbation picture, it is unlikely to change management and is often falsely elevated regardless.' },
       ],
@@ -250,18 +247,18 @@ window.TOPICS['copd-exacerbation'] = {
     imaging: {
       label: 'Imaging',
       stem: 'You order a CXR. Which pattern would you EXPECT in a COPD exacerbation, and why order it at all?',
-      fa: 'FA p.677 — CXR in COPD: hyperinflation, flattened diaphragms; mainly used to exclude mimics',
+      concept: "Concept — the film does not diagnose COPD. You order it to find the thing making the COPD worse.",
       opts: [
-        { t: 'Hyperinflation + flattened diaphragms + increased retrosternal airspace — ordered mainly to exclude pneumonia or pneumothorax', type: 'correct',
+        { t: 'Hyperinflation + flattened diaphragms + increased retrosternal airspace — ordered mainly to exclude pneumonia or pneumothorax', type: 'correct', d: "Air trapping, with the film used to exclude a mimic.",
           fb_title: 'Correct — and correct reasoning for ordering it.',
           fb: "CXR in stable COPD shows hyperinflation and flattened diaphragms, but the main reason to order it during an exacerbation is to rule out a mimic or co-trigger — pneumonia, pneumothorax, or a new effusion — that would change management." },
-        { t: 'Cardiomegaly + upper lobe blood diversion + Kerley B lines', type: 'wrong',
+        { t: 'Cardiomegaly + upper lobe blood diversion + Kerley B lines', type: 'wrong', d: "Cardiac enlargement with redistributed pulmonary fluid.",
           fb_title: "That's the ADHF pattern — different pathology.",
           fb: 'Cardiomegaly with upper lobe diversion and Kerley B lines reflects cardiogenic pulmonary oedema, not obstructive lung disease. This patient\'s picture — known COPD, purulent sputum, wheeze — points to a respiratory, not cardiac, trigger. Classic Step 1 trap in reverse.' },
-        { t: 'Unilateral consolidation with air bronchograms', type: 'near',
+        { t: 'Unilateral consolidation with air bronchograms', type: 'near', d: "Focal lobar airspace opacification.",
           fb_title: 'Would suggest a co-existing pneumonia, not COPD itself.',
           fb: 'If you saw this, it would suggest a pneumonic trigger for the exacerbation rather than COPD changes alone — worth recognising, but it is not the expected baseline COPD pattern the question is asking about.' },
-        { t: 'Normal chest X-ray, no imaging needed', type: 'wrong',
+        { t: 'Normal chest X-ray, no imaging needed', type: 'wrong', d: "Proceed on clinical grounds without a film.",
           fb_title: "Skipping imaging risks missing a mimic.",
           fb: 'Even though CXR does not diagnose COPD itself, skipping it in a moderate–severe exacerbation risks missing pneumonia, pneumothorax, or effusion — any of which would change your management plan.' },
       ],
@@ -269,18 +266,18 @@ window.TOPICS['copd-exacerbation'] = {
     treat: {
       label: 'Treatment',
       stem: 'Diagnosis confirmed: moderate–severe COPD exacerbation, SpO₂ 89% on room air, purulent sputum. What is the correct IMMEDIATE management bundle?',
-      fa: 'FA p.678–680 — COPD exacerbation bundle: bronchodilators + steroids + antibiotics + controlled O₂',
+      concept: "Concept — oxygen in COPD is a drug with a target range: enough to correct tissue hypoxia, not so much that you blunt the drive to breathe.",
       opts: [
-        { t: 'Nebulised SABA + SAMA + systemic corticosteroids + antibiotics + controlled O₂ titrated to SpO₂ 88–92%', type: 'correct',
+        { t: 'Nebulised SABA + SAMA + systemic corticosteroids + antibiotics + controlled O₂ titrated to SpO₂ 88–92%', type: 'correct', d: "Bronchodilate, suppress inflammation, treat infection, oxygenate to target.",
           fb_title: 'Correct — the full evidence-based bundle.',
           fb: 'Bronchodilators relieve obstruction, steroids reduce inflammation and shorten recovery, antibiotics are indicated given purulent sputum, and controlled oxygen avoids precipitating CO₂ retention. This is the standard bundle for a moderate–severe exacerbation.' },
-        { t: 'High-flow 100% oxygen by non-rebreather mask + IV fluids', type: 'wrong',
+        { t: 'High-flow 100% oxygen by non-rebreather mask + IV fluids', type: 'wrong', d: "Maximal oxygen delivery with volume support.",
           fb_title: 'DANGEROUS — risks CO₂ narcosis.',
           fb: 'Uncontrolled high-flow oxygen in COPD can worsen V/Q mismatch and blunt respiratory drive, precipitating CO₂ retention and respiratory acidosis. Always titrate oxygen to a target range (typically SpO₂ 88–92%) in known or suspected COPD.' },
-        { t: 'Nebulised bronchodilators + corticosteroids only, hold antibiotics', type: 'near',
+        { t: 'Nebulised bronchodilators + corticosteroids only, hold antibiotics', type: 'near', d: "Treat obstruction and inflammation, withhold antimicrobials.",
           fb_title: 'Missing a clearly indicated component.',
           fb: 'Bronchodilators and steroids are correct, but this patient has purulent sputum — a clear indication for antibiotics per Anthonisen criteria. Withholding them here is a missed opportunity to treat the likely bacterial trigger.' },
-        { t: 'Immediate intubation and mechanical ventilation', type: 'wrong',
+        { t: 'Immediate intubation and mechanical ventilation', type: 'wrong', d: "Take over ventilation via a definitive airway.",
           fb_title: 'Too aggressive at this stage.',
           fb: 'This patient is hypoxic but not yet in extremis. NIV (BiPAP) is first-line if respiratory acidosis develops with preserved consciousness. Reserve intubation for NIV failure, exhaustion, or reduced consciousness — not the initial move here.' },
       ],

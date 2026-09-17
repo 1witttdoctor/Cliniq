@@ -53,7 +53,6 @@ window.TOPICS['acute-kidney-injury'] = {
               <div class="fact-text"><strong>Autoregulation — the "triple whammy":</strong> the afferent arteriole dilates (prostaglandins) and the efferent constricts (angiotensin II) to hold GFR. <em>NSAIDs</em> block afferent dilation; <em>ACE inhibitors/ARBs</em> block efferent constriction. Add <em>volume depletion</em> and GFR collapses.</div>
             </div>
           </div>
-          <div class="fa-ref">📖 FA p.586–589 — AKI classification &amp; renal autoregulation</div>
         </div>
       </div>
       <div class="micro-check">
@@ -106,7 +105,6 @@ window.TOPICS['acute-kidney-injury'] = {
               <div class="fact-text"><strong>Sediment is a shortcut:</strong> muddy-brown granular casts → ATN. RBC casts → glomerulonephritis. WBC casts + eosinophils → acute interstitial nephritis. Bland → pre-renal or post-renal.</div>
             </div>
           </div>
-          <div class="fa-ref">📖 FA p.588–590 — Urine indices, casts &amp; imaging in AKI</div>
         </div>
       </div>
       <div class="micro-check">
@@ -149,7 +147,6 @@ window.TOPICS['acute-kidney-injury'] = {
               <div class="fact-text"><strong>Dialysis indications — "AEIOU":</strong> <em>A</em>cidosis (refractory), <em>E</em>lectrolytes (refractory hyperkalaemia), <em>I</em>ngestions (dialysable toxins), <em>O</em>verload (refractory pulmonary oedema), <em>U</em>raemia (pericarditis, encephalopathy).</div>
             </div>
           </div>
-          <div class="fa-ref">📖 FA p.590–592 — AKI management + Hyperkalaemia FA p.585</div>
         </div>
       </div>
       <div class="micro-check">
@@ -194,18 +191,18 @@ window.TOPICS['acute-kidney-injury'] = {
     history: {
       label: 'Taking History',
       stem: 'His creatinine is up sharply from a normal baseline. What is the single most important line of history right now?',
-      fa: 'FA p.587 — AKI history: volume losses, nephrotoxic drugs, and urinary symptoms sort pre/intra/post',
+      concept: "Concept — every AKI is pre-renal, intrinsic or post-renal until proven otherwise. Volume history and the drug chart sort the first two; urinary symptoms sort the third.",
       opts: [
-        { t: 'Fluid losses and intake over the last few days, plus every new or regular medication — NSAIDs, ACE inhibitors, recent contrast', type: 'correct',
+        { t: 'Fluid losses and intake over the last few days, plus every new or regular medication — NSAIDs, ACE inhibitors, recent contrast', type: 'correct', d: "Maps volume state and nephrotoxic exposure together.",
           fb_title: 'Correct — this sorts the three buckets at once.',
           fb: 'Vomiting and poor intake point straight at pre-renal hypovolaemia, and NSAID + ACE inhibitor use is the "triple whammy" that strips renal autoregulation. Medication and volume history is the highest-yield question in any AKI and immediately shapes management.' },
-        { t: 'Any change in his urinary stream, hesitancy, or a sudden drop in urine volume', type: 'near',
+        { t: 'Any change in his urinary stream, hesitancy, or a sudden drop in urine volume', type: 'near', d: "Screens for lower urinary tract obstruction.",
           fb_title: 'Good — this screens for obstruction.',
           fb: 'Obstructive symptoms (hesitancy, poor stream, anuria) are important and must be asked — post-renal AKI is so reversible you never want to miss it. But given the clear volume losses and nephrotoxic meds, the fluid-and-drug history is the higher-yield opening line.' },
-        { t: 'A detailed family history of polycystic kidney disease', type: 'wrong',
+        { t: 'A detailed family history of polycystic kidney disease', type: 'wrong', d: "Looks for inherited structural kidney disease.",
           fb_title: 'Not the acute priority.',
           fb: 'Hereditary kidney disease matters for chronic risk, but this is an acute rise in creatinine from a normal baseline with obvious volume losses and nephrotoxic drugs. Family history will not change today\'s management.' },
-        { t: 'His usual dietary protein and salt intake', type: 'wrong',
+        { t: 'His usual dietary protein and salt intake', type: 'wrong', d: "Assesses chronic dietary load on the kidney.",
           fb_title: 'Low yield here.',
           fb: 'Diet is relevant to chronic kidney disease management, not to working up an acute drop in GFR. You need the acute drivers — volume status and nephrotoxins — first.' },
       ],
@@ -213,18 +210,18 @@ window.TOPICS['acute-kidney-injury'] = {
     exam: {
       label: 'Physical Examination',
       stem: 'What examination will most change your immediate reasoning?',
-      fa: 'FA p.587 — Volume status + a palpable bladder separate pre-renal from post-renal at the bedside',
+      concept: "Concept — the bedside triages AKI before any result returns: is the tank empty, or is the outflow blocked?",
       opts: [
-        { t: 'Volume status — mucous membranes, JVP, skin turgor, orthostatic BP — and palpate/percuss for a distended bladder', type: 'correct',
+        { t: 'Volume status — mucous membranes, JVP, skin turgor, orthostatic BP — and palpate/percuss for a distended bladder', type: 'correct', d: "Reads perfusion and checks for retained urine.",
           fb_title: 'Exactly the two questions the exam should answer.',
           fb: 'Volume status tells you whether this is pre-renal (dry: flat JVP, dry mucosa, postural drop) and a distended bladder flags post-renal obstruction. Together they triage pre- vs post-renal at the bedside before any lab returns.' },
-        { t: 'A focused search for peripheral oedema', type: 'near',
+        { t: 'A focused search for peripheral oedema', type: 'near', d: "Assesses interstitial fluid excess.",
           fb_title: 'Useful, but incomplete on its own.',
           fb: 'Oedema informs volume status and points toward cardiorenal or nephrotic pictures, but on its own it does not distinguish the buckets. You need the full volume assessment plus a bladder check to move your reasoning.' },
-        { t: 'Fundoscopy for hypertensive retinopathy', type: 'wrong',
+        { t: 'Fundoscopy for hypertensive retinopathy', type: 'wrong', d: "Looks for end-organ damage from chronic hypertension.",
           fb_title: 'Not the priority in acute AKI.',
           fb: 'Fundoscopy has a role in malignant hypertension or diabetic assessment, but it will not localise this acute kidney injury or change your immediate fluids-versus-obstruction decision.' },
-        { t: 'A full neurological examination', type: 'wrong',
+        { t: 'A full neurological examination', type: 'wrong', d: "Screens for uraemic encephalopathy and focal deficits.",
           fb_title: 'Not the first-line exam here.',
           fb: 'A neuro exam matters if you suspect uraemic encephalopathy, but the immediate question is volume status and obstruction. Anchoring on the nervous system delays the assessment that actually sorts the diagnosis.' },
       ],
@@ -232,18 +229,18 @@ window.TOPICS['acute-kidney-injury'] = {
     labs: {
       label: 'Ordering Labs',
       stem: 'Beyond the basic metabolic panel, which single test best CATEGORISES the AKI?',
-      fa: 'FA p.588 — Urinalysis with microscopy + FENa distinguish pre-renal, ATN, AIN, and GN',
+      concept: "Concept — creatinine tells you the kidney is failing. The urine tells you why: sodium avidity means hypoperfusion, casts mean the tubule or glomerulus is injured.",
       opts: [
-        { t: 'Urinalysis with microscopy plus urine electrolytes for the FENa', type: 'correct',
+        { t: 'Urinalysis with microscopy plus urine electrolytes for the FENa', type: 'correct', d: "Reads the sediment and how the kidney is handling sodium.",
           fb_title: 'This is the categorising test.',
           fb: 'FENa &lt; 1% with a bland sediment says pre-renal; FENa &gt; 2% with muddy-brown granular casts says ATN; RBC casts say glomerulonephritis; WBC casts and eosinophils say AIN. No other single test partitions the diagnosis like the urine does.' },
-        { t: 'A basic metabolic panel for creatinine and potassium', type: 'near',
+        { t: 'A basic metabolic panel for creatinine and potassium', type: 'near', d: "Quantifies the fall in filtration and flags hyperkalaemia.",
           fb_title: 'Essential — but it confirms AKI, it doesn\'t localise it.',
           fb: 'You must have the BMP: it defines the AKI and catches dangerous hyperkalaemia. But a rising creatinine and K⁺ tell you the kidney is failing, not why. The urine studies are what sort pre- from intra- from post-renal.' },
-        { t: 'Creatine kinase (CK)', type: 'near',
+        { t: 'Creatine kinase (CK)', type: 'near', d: "Detects skeletal muscle breakdown.",
           fb_title: 'Targeted — only if you suspect rhabdomyolysis.',
           fb: 'CK is the right call when pigment nephropathy is on the table (a found-down patient, a positive dipstick for blood with no red cells). Here there is no such trigger, so it is a directed test rather than the categorising one.' },
-        { t: 'A 24-hour urine protein collection', type: 'wrong',
+        { t: 'A 24-hour urine protein collection', type: 'wrong', d: "Quantifies total daily protein excretion.",
           fb_title: 'Wrong setting and too slow.',
           fb: 'Quantifying proteinuria matters in chronic kidney disease and glomerular workups, not in the acute triage of AKI. It takes a day to collect and will not guide your immediate management.' },
       ],
@@ -251,18 +248,18 @@ window.TOPICS['acute-kidney-injury'] = {
     imaging: {
       label: 'Imaging',
       stem: 'You want to exclude obstruction and assess the kidneys. What is the correct first study?',
-      fa: 'FA p.589 — Renal ultrasound: detects hydronephrosis and kidney size, no contrast load',
+      concept: "Concept — the first imaging question in AKI is whether it is obstructed, and it must be answered without adding another nephrotoxic hit.",
       opts: [
-        { t: 'Renal ultrasound', type: 'correct',
+        { t: 'Renal ultrasound', type: 'correct', d: "Non-contrast look at drainage, kidney size and echogenicity.",
           fb_title: 'Correct — safe, fast, and answers the question.',
           fb: 'Ultrasound detects hydronephrosis (post-renal obstruction) and shows kidney size — small echogenic kidneys would suggest chronic disease rather than acute injury. It uses no contrast and adds no nephrotoxic insult, making it the first-line structural test in AKI.' },
-        { t: 'CT abdomen with IV contrast', type: 'wrong',
+        { t: 'CT abdomen with IV contrast', type: 'wrong', d: "Cross-sectional detail using iodinated contrast.",
           fb_title: 'Adds a nephrotoxin to a failing kidney.',
           fb: 'Iodinated IV contrast risks contrast-associated nephropathy in an already injured kidney and is the wrong first move. If cross-sectional detail is truly needed, a non-contrast CT (e.g. for stones) is preferred — but ultrasound answers the obstruction question first.' },
-        { t: 'Bladder scan for post-void residual', type: 'near',
+        { t: 'Bladder scan for post-void residual', type: 'near', d: "Bedside measure of retained bladder volume.",
           fb_title: 'Helpful for obstruction — but narrower than ultrasound.',
           fb: 'A bladder scan quickly flags lower-tract obstruction (e.g. BPH with retention) and is a reasonable bedside adjunct. But renal ultrasound covers the upper tracts and kidney size too, so it is the more complete first study.' },
-        { t: 'Renal biopsy', type: 'wrong',
+        { t: 'Renal biopsy', type: 'wrong', d: "Tissue diagnosis of intrinsic renal pathology.",
           fb_title: 'Not a first-line test.',
           fb: 'Biopsy is reserved for intrinsic AKI that stays unexplained after non-invasive workup — suspected rapidly progressive glomerulonephritis or vasculitis. It is never the opening structural study in undifferentiated AKI.' },
       ],
@@ -270,18 +267,18 @@ window.TOPICS['acute-kidney-injury'] = {
     treat: {
       label: 'Treatment',
       stem: 'Diagnosis confirmed: pre-renal AKI from hypovolaemia, compounded by an NSAID and an ACE inhibitor, sediment bland and FENa &lt; 1%. What is the correct management?',
-      fa: 'FA p.590 — Pre-renal AKI: restore perfusion, remove nephrotoxins, monitor K⁺',
+      concept: "Concept — pre-renal injury is a perfusion problem, not a urine-output problem. Restore flow and remove the drugs blocking autoregulation; forcing urine does the opposite.",
       opts: [
-        { t: 'Restore perfusion with IV isotonic crystalloid, stop the NSAID and hold the ACE inhibitor, and monitor urine output and potassium', type: 'correct',
+        { t: 'Restore perfusion with IV isotonic crystalloid, stop the NSAID and hold the ACE inhibitor, and monitor urine output and potassium', type: 'correct', d: "Refill the circulation and withdraw the offending drugs.",
           fb_title: 'Correct — treat the cause, remove the insults.',
           fb: 'Pre-renal AKI reverses when you refill the tank: isotonic fluids restore renal perfusion, and stopping the NSAID and ACE inhibitor removes the two drugs blocking autoregulation. Close monitoring of urine output and potassium guards against overload and hyperkalaemia as the kidney recovers.' },
-        { t: 'Give IV furosemide to force urine output', type: 'wrong',
+        { t: 'Give IV furosemide to force urine output', type: 'wrong', d: "Drive diuresis with a loop diuretic.",
           fb_title: 'Wrong — diuretics do not treat pre-renal AKI.',
           fb: 'The problem is under-perfusion; a diuretic worsens hypovolaemia and can deepen the injury. Diuretics only manage established volume overload after the patient is adequately filled — they never "flush out" AKI or improve outcomes.' },
-        { t: 'Give IV fluids but continue all of his home medications unchanged', type: 'near',
+        { t: 'Give IV fluids but continue all of his home medications unchanged', type: 'near', d: "Volume replacement with the drug chart left untouched.",
           fb_title: 'Half right — you missed the nephrotoxins.',
           fb: 'Fluids are correct, but continuing the NSAID and ACE inhibitor leaves the two drugs crippling renal autoregulation in place. You have to both restore perfusion and remove the offending agents, then dose-adjust everything to the current GFR.' },
-        { t: 'Start urgent haemodialysis', type: 'wrong',
+        { t: 'Start urgent haemodialysis', type: 'wrong', d: "Immediate extracorporeal clearance.",
           fb_title: 'Not indicated here.',
           fb: 'Dialysis is for the refractory complications — the AEIOU list (acidosis, refractory hyperkalaemia, ingestions, refractory overload, uraemia). This patient has reversible pre-renal AKI that should respond to fluids and drug withdrawal, so dialysis is premature.' },
       ],

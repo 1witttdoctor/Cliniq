@@ -53,7 +53,6 @@ window.TOPICS['heart-failure'] = {
               <div class="fact-text"><strong>BNP</strong> (Brain Natriuretic Peptide) is released by ventricular myocytes when the wall is stretched by pressure/volume overload. It's the biomarker of HF. BNP >100 pg/mL = cardiac dyspnea confirmed.</div>
             </div>
           </div>
-          <div class="fa-ref">📖 FA p.280–282 — Cardiac physiology &amp; Frank-Starling</div>
         </div>
       </div>
       <div class="micro-check">
@@ -106,7 +105,6 @@ window.TOPICS['heart-failure'] = {
               <div class="fact-text"><strong>Echo</strong> gives you EF. <em>HFrEF</em> = EF &lt;40% (systolic failure). <em>HFpEF</em> = EF ≥50% (diastolic failure — stiff ventricle, can't fill). Different pathophysiology, different management.</div>
             </div>
           </div>
-          <div class="fa-ref">📖 FA p.283–285 — HF presentation &amp; investigations</div>
         </div>
       </div>
       <div class="micro-check">
@@ -152,7 +150,6 @@ window.TOPICS['heart-failure'] = {
               <div class="fact-text"><strong>Furosemide mechanism:</strong> Inhibits Na⁺/K⁺/2Cl⁻ co-transporter in thick ascending limb of loop of Henle. Reduces preload. Monitor K⁺ (hypokalaemia risk).</div>
             </div>
           </div>
-          <div class="fa-ref">📖 FA p.286–290 — HF management + FA Pharmacology p.245</div>
         </div>
       </div>
       <div class="micro-check">
@@ -197,18 +194,18 @@ window.TOPICS['heart-failure'] = {
     history: {
       label: 'Taking History',
       stem: 'The patient is breathless, cannot lie flat, and has swollen legs. What is the single most important history question right now?',
-      fa: 'FA p.283 — HF history: orthopnoea, PND, exertional dyspnoea are cardinal symptoms',
+      concept: "Concept — in a breathless cardiac patient, exclude the acute killer before characterising the chronic syndrome.",
       opts: [
-        { t: 'Any chest pain or pressure associated with this breathlessness?', type: 'correct',
+        { t: 'Any chest pain or pressure associated with this breathlessness?', type: 'correct', d: "Screens for an acute coronary event driving the decompensation.",
           fb_title: 'Correct — ACS must be excluded first.',
           fb: 'Acute MI can precipitate acute decompensated HF. Always ask about chest pain before anything else in a breathless cardiac patient — it changes your immediate management. Ruling out ACS is step one.' },
-        { t: 'How many pillows do you use to sleep at night?', type: 'near',
+        { t: 'How many pillows do you use to sleep at night?', type: 'near', d: "Quantifies orthopnoea, a marker of cardiac dyspnoea.",
           fb_title: 'Good — orthopnoea confirms cardiac dyspnoea.',
           fb: "Orthopnoea (needing pillows to breathe) strongly favours cardiac over respiratory dyspnoea. Good question — but ask about chest pain first to exclude an acute coronary event driving this presentation." },
-        { t: 'Any recent fever or cough suggesting infection?', type: 'wrong',
+        { t: 'Any recent fever or cough suggesting infection?', type: 'wrong', d: "Looks for an infective trigger or a respiratory mimic.",
           fb_title: 'Not the priority here.',
           fb: 'Infection can trigger HF decompensation but bilateral leg oedema + orthopnoea + prior MI strongly points cardiac. Pursuing infection history first when there are clear cardiac flags wastes critical time.' },
-        { t: 'Any recent change in your medications?', type: 'wrong',
+        { t: 'Any recent change in your medications?', type: 'wrong', d: "Checks adherence and new drugs that precipitate decompensation.",
           fb_title: 'Relevant later — not your opening question.',
           fb: 'Non-compliance with diuretics/ACEi is a common HF trigger, but with acute decompensation you need to establish the acute risk (ACS? shock?) before taking a drug history.' },
       ],
@@ -216,18 +213,18 @@ window.TOPICS['heart-failure'] = {
     exam: {
       label: 'Physical Examination',
       stem: 'What is the MOST diagnostically specific physical exam finding for confirming a cardiac cause of this presentation?',
-      fa: 'FA p.283 — Elevated JVP + S3 + basal crackles = classic ADHF triad',
+      concept: "Concept — specificity beats sensitivity. Central congestion signs localise to the heart; peripheral ones have too many causes.",
       opts: [
-        { t: 'Elevated JVP + bilateral basal crackles + S3 gallop', type: 'correct',
+        { t: 'Elevated JVP + bilateral basal crackles + S3 gallop', type: 'correct', d: "Central signs of raised cardiac filling pressures.",
           fb_title: 'The classic ADHF triad.',
           fb: 'Elevated JVP = raised right-sided filling pressures (cardiac). Basal crackles = pulmonary oedema from raised PCWP (cardiac). S3 = volume-overloaded ventricle (cardiac). This triad essentially confirms ADHF without investigations.' },
-        { t: 'Bilateral pitting oedema to the knees', type: 'near',
+        { t: 'Bilateral pitting oedema to the knees', type: 'near', d: "Peripheral marker of fluid retention.",
           fb_title: 'Supportive but not specific.',
           fb: 'Bilateral oedema has many causes — venous insufficiency, hypoalbuminaemia, CCBs, nephrotic syndrome. It supports HF but central signs (JVP, S3, crackles) are far more specific for cardiac aetiology.' },
-        { t: 'Dullness to percussion at both lung bases', type: 'near',
+        { t: 'Dullness to percussion at both lung bases', type: 'near', d: "Screens for pleural effusions.",
           fb_title: 'Suggests pleural effusions — not specific.',
           fb: 'Pleural effusions occur in HF but also in pneumonia, malignancy, PE, hypoalbuminaemia. The JVP + S3 + crackles triad is specific to cardiac congestion — dullness alone does not differentiate.' },
-        { t: 'Tender hepatomegaly', type: 'wrong',
+        { t: 'Tender hepatomegaly', type: 'wrong', d: "Assesses congestive hepatopathy from right heart strain.",
           fb_title: 'Late right HF sign — not most diagnostic.',
           fb: 'Congestive hepatopathy and hepatomegaly indicate established right heart failure. While relevant, this is a late finding. The JVP + S3 + crackles triad is the primary diagnostic combination for ADHF.' },
       ],
@@ -235,18 +232,18 @@ window.TOPICS['heart-failure'] = {
     labs: {
       label: 'Ordering Labs',
       stem: 'Which single lab result best confirms the diagnosis AND helps gauge severity?',
-      fa: 'FA p.284 — BNP: the HF biomarker. >100 pg/mL confirms cardiac dyspnoea.',
+      concept: "Concept — one test confirms the syndrome (ventricular wall stress), another excludes its trigger (myocyte injury). They answer different questions.",
       opts: [
-        { t: 'BNP (Brain Natriuretic Peptide)', type: 'correct',
+        { t: 'BNP (Brain Natriuretic Peptide)', type: 'correct', d: "Ventricular wall-stress biomarker, released under volume load.",
           fb_title: 'BNP — the definitive HF biomarker.',
           fb: "BNP >100 pg/mL (or NT-proBNP >300) confirms cardiac dyspnoea with high sensitivity. It's released by ventricular myocytes under wall stress. BNP also correlates with severity and guides discharge — should fall >30% before safe discharge." },
-        { t: 'Troponin I', type: 'near',
+        { t: 'Troponin I', type: 'near', d: "Marker of myocardial injury.",
           fb_title: 'Important — but confirms ACS, not HF.',
           fb: 'Troponin is essential to rule out ACS as the precipitant (always order it). Mildly elevated troponin also occurs in ADHF itself ("demand ischaemia"). But troponin doesn\'t confirm HF — BNP does. Order both.' },
-        { t: 'Full blood count', type: 'near',
+        { t: 'Full blood count', type: 'near', d: "Screens for anaemia and infection as precipitants.",
           fb_title: 'Useful for triggers — not diagnostic.',
           fb: 'Anaemia (Hb <10) can precipitate or worsen HF by increasing cardiac demand. Always check FBC. But it doesn\'t confirm the diagnosis. BNP, troponin, and U&E/renal function are your priority labs.' },
-        { t: 'Liver function tests', type: 'wrong',
+        { t: 'Liver function tests', type: 'wrong', d: "Assesses hepatic congestion and drug tolerance.",
           fb_title: 'Not your first priority.',
           fb: "LFTs are useful for assessing congestive hepatopathy in chronic HF and monitoring medications. But in the acute setting they don't confirm diagnosis or guide immediate management. Focus on BNP, troponin, renal function first." },
       ],
@@ -254,18 +251,18 @@ window.TOPICS['heart-failure'] = {
     imaging: {
       label: 'Imaging',
       stem: 'You order a CXR. Which pattern would you EXPECT in acute decompensated HF?',
-      fa: 'FA p.284 — CXR in ADHF: cardiomegaly + upper lobe diversion + Kerley B lines + bat-wing oedema',
+      concept: "Concept — the failing heart redistributes fluid by hydrostatic pressure, so the film changes are bilateral. Air trapping and focal consolidation belong to other diseases.",
       opts: [
-        { t: 'Cardiomegaly + upper lobe blood diversion + Kerley B lines + perihilar bat-wing opacity', type: 'correct',
+        { t: 'Cardiomegaly + upper lobe blood diversion + Kerley B lines + perihilar bat-wing opacity', type: 'correct', d: "Cardiac enlargement with redistributed pulmonary fluid.",
           fb_title: 'The classic ADHF CXR — memorise this.',
           fb: 'CTR >0.5 = dilated chambers. Upper lobe diversion = PCWP >12 mmHg. Kerley B lines = engorged lymphatics at pleural edges (1–2cm horizontal lines). Bat-wing perihilar opacity = bilateral pulmonary oedema. This constellation = ADHF on CXR.' },
-        { t: 'Hyperinflation + flattened diaphragm + ↑AP diameter', type: 'wrong',
+        { t: 'Hyperinflation + flattened diaphragm + ↑AP diameter', type: 'wrong', d: "Air trapping and chest-wall changes of obstructive disease.",
           fb_title: "That's COPD/emphysema — different pathology entirely.",
           fb: 'Hyperinflation with flattened diaphragms = obstructive lung disease (COPD, emphysema). This patient has cardiac pathology. The HF CXR shows fluid redistribution and cardiac enlargement, not air trapping. Classic Step 1 trap.' },
-        { t: 'Bilateral lower zone ground-glass opacification', type: 'near',
+        { t: 'Bilateral lower zone ground-glass opacification', type: 'near', d: "Diffuse alveolar filling at both bases.",
           fb_title: 'Possible in pulmonary oedema — but not specific.',
           fb: 'Ground-glass changes can occur in pulmonary oedema but also in pneumonia, ARDS, pulmonary haemorrhage. The specific ADHF pattern is cardiomegaly + upper lobe diversion + Kerley B lines — the full constellation.' },
-        { t: 'Unilateral consolidation with air bronchograms', type: 'wrong',
+        { t: 'Unilateral consolidation with air bronchograms', type: 'wrong', d: "Focal lobar airspace opacification.",
           fb_title: 'Classic pneumonia — not HF.',
           fb: 'Unilateral lobar consolidation with air bronchograms = bacterial pneumonia. HF causes BILATERAL changes reflecting raised hydrostatic pressure. If you see unilateral opacity, reconsider your differential — could be missed pneumonia triggering HF.' },
       ],
@@ -273,18 +270,18 @@ window.TOPICS['heart-failure'] = {
     treat: {
       label: 'Treatment',
       stem: 'Diagnosis confirmed: acute decompensated HFrEF, EF 28%, SpO₂ 88% on room air. What is the correct IMMEDIATE management bundle?',
-      fa: 'FA p.286–288 — Acute HF management + Loop diuretics FA Pharmacology p.245',
+      concept: "Concept — in acute decompensation you unload the ventricle. Drugs that improve survival by reducing contractility are started only once the patient is dry and stable.",
       opts: [
-        { t: 'Supplemental O₂ + sit upright + IV furosemide + continuous monitoring', type: 'correct',
+        { t: 'Supplemental O₂ + sit upright + IV furosemide + continuous monitoring', type: 'correct', d: "Oxygenate, offload preload, and watch for deterioration.",
           fb_title: 'Correct acute ADHF bundle.',
           fb: 'O₂ targets SpO₂ ≥94%. Sitting upright reduces venous return to the heart (↓preload). IV furosemide causes immediate venodilation (within minutes) then diuresis — rapid preload reduction. Continuous monitoring for arrhythmias and haemodynamic deterioration.' },
-        { t: 'Start oral metoprolol 25mg + lisinopril immediately', type: 'wrong',
+        { t: 'Start oral metoprolol 25mg + lisinopril immediately', type: 'wrong', d: "Begin long-term neurohormonal blockade now.",
           fb_title: 'DANGEROUS — never start BB in acute decompensation.',
           fb: 'Beta-blockers are CONTRAINDICATED in acute ADHF — they reduce contractility and worsen haemodynamics acutely. If patient is already on a BB, continue at lower dose. Only initiate after achieving euvolaemia. Lisinopril can be started once stable.' },
-        { t: 'IV furosemide + IV dobutamine + urgent cardiology consult', type: 'near',
+        { t: 'IV furosemide + IV dobutamine + urgent cardiology consult', type: 'near', d: "Diuresis plus inotropic support and specialist input.",
           fb_title: 'Partially correct — dobutamine only for low-output.',
           fb: 'Furosemide is correct. Dobutamine (inotrope) is reserved for cardiogenic shock / low-output state (cold + wet profile: low BP, low CO, high filling pressures). If BP and perfusion are adequate, start with diuresis alone. Cardiology consult is appropriate.' },
-        { t: 'IV norepinephrine + intubation + ICU transfer', type: 'wrong',
+        { t: 'IV norepinephrine + intubation + ICU transfer', type: 'wrong', d: "Full haemodynamic and ventilatory takeover.",
           fb_title: 'Too aggressive — this is not yet cardiogenic shock.',
           fb: 'Vasopressors and intubation are for cardiogenic shock (SBP <90 + end-organ hypoperfusion). Even in severe ADHF, try diuresis + O₂ first. Escalate to vasopressors/intubation only if haemodynamics do not respond or the patient tires.' },
       ],

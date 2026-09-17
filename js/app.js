@@ -11,6 +11,7 @@ let S = {
   ddxAnswered: 0,
   ddxDone: false,
   twistShown: false,
+  vit: [], pressure: 0, deteriorated: false, openPanel: null,
   log: [],          // { type, picked, correct, q, fb, fa }
   ddxLog: [],       // { name, correct, picked }
 };
@@ -74,11 +75,16 @@ function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
   // Screen-aware ambient: home = body map (no DNA), reading screens = calm, topic = full
-  document.body.classList.remove('screen-home', 'reading');
+  document.body.classList.remove('screen-home', 'screen-case', 'reading');
   if (id === 'home') document.body.classList.add('screen-home');
-  else if (id === 'learn' || id === 'case' || id === 'review') document.body.classList.add('reading');
+  else if (id === 'case') document.body.classList.add('screen-case', 'reading');
+  else if (id === 'learn' || id === 'review') document.body.classList.add('reading');
   // pause the console ECG loop when it's off-screen
   if (id !== 'home' && ecgRAF) { cancelAnimationFrame(ecgRAF); ecgRAF = null; }
+  if (id !== 'case') {
+    if (caseECGRAF) { cancelAnimationFrame(caseECGRAF); caseECGRAF = null; }
+    stopClock();
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -318,7 +324,8 @@ function ecgWave(t) {
        + g(0.62, 0.040, 0.30);  // T
 }
 
-function drawECG(canvas, phase) {
+function drawECG(canvas, phase, opts) {
+  opts = opts || {};
   const dpr = window.devicePixelRatio || 1;
   const w = canvas.clientWidth, h = canvas.clientHeight;
   if (!w || !h) return;
@@ -329,10 +336,13 @@ function drawECG(canvas, phase) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, w, h);
 
-  const mid = h * 0.56, amp = h * 0.40, cycle = 118;
+  // Faster heart rate = shorter cycle = tighter complexes on the strip.
+  const mid = h * 0.58, amp = h * 0.40;
+  const cycle = opts.cycle || 118;
+  const col = opts.color || '#ffb84d';
   ctx.lineWidth = 1.7; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-  ctx.strokeStyle = '#ffb84d';
-  ctx.shadowColor = 'rgba(255,184,77,0.5)'; ctx.shadowBlur = 6;
+  ctx.strokeStyle = col;
+  ctx.shadowColor = opts.glow || 'rgba(255,184,77,0.5)'; ctx.shadowBlur = 6;
   ctx.beginPath();
   for (let x = 0; x <= w; x++) {
     const t = ((((x + phase) % cycle) + cycle) % cycle) / cycle;
@@ -340,6 +350,7 @@ function drawECG(canvas, phase) {
     if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
+  ctx.shadowBlur = 0;
 }
 
 function startBoardECG() {
@@ -369,7 +380,6 @@ function selectTopic(id) {
   document.getElementById('topic-title').textContent = topic.title;
   document.getElementById('topic-desc').textContent = topic.desc;
   document.getElementById('topic-tags').innerHTML = topic.tags.map(t => `<span class="tag ${t.cls}">${t.label}</span>`).join('');
-  document.getElementById('case-eyebrow-text').textContent = `Clinical Case · ${topic.title}`;
 
   show('topic');
 }
@@ -419,194 +429,435 @@ function nextLayer() {
 }
 
 // ────────────────────────────────────────────────
-// CASE INIT
+// COCKPIT — case engine
 // ────────────────────────────────────────────────
+
+/* Pick a glyph from the wording of an order, so new cases need no
+   icon authoring. First rule that matches wins — keep specific
+   phrases above the general ones. */
+const ICON_RULES = [
+  [/coronary angiograph|cardiac cath/i,                                   'heart'],
+  [/\becg\b|electrocardiogram|telemetry|rhythm strip|\bekg\b/i,           'ecg'],
+  [/ct\b|computed tomograph|ctpa|\bcta\b/i,                               'ct'],
+  [/echo|ultrasound|\btte\b|\btoe\b|doppler|sonograph/i,                  'ultrasound'],
+  [/x-?ray|\bcxr\b|radiograph|\bkub\b/i,                                  'xray'],
+  [/urinalysis|urine|urinary|\bfena\b|catheter|dipstick/i,                'droplet'],
+  [/microscop|casts|sediment|biopsy|blood film|gram stain|culture/i,      'microscope'],
+  [/troponin|\bbnp\b|natriuretic|\bfbc\b|full blood|\bu&e\b|electrolyte|lactate|creatinine|urea|\blft\b|liver function|\babg\b|blood gas|\bcrp\b|d-?dimer|serum|bloods/i, 'tube'],
+  [/oxygen|non-?rebreather|nasal cannula|\bniv\b|bipap|cpap|ventilat|intubat|nebulis|nebuliz|inhaler|airway/i, 'oxygen'],
+  [/crystalloid|saline|hartmann|fluid bolus|\biv fluid|infusion|noradrenaline|norepinephrine|dobutamine|vasopressor/i, 'iv'],
+  [/inject|subcutaneous|\bim\b |heparin|enoxaparin|thromboly/i,           'syringe'],
+  [/blood pressure|\bbp\b|haemodynamic|hemodynamic/i,                     'cuff'],
+  [/auscultat|palpat|percuss|\bjvp\b|examin|inspect|bedside/i,            'stethoscope'],
+  [/pulmonary|\bpe\b|lung|respirat|pneumo|chest wall/i,                   'lungs'],
+  [/ask|enquire|history|pillows|onset|questionn/i,                        'clipboard'],
+  [/furosemide|diuretic|tablet|\bpo\b|oral|dose|mg\b|start .*(pril|olol|statin|zosin)/i, 'pill'],
+];
+const ICON_FALLBACK = { history: 'clipboard', exam: 'stethoscope', labs: 'tube', imaging: 'xray', treat: 'pill' };
+
+function iconFor(text, qtype) {
+  for (const [re, name] of ICON_RULES) if (re.test(text)) return name;
+  return ICON_FALLBACK[qtype] || 'clipboard';
+}
+
+// ── vitals ───────────────────────────────────────
+const VITAL_UNITS = { BP: 'mmHg', HR: 'bpm', RR: '/min', 'SpO₂': '%', Temp: '°C' };
+
+function vitalNum(v) {
+  const m = String(v).match(/-?\d+(\.\d+)?/);
+  return m ? parseFloat(m[0]) : NaN;
+}
+
+/* Strip the unit out of the stored value so it can sit under the number
+   the way a real monitor prints it. */
+function normVital(v) {
+  return {
+    lab: v.l,
+    val: String(v.v).replace(/\s*(%|°C|mmHg|bpm)\s*$/i, '').trim(),
+    unit: VITAL_UNITS[v.l] || '',
+    level: v.n ? 'crit' : v.w ? 'warn' : '',
+    trend: v.tr || '',
+  };
+}
+
+/* Turn the live vitals into the clinical words a doctor would use.
+   Direction matters — 88/60 and 168/102 are both "abnormal BP" but
+   they mean opposite things. */
+function considerations(vitals) {
+  const out = [];
+  for (const v of vitals) {
+    const n = vitalNum(v.val);
+    if (isNaN(n)) continue;
+    if (v.lab === 'BP')        { if (n < 90) out.push('Hypotension'); else if (n > 140) out.push('Hypertension'); }
+    else if (v.lab === 'HR')   { if (n > 100) out.push('Tachycardia'); else if (n < 60) out.push('Bradycardia'); }
+    else if (v.lab === 'RR')   { if (n > 20) out.push('Tachypnoea'); }
+    else if (v.lab === 'SpO₂') { if (n < 92) out.push('Hypoxaemia'); }
+    else if (v.lab === 'Temp') { if (n >= 38) out.push('Pyrexia'); else if (n < 36) out.push('Hypothermia'); }
+  }
+  return out;
+}
+
+function renderVitals() {
+  document.getElementById('vitals-row').innerHTML = S.vit.map(v => `
+    <div class="vital ${v.level}">
+      <div class="v-lab">${v.lab}</div>
+      <div class="v-val">${v.val}${v.trend ? `<span class="v-trend">${v.trend}</span>` : ''}</div>
+      <div class="v-unit">${v.unit}</div>
+    </div>`).join('');
+}
+
+// ── clock ────────────────────────────────────────
+let caseTimer = null, caseSec = 0;
+
+function fmtClock(s) {
+  const m = Math.floor(s / 60), r = s % 60;
+  return String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0');
+}
+
+function startClock() {
+  clearInterval(caseTimer);
+  caseSec = 0;
+  document.getElementById('sim-clock').textContent = '00:00';
+  caseTimer = setInterval(() => {
+    caseSec++;
+    const el = document.getElementById('sim-clock');
+    if (el) el.textContent = fmtClock(caseSec);
+  }, 1000);
+}
+function stopClock() { clearInterval(caseTimer); caseTimer = null; }
+
+// ── monitor trace ────────────────────────────────
+let caseECGRAF = null;
+
+function startCaseECG() {
+  if (caseECGRAF) { cancelAnimationFrame(caseECGRAF); caseECGRAF = null; }
+  const c = document.getElementById('case-ecg');
+  if (!c) return;
+
+  const hr = vitalNum((S.vit.find(v => v.lab === 'HR') || {}).val) || 80;
+  const crit = S.deteriorated;
+  const opts = {
+    cycle: Math.max(46, 9400 / hr),
+    color: crit ? '#f0524f' : '#46c98b',
+    glow: crit ? 'rgba(240,82,79,0.45)' : 'rgba(70,201,139,0.4)',
+  };
+  document.getElementById('trace-rhythm').textContent =
+    hr > 100 ? 'Sinus tachycardia' : hr < 60 ? 'Sinus bradycardia' : 'Sinus rhythm';
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { drawECG(c, 0, opts); return; }
+  let phase = 0;
+  const loop = () => {
+    phase += 1.1;
+    drawECG(c, phase, opts);
+    caseECGRAF = requestAnimationFrame(loop);
+  };
+  caseECGRAF = requestAnimationFrame(loop);
+}
+
+// ── findings log ─────────────────────────────────
+function addLog(kind, text) {
+  const log = document.getElementById('info-log');
+  if (!log) return;
+  document.querySelectorAll('.log-line.here').forEach(e => e.remove());
+  const row = document.createElement('div');
+  row.className = 'log-line ' + (kind || '');
+  const mark = kind === 'good' ? '✓' : kind === 'near' ? '~' : kind === 'bad' ? '✗' : '';
+  row.innerHTML = `<span class="log-t">${fmtClock(caseSec)}</span>` +
+                  `<span class="log-x">${mark ? mark + ' ' : ''}${text}</span>`;
+  log.appendChild(row);
+  const here = document.createElement('div');
+  here.className = 'log-line here';
+  here.innerHTML = `<span class="log-t">${fmtClock(caseSec)}</span><span class="log-x">You are here</span>`;
+  log.appendChild(here);
+}
+
+// ── deterioration: driven by decisions, never by the wall clock ──
+const PRESSURE = { correct: 0.04, near: 0.14, wrong: 0.36 };
+
+function applyPressure(answerType) {
+  S.pressure += PRESSURE[answerType] || 0;
+  if (S.deteriorated || S.pressure < 0.6 || S.ddxDone) return;
+
+  const topic = window.TOPICS[currentTopicId];
+  const worse = (topic.sevConf.severe || {}).vitals;
+  if (!worse) return;
+
+  S.deteriorated = true;
+
+  // Move each vital toward the severe presentation and mark the direction.
+  const prev = S.vit.map(v => vitalNum(v.val));
+  S.vit = worse.map(normVital);
+  S.vit.forEach((v, i) => {
+    const now = vitalNum(v.val);
+    if (isNaN(now) || isNaN(prev[i])) return;
+    if (now > prev[i] + 0.5) v.trend = '↑';
+    else if (now < prev[i] - 0.5) v.trend = '↓';
+  });
+  renderVitals();
+  startCaseECG();
+
+  const words = considerations(S.vit).slice(0, 3).join(', ').toLowerCase();
+  const band = document.getElementById('alert-band');
+  document.getElementById('alert-ico').innerHTML = icon('alert');
+  document.getElementById('alert-text').textContent =
+    'Patient deteriorating — ' + (words || 'haemodynamic instability');
+  band.classList.add('show');
+
+  addLog('crit', (topic.sevConf.severe.twist || 'Repeat observations show deterioration.'));
+  renderSidebar();
+}
+
+// ── CASE INIT ────────────────────────────────────
 function startCase(forceSev) {
   const topic = window.TOPICS[currentTopicId];
   S.learnDone = true;
-
-  document.getElementById('pt-name').textContent = topic.patient.name;
-  document.getElementById('pt-meta').textContent = topic.patient.meta;
-  document.getElementById('pt-cc').textContent = topic.patient.cc;
 
   const sev = (forceSev && topic.sevConf[forceSev])
     ? forceSev
     : topic.severities[Math.floor(Math.random() * topic.severities.length)];
   S.severity = sev;
-  const sc = topic.sevConf[sev];
+  S.vit = topic.sevConf[sev].vitals.map(normVital);
+  S.pressure = 0;
+  S.deteriorated = false;
 
-  // severity badge
-  const pill = document.getElementById('sev-pill');
-  pill.className = 'sev-pill ' + sc.cls;
-  pill.textContent = sc.label + ' presentation';
+  document.getElementById('sim-ctx').textContent = topic.system;
+  document.getElementById('sim-case-no').textContent =
+    'Case ' + String(topic.number || 1).padStart(3, '0') + ' · ' + topic.sevConf[sev].label;
+  document.getElementById('pt-name').textContent = topic.patient.name;
+  document.getElementById('pt-meta').textContent = topic.patient.meta;
+  document.getElementById('pt-cc').textContent = topic.patient.cc;
+  document.getElementById('alert-band').classList.remove('show');
 
-  // vitals
-  const vr = document.getElementById('vitals-row');
-  vr.innerHTML = sc.vitals.map(v =>
-    `<div class="vital-chip ${v.n ? 'abn' : v.w ? 'warn' : ''}">
-      <div class="v-label">${v.l}</div>
-      <div class="v-val">${v.v}</div>
-    </div>`
-  ).join('');
+  renderVitals();
+  renderOrderNav();
+  renderSidebar();
+  renderIdle();
 
-  // delayed twist
-  if (sc.twist) {
-    setTimeout(() => {
-      if (S.twistShown || S.ddxDone) return;
-      S.twistShown = true;
-      document.getElementById('twist-text').textContent = sc.twist;
-      document.getElementById('twist-box').classList.add('show');
-      addLog('⚠️', sc.twist);
-    }, 10000);
-  }
+  document.getElementById('info-log').innerHTML = '';
+  addLog('', 'Patient arrived in the department.');
+  if (topic.patient.inspection) addLog('', topic.patient.inspection);
 
   show('case');
+  startClock();
+  requestAnimationFrame(startCaseECG);
 }
 
-// ────────────────────────────────────────────────
-// LOG
-// ────────────────────────────────────────────────
-function addLog(icon, text) {
-  const log = document.getElementById('info-log');
-  const row = document.createElement('div');
-  row.className = 'log-row';
-  row.innerHTML = `<span class="log-ico">${icon}</span><span class="log-txt">${text}</span>`;
-  log.appendChild(row);
-  log.scrollTop = log.scrollHeight;
+// ── left rail: orders ────────────────────────────
+const ORDERS = [
+  { k: 'history',  ic: 'clipboard',    t: 'History' },
+  { k: 'exam',     ic: 'stethoscope',  t: 'Examination' },
+  { k: 'labs',     ic: 'tube',         t: 'Bloods' },
+  { k: 'imaging',  ic: 'xray',         t: 'Imaging' },
+  { k: 'diagnose', ic: 'branch',       t: 'Differential' },
+  { k: 'treat',    ic: 'pill',         t: 'Treatment' },
+];
+
+function renderOrderNav() {
+  document.getElementById('order-nav').innerHTML = ORDERS.map(o => {
+    const done = o.k === 'diagnose' ? S.ddxDone : S.usedActions.has(o.k);
+    const locked = o.k === 'treat' && !S.ddxDone;
+    const on = S.openPanel === o.k;
+    const fn = o.k === 'diagnose' ? 'openDDx()' : `openQ('${o.k}')`;
+    return `<button class="onav ${done ? 'done' : ''} ${on ? 'on' : ''}"
+              ${locked ? 'disabled' : ''} onclick="${fn}">
+              ${icon(o.ic)}<span>${o.t}</span>
+              ${done ? `<span class="onav-tick">${icon('check')}</span>` : ''}
+            </button>`;
+  }).join('');
 }
 
-// ────────────────────────────────────────────────
-// QUESTIONS
-// ────────────────────────────────────────────────
+// ── right rail ───────────────────────────────────
+function renderSidebar() {
+  const topic = window.TOPICS[currentTopicId];
+  const cons = considerations(S.vit);
+  const goal = topic.goal || (S.ddxDone
+    ? ['Confirm the working diagnosis', 'Start definitive therapy', 'Prevent further deterioration']
+    : ['Characterise the presentation', 'Narrow the differential', 'Identify reversible causes']);
+
+  // Etiologies stay hidden until an answer is in — otherwise they hand
+  // you the differential before you have reasoned about it.
+  const revealed = S.log.length > 0;
+  const etio = topic.ddx.map(d => d.name);
+
+  document.getElementById('ck-right').innerHTML = `
+    <div class="side-block">
+      <div class="col-label">Key considerations</div>
+      <div class="side-list">
+        ${cons.length
+          ? cons.map(c => `<div class="side-item hi">${c}</div>`).join('')
+          : '<div class="side-item">Observations within normal limits</div>'}
+        ${S.deteriorated ? '<div class="side-item hi">Clinical deterioration</div>' : ''}
+      </div>
+    </div>
+    <div class="side-block ${revealed ? '' : 'locked'}">
+      <div class="col-label">Possible etiologies</div>
+      <div class="side-list">${etio.map(e => `<div class="side-item">${e}</div>`).join('')}</div>
+      ${revealed ? '' : '<div class="side-lock">Reveals after your first answer</div>'}
+    </div>
+    <div class="side-block">
+      <div class="col-label">Goal</div>
+      <div class="side-list">${goal.map(g => `<div class="side-item">${g}</div>`).join('')}</div>
+    </div>`;
+}
+
+// ── centre: idle ─────────────────────────────────
+function renderIdle() {
+  S.openPanel = null;
+  const n = S.usedActions.size;
+  document.getElementById('ck-mid').innerHTML = `
+    <div class="ws-head">
+      <span class="ws-kicker">Awaiting orders</span>
+      <span class="ws-count">${n} of 5 gathered</span>
+    </div>
+    <div class="ws-idle">
+      <p class="ws-stem">${n === 0
+        ? 'The patient is in front of you. Choose where to start.'
+        : 'What do you want to do next?'}</p>
+      <p class="ws-sub">Select an order from the left. You can work in any sequence —
+         there is no fixed path through a patient.</p>
+    </div>`;
+  renderOrderNav();
+}
+
+// ── centre: a question ───────────────────────────
 function openQ(type) {
-  if (type !== 'treat') {
-    document.getElementById('ddx-panel').classList.remove('open');
-    document.querySelectorAll('.act-btn').forEach(b => b.classList.remove('act-active'));
-    const ab = document.getElementById('ab-' + type);
-    if (ab) ab.classList.add('act-active');
-  }
-
-  const qd = window.TOPICS[currentTopicId].questions[type];
+  const topic = window.TOPICS[currentTopicId];
+  const qd = topic.questions[type];
   if (!qd) return;
+  if (type === 'treat' && !S.ddxDone) return;
 
-  document.getElementById('q-type-label').textContent = qd.label;
-  document.getElementById('q-stem').textContent = qd.stem;
+  S.openPanel = type;
+  const answered = S.usedActions.has(type);
 
-  const letters = ['A', 'B', 'C', 'D'];
-  document.getElementById('opts').innerHTML = qd.opts.map((o, i) =>
-    `<button class="opt" onclick="pickOpt('${type}', ${i})">
-      <span class="opt-ltr">${letters[i]}</span>
-      <span>${o.t}</span>
-    </button>`
-  ).join('');
+  document.getElementById('ck-mid').innerHTML = `
+    <div class="ws-head">
+      <span class="ws-kicker">${qd.label}</span>
+      <span class="ws-count" id="ws-count">${S.usedActions.size} of 5 gathered</span>
+    </div>
+    <h2 class="ws-stem">${qd.stem}</h2>
+    <p class="ws-sub">Select one order.</p>
+    <div class="orders" id="orders">
+      ${qd.opts.map((o, i) => `
+        <button class="order" id="ord-${i}" onclick="pickOpt('${type}', ${i})">
+          <span class="order-ico">${icon(o.ic || iconFor(o.t, type))}</span>
+          <span class="order-rule"></span>
+          <span class="order-body">
+            <span class="order-t">${o.t}</span>
+            <span class="order-d">${o.d || ''}</span>
+          </span>
+          <span class="order-go">${icon('chevron')}</span>
+        </button>`).join('')}
+    </div>
+    <div class="ws-foot" id="ws-foot"></div>`;
 
-  document.getElementById('feedback').className = 'feedback';
-  document.getElementById('continue-btn').className = 'continue-btn';
-  document.getElementById('q-panel').classList.add('open');
-  document.getElementById('q-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  renderOrderNav();
+  if (answered) revealAll(type, S.log.find(l => l.type === type));
+}
+
+function revealAll(type, entry) {
+  const qd = window.TOPICS[currentTopicId].questions[type];
+  const concept = qd.concept || '';
+  qd.opts.forEach((o, i) => {
+    const el = document.getElementById('ord-' + i);
+    if (!el) return;
+    el.disabled = true;
+    el.classList.add('reveal', 'g-' + o.type);
+    if (entry && o.t === entry.picked) el.classList.add('picked');
+    else el.classList.add('dim');
+
+    const tag = o.type === 'correct' ? 'Correct' : o.type === 'near' ? 'Near miss' : 'Wrong';
+    el.querySelector('.order-go').outerHTML = `<span class="order-tag">${tag}</span>`;
+    const why = document.createElement('span');
+    why.className = 'order-why';
+    const c = o.concept || (o.type === 'correct' ? concept : '');
+    why.innerHTML = `<b>${o.fb_title}</b> ${o.fb}` +
+      (c ? `<span class="order-concept">${c}</span>` : '');
+    el.appendChild(why);
+  });
 }
 
 function pickOpt(type, idx) {
   const qd = window.TOPICS[currentTopicId].questions[type];
   const picked = qd.opts[idx];
-  const btns = document.querySelectorAll('#opts .opt');
-
-  btns.forEach((btn, i) => {
-    btn.disabled = true;
-    const t = qd.opts[i].type;
-    btn.classList.add(t === 'correct' ? 'o-correct' : t === 'near' ? 'o-near' : 'o-wrong');
-  });
+  if (S.usedActions.has(type)) return;
 
   const pts = picked.type === 'correct' ? 15 : picked.type === 'near' ? 7 : -3;
   S.pts += pts;
-  S.log.push({ type, picked: picked.t, pickedType: picked.type, correct: qd.opts.find(o => o.type === 'correct').t, fb: picked.fb, fa: qd.fa });
+  S.log.push({
+    type, picked: picked.t, pickedType: picked.type,
+    correct: qd.opts.find(o => o.type === 'correct').t,
+    fb: picked.fb, concept: picked.concept || qd.concept || '',
+  });
   recordAnswer(currentTopicId, type, picked.type === 'correct');
-
-  const fb = document.getElementById('feedback');
-  const fcls = picked.type === 'correct' ? 'fb-good' : picked.type === 'near' ? 'fb-near' : 'fb-bad';
-  fb.className = 'feedback show ' + fcls;
-  document.getElementById('fb-title').textContent = picked.fb_title;
-  document.getElementById('fb-body').textContent = picked.fb;
-  document.getElementById('fb-fa').textContent = qd.fa;
-
-  addLog(
-    picked.type === 'correct' ? '✓' : picked.type === 'near' ? '~' : '✗',
-    picked.t
-  );
-
-  document.getElementById('continue-btn').className = 'continue-btn show';
-
   S.usedActions.add(type);
-  const ab = document.getElementById('ab-' + type);
-  if (ab) { ab.classList.add('used'); ab.classList.remove('act-active'); }
 
-  if (type === 'treat') {
-    document.getElementById('continue-btn').textContent = 'See results →';
-    document.getElementById('continue-btn').onclick = showReview;
-  }
+  const cnt = document.getElementById('ws-count');
+  if (cnt) cnt.textContent = `${S.usedActions.size} of 5 gathered`;
+  revealAll(type, S.log[S.log.length - 1]);
+  addLog(picked.type === 'correct' ? 'good' : picked.type === 'near' ? 'near' : 'bad', picked.t);
+
+  const last = type === 'treat';
+  document.getElementById('ws-foot').innerHTML = last
+    ? `<button class="btn-go" onclick="showReview()">See your review</button>`
+    : `<button class="btn-ghost" onclick="renderIdle()">Back to orders</button>`;
+
+  applyPressure(picked.type);
+  renderOrderNav();
+  renderSidebar();
 }
 
-function closeQ() {
-  document.getElementById('q-panel').classList.remove('open');
-  document.querySelectorAll('.act-btn').forEach(b => b.classList.remove('act-active'));
-  document.getElementById('continue-btn').onclick = closeQ;
-  document.getElementById('continue-btn').textContent = 'Continue →';
-}
-
-// ────────────────────────────────────────────────
-// DDX
-// ────────────────────────────────────────────────
+// ── centre: differential ─────────────────────────
 function openDDx() {
   if (S.usedActions.size < 1) {
-    addLog('·', 'Gather at least some findings before attempting a diagnosis.');
+    addLog('', 'Gather some findings before committing to a differential.');
     return;
   }
-  closeQ();
-  document.getElementById('ddx-panel').classList.add('open');
-  document.getElementById('ab-diagnose').classList.add('act-active');
-
+  S.openPanel = 'diagnose';
   const DDX = window.TOPICS[currentTopicId].ddx;
-  document.getElementById('ddx-items').innerHTML = DDX.map((d, i) =>
-    `<div class="ddx-item" id="di-${i}" onclick="pickDDx(${i})">
-      <div class="ddx-num">${i + 1}</div>
-      <div class="ddx-content">
-        <div class="ddx-name">${d.name}</div>
-        <div class="ddx-reason" id="dr-${i}"></div>
-      </div>
-      <div class="ddx-status" id="ds-${i}">Click to assess</div>
-    </div>`
-  ).join('');
 
-  S.ddxAnswered = 0;
-  document.getElementById('ddx-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.getElementById('ck-mid').innerHTML = `
+    <div class="ws-head">
+      <span class="ws-kicker">Differential</span>
+      <span class="ws-count" id="ws-count">${S.usedActions.size} of 5 gathered</span>
+    </div>
+    <h2 class="ws-stem">Work the differential.</h2>
+    <p class="ws-sub">Confirm or rule out each diagnosis against what you have found so far.</p>
+    <div class="ddx-grid">
+      ${DDX.map((d, i) => `
+        <button class="ddx-row" id="di-${i}" onclick="pickDDx(${i})">
+          <span class="ddx-n">${d.name}</span>
+          <span class="ddx-s" id="ds-${i}">Assess</span>
+        </button>`).join('')}
+    </div>
+    <div class="ws-foot" id="ws-foot"></div>`;
+
+  renderOrderNav();
 }
 
 function pickDDx(i) {
   const el = document.getElementById('di-' + i);
-  if (el.classList.contains('answered')) return;
-  el.classList.add('answered');
+  if (!el || el.classList.contains('done')) return;
+  const d = window.TOPICS[currentTopicId].ddx[i];
   const DDX = window.TOPICS[currentTopicId].ddx;
-  const d = DDX[i];
 
-  document.getElementById('dr-' + i).textContent = d.reason;
-  if (d.correct) {
-    el.classList.add('confirmed');
-    document.getElementById('ds-' + i).textContent = '✓ Confirmed';
-    S.ddxPts += 20;
-    addLog('✓', `Confirmed: ${d.name}`);
-  } else {
-    el.classList.add('ruled-out');
-    document.getElementById('ds-' + i).textContent = '✗ Ruled out';
-    S.ddxPts += 5;
-    addLog('✗', `Ruled out: ${d.name}`);
-  }
+  el.classList.add('done', d.correct ? 'confirmed' : 'ruled');
+  document.getElementById('ds-' + i).textContent = d.correct ? 'Confirmed' : 'Ruled out';
+  const r = document.createElement('span');
+  r.className = 'ddx-r';
+  r.textContent = d.reason;
+  el.appendChild(r);
+
+  S.ddxPts += d.correct ? 20 : 5;
   S.ddxLog.push({ name: d.name, correct: d.correct, reason: d.reason });
+  addLog(d.correct ? 'good' : '', (d.correct ? 'Confirmed: ' : 'Ruled out: ') + d.name);
   S.ddxAnswered++;
+
   if (S.ddxAnswered >= DDX.length) {
     S.ddxDone = true;
-    document.getElementById('ddx-proceed').style.display = 'inline-block';
-    document.getElementById('ab-treat').disabled = false;
-    document.getElementById('ab-treat').querySelector('.act-hint').textContent = 'Now unlocked';
+    document.getElementById('ws-foot').innerHTML =
+      `<button class="btn-go" onclick="openQ('treat')">Proceed to treatment</button>`;
+    renderOrderNav();
+    renderSidebar();
   }
 }
 
@@ -643,7 +894,7 @@ function showReview() {
       </div>
       ${l.pickedType !== 'correct' ? `<div class="ri-correct-ans">✓ Best answer: ${l.correct}</div>` : ''}
       <div class="ri-why">${l.fb}</div>
-      <div class="ri-fa">${l.fa}</div>
+      ${l.concept ? `<div class="ri-concept">${l.concept}</div>` : ''}
     </div>
   `).join('') || '<div class="review-item"><div class="ri-why" style="color:var(--text3)">No questions answered in this case.</div></div>';
 
@@ -670,21 +921,18 @@ function showReview() {
 // RESTART
 // ────────────────────────────────────────────────
 function restart() {
-  S = { pts: 0, ddxPts: 0, learnDone: false, learnLayer: 0, severity: '', usedActions: new Set(), ddxAnswered: 0, ddxDone: false, twistShown: false, log: [], ddxLog: [] };
-  document.getElementById('info-log').innerHTML = `
-    <div class="log-row"><span class="log-ico">·</span><span class="log-txt starter">Patient arrived. Use the action buttons below to gather information and build your diagnosis.</span></div>`;
-  document.getElementById('q-panel').classList.remove('open');
-  document.getElementById('ddx-panel').classList.remove('open');
-  document.getElementById('twist-box').classList.remove('show');
-  document.querySelectorAll('.act-btn').forEach(b => { b.classList.remove('used', 'act-active'); b.disabled = false; });
-  document.getElementById('ab-treat').disabled = true;
-  document.getElementById('ab-treat').querySelector('.act-hint').textContent = 'Diagnose first';
-  document.getElementById('ddx-proceed').style.display = 'none';
-  document.getElementById('continue-btn').onclick = closeQ;
-  document.getElementById('continue-btn').textContent = 'Continue →';
+  stopClock();
+  if (caseECGRAF) { cancelAnimationFrame(caseECGRAF); caseECGRAF = null; }
+  S = {
+    pts: 0, ddxPts: 0, learnDone: false, learnLayer: 0, severity: '',
+    usedActions: new Set(), ddxAnswered: 0, ddxDone: false, twistShown: false,
+    vit: [], pressure: 0, deteriorated: false, openPanel: null,
+    log: [], ddxLog: [],
+  };
   microAnswered = [false, false, false];
   show('topic');
 }
+
 
 // ────────────────────────────────────────────────
 // INIT
