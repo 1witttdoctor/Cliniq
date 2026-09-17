@@ -284,6 +284,23 @@ window.TOPICS['copd-exacerbation'] = {
     },
   },
 
+
+  contrast: {
+    a: 'COPD exacerbation',
+    b: 'Community-acquired pneumonia',
+    rows: [
+      { f: 'Fever',              a: 'Usually absent or low grade',            b: 'Common, often above 38 °C' },
+      { f: 'Sputum',             a: 'Increased volume, turns purulent',       b: 'Purulent, sometimes rust-coloured' },
+      { f: 'Auscultation',       a: 'Widespread wheeze, prolonged expiration', b: 'Focal crackles, bronchial breathing' },
+      { f: 'Percussion',         a: 'Resonant or hyperresonant',              b: 'Dull over the affected lobe' },
+      { f: 'Chest X-ray',        a: 'Hyperinflation, no new opacity',         b: 'Lobar or segmental consolidation' },
+      { f: 'Inflammatory markers', a: 'Mildly raised',                        b: 'Markedly raised CRP and white cell count' },
+      { f: 'Blood gas',          a: 'CO₂ retention with respiratory acidosis', b: 'Hypoxaemia, often with respiratory alkalosis' },
+      { f: 'Basis for antibiotics', a: 'Sputum purulence',                    b: 'Consolidation on the film' },
+    ],
+  },
+  takeaway: 'Both present with cough, purulent sputum and breathlessness in a smoker. Pneumonia localises — focal signs, dullness, consolidation. An exacerbation does not; it is diffuse airflow obstruction, and the film is ordered to prove pneumonia is absent.',
+
   ddx: [
     { name: 'COPD Exacerbation', correct: true,
       reason: '✓ Confirmed. Known COPD + increased dyspnoea + increased purulent sputum (all 3 Anthonisen criteria) + wheeze/prolonged expiration + hyperinflated CXR without consolidation = infective COPD exacerbation.' },

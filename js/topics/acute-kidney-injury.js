@@ -285,6 +285,23 @@ window.TOPICS['acute-kidney-injury'] = {
     },
   },
 
+
+  contrast: {
+    a: 'Pre-renal AKI',
+    b: 'Acute tubular necrosis',
+    rows: [
+      { f: 'Mechanism',        a: 'Reduced perfusion, tubules intact',    b: 'Ischaemic or toxic tubular injury' },
+      { f: 'Urine sodium',     a: 'Below 20 mmol/L',                      b: 'Above 40 mmol/L' },
+      { f: 'FENa',             a: 'Below 1%',                             b: 'Above 2%' },
+      { f: 'Urine osmolality', a: 'Above 500 mOsm/kg — concentrated',     b: 'Around 300 mOsm/kg — isosthenuric' },
+      { f: 'Sediment',         a: 'Bland, or hyaline casts',              b: 'Muddy-brown granular casts, tubular cells' },
+      { f: 'Urea : creatinine',a: 'Raised — urea rises out of proportion', b: 'Proportionate' },
+      { f: 'Response to fluid',a: 'Creatinine falls within 24–72 hours',   b: 'No improvement on volume alone' },
+      { f: 'Recovery',         a: 'Prompt once perfusion is restored',     b: 'Days to weeks, often through a diuretic phase' },
+    ],
+  },
+  takeaway: 'Both follow hypoperfusion and both raise the creatinine. The question is whether the tubule still works. A kidney avidly reabsorbing sodium and concentrating urine is underperfused but alive — restore its perfusion and it recovers. One spilling sodium and shedding casts has been injured, and fluid alone will not fix it.',
+
   ddx: [
     { name: 'Pre-renal Acute Kidney Injury', correct: true,
       reason: '✓ Confirmed. Days of vomiting and poor intake + hypovolaemic signs + NSAID and ACE inhibitor use + BUN:Cr &gt; 20:1, FENa &lt; 1%, concentrated urine and a bland sediment = pre-renal azotaemia. It responds to fluids and withdrawal of the offending drugs.' },

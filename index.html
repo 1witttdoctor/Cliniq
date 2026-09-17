@@ -140,33 +140,29 @@
   </div>
 
   <!-- ═══ SCREEN: REVIEW ═══ -->
-  <div class="screen" id="screen-review">
-    <div class="review-header">
-      <div class="review-grade" id="review-grade"></div>
-      <div class="review-summary" id="review-summary"></div>
-      <div class="score-row">
-        <div class="score-tile"><div class="score-tile-val" id="sc-learn">–</div><div class="score-tile-lbl">Learn</div></div>
-        <div class="score-tile"><div class="score-tile-val" id="sc-case">0</div><div class="score-tile-lbl">Case</div></div>
-        <div class="score-tile"><div class="score-tile-val" id="sc-ddx">0</div><div class="score-tile-lbl">Diagnosis</div></div>
-      </div>
+  <div class="screen wide" id="screen-review">
+
+    <div class="sim-bar">
+      <span class="sim-brand">Clin<em>iq</em></span>
+      <span class="sim-rule"></span>
+      <span class="sim-ctx" id="rv-ctx"></span>
+      <span class="sim-spacer"></span>
+      <span class="sim-case">Review mode</span>
+      <span class="sim-rule"></span>
+      <span class="sim-elapsed">Elapsed <b id="rv-clock">00:00</b></span>
     </div>
 
-    <div class="review-section">
-      <div class="review-section-title">Question review</div>
-      <div id="q-review-items"></div>
-    </div>
+    <div class="monitor" id="rv-monitor"></div>
 
-    <div class="review-section">
-      <div class="review-section-title">Differential diagnosis review</div>
-      <div id="ddx-review-items"></div>
+    <div class="cockpit">
+      <aside class="ck-left">
+        <div class="rv-grade" id="rv-grade"></div>
+        <div class="col-label" style="margin-top:22px">Walk the case back</div>
+        <div class="order-nav" id="rv-nav"></div>
+      </aside>
+      <main class="ck-mid" id="rv-mid"></main>
+      <aside class="ck-right" id="rv-right"></aside>
     </div>
-
-    <div class="teaching-box">
-      <div class="teaching-title">High-yield teaching points</div>
-      <div id="teaching-list"></div>
-    </div>
-
-    <button class="restart-btn" onclick="restart()">↺ Try another case variant</button>
   </div>
 
 </div><!-- /shell -->

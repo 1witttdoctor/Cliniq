@@ -288,6 +288,25 @@ window.TOPICS['heart-failure'] = {
     },
   },
 
+
+  // The two diagnoses that are hardest to tell apart at the bedside,
+  // laid out on the features that actually separate them.
+  contrast: {
+    a: 'Acute decompensated heart failure',
+    b: 'COPD exacerbation',
+    rows: [
+      { f: 'Dyspnoea pattern',   a: 'Orthopnoea and PND; worse lying flat',        b: 'Worse on exertion; no true orthopnoea' },
+      { f: 'Onset',              a: 'Hours to days, often with weight gain',        b: 'Days, following a change in sputum' },
+      { f: 'Auscultation',       a: 'Bibasal fine crackles, S3 gallop',             b: 'Widespread wheeze, prolonged expiration' },
+      { f: 'JVP',                a: 'Elevated',                                      b: 'Normal unless cor pulmonale is established' },
+      { f: 'Peripheral oedema',  a: 'Bilateral and pitting, often above the ankles', b: 'Only with established right heart strain' },
+      { f: 'Chest X-ray',        a: 'Cardiomegaly, upper lobe diversion, Kerley B lines', b: 'Hyperinflation, flattened diaphragms' },
+      { f: 'Natriuretic peptide',a: 'Elevated',                                      b: 'Normal or minimally raised' },
+      { f: 'What helps',         a: 'Diuresis and preload reduction',                b: 'Bronchodilators and corticosteroids' },
+    ],
+  },
+  takeaway: 'Both patients are breathless and both may be oedematous. The separation is central: a raised JVP, an S3 and a raised natriuretic peptide point at the pump. Wheeze, hyperinflation and a change in sputum point at the airway.',
+
   ddx: [
     { name: 'Acute Decompensated Heart Failure', correct: true,
       reason: '✓ Confirmed. Orthopnoea + bilateral oedema + elevated JVP + S3 + prior MI + cardiomegaly on CXR + BNP elevation = ADHF. EF 28% on echo confirms HFrEF.' },

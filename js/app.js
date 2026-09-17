@@ -75,10 +75,11 @@ function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
   // Screen-aware ambient: home = body map (no DNA), reading screens = calm, topic = full
-  document.body.classList.remove('screen-home', 'screen-case', 'reading');
+  document.body.classList.remove('screen-home', 'screen-case', 'screen-review', 'reading');
   if (id === 'home') document.body.classList.add('screen-home');
   else if (id === 'case') document.body.classList.add('screen-case', 'reading');
-  else if (id === 'learn' || id === 'review') document.body.classList.add('reading');
+  else if (id === 'review') document.body.classList.add('screen-review', 'reading');
+  else if (id === 'learn') document.body.classList.add('reading');
   // pause the console ECG loop when it's off-screen
   if (id !== 'home' && ecgRAF) { cancelAnimationFrame(ecgRAF); ecgRAF = null; }
   if (id !== 'case') {
@@ -736,9 +737,9 @@ function openQ(type) {
     </div>
     <h2 class="ws-stem">${qd.stem}</h2>
     <p class="ws-sub">Select one order.</p>
-    <div class="orders" id="orders">
+    <div class="orders">
       ${qd.opts.map((o, i) => `
-        <button class="order" id="ord-${i}" onclick="pickOpt('${type}', ${i})">
+        <button class="order" onclick="pickOpt('${type}', ${i})">
           <span class="order-ico">${icon(o.ic || iconFor(o.t, type))}</span>
           <span class="order-rule"></span>
           <span class="order-body">
@@ -751,14 +752,15 @@ function openQ(type) {
     <div class="ws-foot" id="ws-foot"></div>`;
 
   renderOrderNav();
-  if (answered) revealAll(type, S.log.find(l => l.type === type));
+  if (answered) revealAll(type, S.log.find(l => l.type === type), document.getElementById('ck-mid'));
 }
 
-function revealAll(type, entry) {
+function revealAll(type, entry, root) {
   const qd = window.TOPICS[currentTopicId].questions[type];
   const concept = qd.concept || '';
+  const rows = (root || document).querySelectorAll('.orders .order');
   qd.opts.forEach((o, i) => {
-    const el = document.getElementById('ord-' + i);
+    const el = rows[i];
     if (!el) return;
     el.disabled = true;
     el.classList.add('reveal', 'g-' + o.type);
@@ -766,7 +768,8 @@ function revealAll(type, entry) {
     else el.classList.add('dim');
 
     const tag = o.type === 'correct' ? 'Correct' : o.type === 'near' ? 'Near miss' : 'Wrong';
-    el.querySelector('.order-go').outerHTML = `<span class="order-tag">${tag}</span>`;
+    const go = el.querySelector('.order-go');
+    if (go) go.outerHTML = `<span class="order-tag">${tag}</span>`;
     const why = document.createElement('span');
     why.className = 'order-why';
     const c = o.concept || (o.type === 'correct' ? concept : '');
@@ -793,7 +796,7 @@ function pickOpt(type, idx) {
 
   const cnt = document.getElementById('ws-count');
   if (cnt) cnt.textContent = `${S.usedActions.size} of 5 gathered`;
-  revealAll(type, S.log[S.log.length - 1]);
+  revealAll(type, S.log[S.log.length - 1], document.getElementById('ck-mid'));
   addLog(picked.type === 'correct' ? 'good' : picked.type === 'near' ? 'near' : 'bad', picked.t);
 
   const last = type === 'treat';
@@ -862,64 +865,181 @@ function pickDDx(i) {
 }
 
 // ────────────────────────────────────────────────
-// REVIEW
+// REVIEW — walk the case back, step by step
 // ────────────────────────────────────────────────
+
+/* The monitor is rebuilt read-only on the review screen so the
+   numbers you were reasoning from are still in front of you. */
+function monitorHTML(topic) {
+  return `
+    <div class="mon-pt">
+      <div class="mon-name">${topic.patient.name}</div>
+      <div class="mon-meta">${topic.patient.meta}</div>
+      <div class="mon-cc">${topic.patient.cc}</div>
+    </div>
+    <div class="mon-vitals">
+      ${S.vit.map(v => `
+        <div class="vital ${v.level}">
+          <div class="v-lab">${v.lab}</div>
+          <div class="v-val">${v.val}${v.trend ? `<span class="v-trend">${v.trend}</span>` : ''}</div>
+          <div class="v-unit">${v.unit}</div>
+        </div>`).join('')}
+    </div>
+    <div class="mon-trace">
+      <div class="trace-top">ECG Lead II · final</div>
+      <canvas class="trace-canvas" id="rv-ecg" width="760" height="76"></canvas>
+      <div class="trace-foot"><span>25 mm/s</span><span>10 mm/mV</span></div>
+    </div>`;
+}
+
+const GRADES = [
+  { min: 120, g: 'S', say: 'Exceptional. You reasoned like a registrar.' },
+  { min:  90, g: 'A', say: 'Strong. The reasoning held up under pressure.' },
+  { min:  65, g: 'B', say: 'Solid, with a few detours worth reading below.' },
+  { min:  40, g: 'C', say: 'You got there, but the path cost the patient time.' },
+  { min:-999, g: 'F', say: 'Work the differential again — the reasoning came apart early.' },
+];
+
+let rvStep = 'summary';
+
 function showReview() {
   const topic = window.TOPICS[currentTopicId];
   recordCaseCompleted(currentTopicId);
+  stopClock();
+
+  document.getElementById('rv-ctx').textContent   = topic.system + ' · ' + topic.title;
+  document.getElementById('rv-clock').textContent = fmtClock(caseSec);
+  document.getElementById('rv-monitor').innerHTML = monitorHTML(topic);
 
   const total = S.pts + S.ddxPts;
-  let grade, gcls;
-  if (total >= 120) { grade = 'S'; gcls = 'grade-S'; }
-  else if (total >= 90) { grade = 'A'; gcls = 'grade-A'; }
-  else if (total >= 65) { grade = 'B'; gcls = 'grade-B'; }
-  else if (total >= 40) { grade = 'C'; gcls = 'grade-C'; }
-  else { grade = 'F'; gcls = 'grade-F'; }
+  const gr = GRADES.find(x => total >= x.min);
+  document.getElementById('rv-grade').innerHTML = `
+    <div class="rvg-mark grade-${gr.g}">${gr.g}</div>
+    <div class="rvg-say">${gr.say}</div>
+    <div class="rvg-nums">
+      <span>${total} pts</span><span>${S.log.length} orders</span>
+      <span>${S.log.filter(l => l.pickedType === 'correct').length} correct</span>
+    </div>`;
 
-  document.getElementById('review-grade').innerHTML = `<span class="${gcls}">${grade}</span>`;
-  document.getElementById('review-summary').textContent =
-    `${total} points · ${topic.title} · ${S.severity} presentation · ${S.log.length} questions answered`;
+  // right rail: what separates the two diagnoses that look alike
+  const c = topic.contrast;
+  document.getElementById('rv-right').innerHTML = (c ? `
+    <div class="col-label">Contrasting diagnoses</div>
+    <table class="ctab">
+      <thead><tr><th>Feature</th><th>${c.a}</th><th>${c.b}</th></tr></thead>
+      <tbody>${c.rows.map(r => `<tr><td class="ct-f">${r.f}</td><td>${r.a}</td><td>${r.b}</td></tr>`).join('')}</tbody>
+    </table>` : '') + (topic.takeaway ? `
+    <div class="takeaway">
+      <div class="col-label">Key takeaway</div>
+      <p>${topic.takeaway}</p>
+    </div>` : '');
 
-  document.getElementById('sc-learn').textContent = S.learnDone ? '✓' : '–';
-  document.getElementById('sc-case').textContent = S.pts;
-  document.getElementById('sc-ddx').textContent = S.ddxPts;
-
-  // question review
-  const qri = document.getElementById('q-review-items');
-  qri.innerHTML = S.log.map(l => `
-    <div class="review-item">
-      <div class="ri-q">${l.type.charAt(0).toUpperCase() + l.type.slice(1)}</div>
-      <div class="ri-picked ${l.pickedType === 'correct' ? 'correct' : l.pickedType === 'near' ? 'near' : 'wrong'}">
-        ${l.pickedType === 'correct' ? '✓' : l.pickedType === 'near' ? '~' : '✗'} You picked: ${l.picked}
-      </div>
-      ${l.pickedType !== 'correct' ? `<div class="ri-correct-ans">✓ Best answer: ${l.correct}</div>` : ''}
-      <div class="ri-why">${l.fb}</div>
-      ${l.concept ? `<div class="ri-concept">${l.concept}</div>` : ''}
-    </div>
-  `).join('') || '<div class="review-item"><div class="ri-why" style="color:var(--text3)">No questions answered in this case.</div></div>';
-
-  // ddx review
-  const dri = document.getElementById('ddx-review-items');
-  dri.innerHTML = S.ddxLog.map(d => `
-    <div class="review-item">
-      <div class="ri-picked ${d.correct ? 'correct' : 'wrong'}">
-        ${d.correct ? '✓ Confirmed' : '✗ Ruled out'}: ${d.name}
-      </div>
-      <div class="ri-why">${d.reason}</div>
-    </div>
-  `).join('') || '<div class="review-item"><div class="ri-why" style="color:var(--text3)">DDx not attempted.</div></div>';
-
-  // teaching points
-  document.getElementById('teaching-list').innerHTML = topic.teaching.map(t =>
-    `<div class="teaching-item"><span class="ti-arrow">→</span><span>${t}</span></div>`
-  ).join('');
-
+  rvStep = 'summary';
+  renderReviewNav();
+  renderReviewStep();
   show('review');
+  requestAnimationFrame(() => {
+    const cv = document.getElementById('rv-ecg');
+    if (cv) drawECG(cv, 0, {
+      cycle: Math.max(46, 9400 / (vitalNum((S.vit.find(v => v.lab === 'HR') || {}).val) || 80)),
+      color: S.deteriorated ? '#f0524f' : '#46c98b',
+      glow:  S.deteriorated ? 'rgba(240,82,79,0.45)' : 'rgba(70,201,139,0.4)',
+    });
+  });
 }
 
-// ────────────────────────────────────────────────
-// RESTART
-// ────────────────────────────────────────────────
+function renderReviewNav() {
+  const steps = [{ k: 'summary', ic: 'clipboard', t: 'Summary' }];
+  ORDERS.forEach(o => {
+    if (o.k === 'diagnose') { if (S.ddxLog.length) steps.push({ k: 'diagnose', ic: 'branch', t: 'Differential' }); return; }
+    if (S.log.some(l => l.type === o.k)) steps.push({ k: o.k, ic: o.ic, t: o.t });
+  });
+  steps.push({ k: 'points', ic: 'microscope', t: 'Key points' });
+
+  document.getElementById('rv-nav').innerHTML = steps.map(st => {
+    const entry = S.log.find(l => l.type === st.k);
+    const dot = entry
+      ? `<span class="onav-tick ${entry.pickedType === 'correct' ? '' : entry.pickedType}">${icon(entry.pickedType === 'correct' ? 'check' : 'cross')}</span>`
+      : '';
+    return `<button class="onav ${rvStep === st.k ? 'on' : ''}" onclick="gotoReview('${st.k}')">
+              ${icon(st.ic)}<span>${st.t}</span>${dot}
+            </button>`;
+  }).join('');
+}
+
+function gotoReview(k) { rvStep = k; renderReviewNav(); renderReviewStep(); }
+
+function renderReviewStep() {
+  const topic = window.TOPICS[currentTopicId];
+  const mid = document.getElementById('rv-mid');
+
+  if (rvStep === 'summary') {
+    const missed = S.log.filter(l => l.pickedType !== 'correct');
+    mid.innerHTML = `
+      <div class="ws-head"><span class="ws-kicker">Summary</span></div>
+      <h2 class="ws-stem">${topic.title} — ${S.severity} presentation.</h2>
+      <p class="ws-sub">${S.deteriorated
+        ? 'The patient deteriorated during your workup. The orders that cost time are marked in the rail on the left.'
+        : 'The patient remained stable throughout your workup.'}</p>
+      ${missed.length ? `
+        <div class="col-label" style="margin-top:30px">What to re-read</div>
+        <div class="rv-miss">${missed.map(l => `
+          <button class="rv-miss-row" onclick="gotoReview('${l.type}')">
+            <span class="rvm-k">${(ORDERS.find(o => o.k === l.type) || {}).t || l.type}</span>
+            <span class="rvm-p">You ordered: ${l.picked}</span>
+            <span class="rvm-c">Better: ${l.correct}</span>
+          </button>`).join('')}</div>`
+        : `<div class="rv-clean">${icon('check')}<span>Every order you placed was the best available one.</span></div>`}
+      <div class="ws-foot"><button class="btn-go" onclick="restart()">Try another variant</button></div>`;
+    return;
+  }
+
+  if (rvStep === 'points') {
+    mid.innerHTML = `
+      <div class="ws-head"><span class="ws-kicker">Key points</span></div>
+      <h2 class="ws-stem">What this case was teaching.</h2>
+      <div class="kp-list">${topic.teaching.map(t => `<div class="kp"><span>${t}</span></div>`).join('')}</div>
+      <div class="ws-foot"><button class="btn-go" onclick="restart()">Try another variant</button></div>`;
+    return;
+  }
+
+  if (rvStep === 'diagnose') {
+    mid.innerHTML = `
+      <div class="ws-head"><span class="ws-kicker">Differential</span></div>
+      <h2 class="ws-stem">How your differential resolved.</h2>
+      <div class="ddx-grid">${S.ddxLog.map(d => `
+        <div class="ddx-row done ${d.correct ? 'confirmed' : 'ruled'}">
+          <span class="ddx-n">${d.name}</span>
+          <span class="ddx-s">${d.correct ? 'Confirmed' : 'Ruled out'}</span>
+          <span class="ddx-r">${d.reason}</span>
+        </div>`).join('')}</div>`;
+    return;
+  }
+
+  // a question step: show every option graded, the way it looked when answered
+  const qd = topic.questions[rvStep];
+  const entry = S.log.find(l => l.type === rvStep);
+  if (!qd || !entry) { mid.innerHTML = ''; return; }
+
+  mid.innerHTML = `
+    <div class="ws-head"><span class="ws-kicker">${qd.label}</span></div>
+    <h2 class="ws-stem">${qd.stem}</h2>
+    <p class="ws-sub">You ordered: <b>${entry.picked}</b></p>
+    <div class="orders">
+      ${qd.opts.map((o, i) => `
+        <button class="order" disabled>
+          <span class="order-ico">${icon(o.ic || iconFor(o.t, rvStep))}</span>
+          <span class="order-rule"></span>
+          <span class="order-body">
+            <span class="order-t">${o.t}</span>
+            <span class="order-d">${o.d || ''}</span>
+          </span>
+          <span class="order-go"></span>
+        </button>`).join('')}
+    </div>`;
+  revealAll(rvStep, entry, mid);
+}
+
 function restart() {
   stopClock();
   if (caseECGRAF) { cancelAnimationFrame(caseECGRAF); caseECGRAF = null; }
