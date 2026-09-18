@@ -64,6 +64,8 @@ js/topics/*.js      one file per topic — all the medicine lives here
 
 Adding a topic means adding one file to `js/topics/` and one `<script>` tag.
 Icons are matched to orders by wording, so new cases need no icon authoring.
+The full schema and house rules are in
+[docs/WRITING-A-CASE.md](docs/WRITING-A-CASE.md).
 
 Progress is kept in `localStorage` on your own device. Nothing is uploaded
 and there is nothing to sign up for.
