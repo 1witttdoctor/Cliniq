@@ -868,3 +868,18 @@ body.screen-learn footer { display: none; }
   .sim-brand { font-size: 14px; }
   .mon-vitals { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* the differential is a judgement now, so it needs two answers */
+.ddx-act  { display: flex; gap: 8px; }
+.ddx-b    { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em;
+            text-transform: uppercase; padding: 8px 13px; border-radius: 6px;
+            background: none; border: 1px solid var(--border2); color: var(--text2);
+            cursor: pointer; transition: border-color 0.16s, color 0.16s, background 0.16s; }
+.ddx-b:hover { border-color: var(--text3); color: var(--text); background: var(--bg2); }
+.ddx-row.got .ddx-s    { color: var(--green); }
+.ddx-row.missed .ddx-s { color: var(--red); }
+.ddx-row.done { cursor: default; }
+@media (max-width: 480px) {
+  .ddx-row { grid-template-columns: 1fr; gap: 10px; }
+  .ddx-act { justify-content: flex-start; }
+}

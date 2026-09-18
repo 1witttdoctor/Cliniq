@@ -11,7 +11,7 @@ let S = {
   ddxAnswered: 0,
   ddxDone: false,
   twistShown: false,
-  vit: [], pressure: 0, deteriorated: false, openPanel: null,
+  vit: [], pressure: 0, deteriorated: false, harmedByTreatment: false, openPanel: null,
   learnChecks: {},
   log: [],          // { type, picked, correct, q, fb, fa }
   ddxLog: [],       // { name, correct, picked }
@@ -574,42 +574,75 @@ function addLog(kind, text) {
 // ── deterioration: driven by decisions, never by the wall clock ──
 const PRESSURE = { correct: 0.04, near: 0.14, wrong: 0.36 };
 
-function applyPressure(answerType) {
-  S.pressure += PRESSURE[answerType] || 0;
-  if (S.deteriorated || S.pressure < 0.6 || S.ddxDone) return;
+/* Push each vital in the direction it deteriorates, starting from where
+   it currently is. The old version swapped in the topic's "severe"
+   vitals wholesale, which did nothing at all when the case already
+   started severe, and teleported an atypical patient onto a different
+   presentation entirely. */
+function worsen(v) {
+  const bp = String(v.val).match(/^(\d+)\s*\/\s*(\d+)$/);
+  let val = v.val;
+  if (bp)                    val = Math.round(+bp[1] * 0.82) + '/' + Math.round(+bp[2] * 0.82);
+  else if (v.lab === 'HR')   val = String(Math.round(vitalNum(v.val) * 1.22));
+  else if (v.lab === 'RR')   val = String(Math.round(vitalNum(v.val) * 1.25));
+  else if (v.lab === 'SpO₂') val = String(Math.max(70, Math.round(vitalNum(v.val) - 6)));
+  else return { ...v };
 
-  const topic = window.TOPICS[currentTopicId];
-  const worse = (topic.sevConf.severe || {}).vitals;
-  if (!worse) return;
+  const n = vitalNum(val);
+  const crit =
+    v.lab === 'BP'   ? n < 90  :
+    v.lab === 'HR'   ? n > 130 :
+    v.lab === 'RR'   ? n > 28  :
+    v.lab === 'SpO₂' ? n < 90  : false;
+  const warn = !crit && (
+    v.lab === 'BP'   ? n < 100 || n > 160 :
+    v.lab === 'HR'   ? n > 100 :
+    v.lab === 'RR'   ? n > 20  :
+    v.lab === 'SpO₂' ? n < 94  : false);
+
+  const down = v.lab === 'BP' || v.lab === 'SpO₂';
+  return { ...v, val, level: crit ? 'crit' : warn ? 'warn' : '', trend: down ? '↓' : '↑' };
+}
+
+/* `harm` marks the options that hurt the patient outright rather than
+   merely wasting time — 100% oxygen in a CO₂ retainer, a beta-blocker
+   in acute decompensation. Those deteriorate the patient on their own,
+   without needing accumulated pressure behind them. */
+function applyPressure(answerType, opt) {
+  S.pressure += PRESSURE[answerType] || 0;
+  const harm = !!(opt && opt.harm);
+  if (S.deteriorated || (!harm && S.pressure < 0.6)) return;
 
   S.deteriorated = true;
-
-  // Move each vital toward the severe presentation and mark the direction.
-  const prev = S.vit.map(v => vitalNum(v.val));
-  S.vit = worse.map(normVital);
-  S.vit.forEach((v, i) => {
-    const now = vitalNum(v.val);
-    if (isNaN(now) || isNaN(prev[i])) return;
-    if (now > prev[i] + 0.5) v.trend = '↑';
-    else if (now < prev[i] - 0.5) v.trend = '↓';
-  });
+  S.vit = S.vit.map(worsen);
   renderVitals();
   startCaseECG();
 
   const words = considerations(S.vit).slice(0, 3).join(', ').toLowerCase();
-  const band = document.getElementById('alert-band');
   document.getElementById('alert-ico').innerHTML = icon('alert');
   document.getElementById('alert-text').textContent =
     'Patient deteriorating — ' + (words || 'haemodynamic instability');
-  band.classList.add('show');
+  document.getElementById('alert-band').classList.add('show');
 
-  addLog('crit', (topic.sevConf.severe.twist || 'Repeat observations show deterioration.'));
+  const twist = (window.TOPICS[currentTopicId].sevConf[S.severity] || {}).twist;
+  addLog('crit', harm && opt.harm !== true ? opt.harm
+                : twist || 'Repeat observations show the patient is losing ground.');
   renderSidebar();
 }
 
 // ── CASE INIT ────────────────────────────────────
 function startCase(forceSev) {
   const topic = window.TOPICS[currentTopicId];
+
+  /* Every case starts clean. Without this a second case inherits the
+     first one's answered orders, and pickOpt() silently ignores every
+     input because the category is already in usedActions. */
+  S.pts = 0; S.ddxPts = 0;
+  S.usedActions = new Set();
+  S.ddxAnswered = 0; S.ddxDone = false;
+  S.log = []; S.ddxLog = [];
+  S.pressure = 0; S.deteriorated = false; S.harmedByTreatment = false;
+  S.openPanel = null;
   S.learnDone = true;
 
   const sev = (forceSev && topic.sevConf[forceSev])
@@ -617,8 +650,6 @@ function startCase(forceSev) {
     : topic.severities[Math.floor(Math.random() * topic.severities.length)];
   S.severity = sev;
   S.vit = topic.sevConf[sev].vitals.map(normVital);
-  S.pressure = 0;
-  S.deteriorated = false;
 
   document.getElementById('sim-ctx').textContent = topic.system;
   document.getElementById('sim-case-no').textContent =
@@ -676,7 +707,7 @@ function renderSidebar() {
 
   // Etiologies stay hidden until an answer is in — otherwise they hand
   // you the differential before you have reasoned about it.
-  const revealed = S.log.length > 0;
+  const revealed = S.ddxDone;
   const etio = topic.ddx.map(d => d.name);
 
   document.getElementById('ck-right').innerHTML = `
@@ -692,7 +723,7 @@ function renderSidebar() {
     <div class="side-block ${revealed ? '' : 'locked'}">
       <div class="col-label">Possible etiologies</div>
       <div class="side-list">${etio.map(e => `<div class="side-item">${e}</div>`).join('')}</div>
-      ${revealed ? '' : '<div class="side-lock">Reveals after your first answer</div>'}
+      ${revealed ? '' : '<div class="side-lock">Reveals once you have worked the differential</div>'}
     </div>
     <div class="side-block">
       <div class="col-label">Goal</div>
@@ -798,12 +829,13 @@ function pickOpt(type, idx) {
   revealAll(type, S.log[S.log.length - 1], document.getElementById('ck-mid'));
   addLog(picked.type === 'correct' ? 'good' : picked.type === 'near' ? 'near' : 'bad', picked.t);
 
+  applyPressure(picked.type, picked);
+
   const last = type === 'treat';
+  if (last) S.harmedByTreatment = S.deteriorated && picked.type === 'wrong';
   document.getElementById('ws-foot').innerHTML = last
     ? `<button class="btn-go" onclick="showReview()">See your review</button>`
     : `<button class="btn-ghost" onclick="renderIdle()">Back to orders</button>`;
-
-  applyPressure(picked.type);
   renderOrderNav();
   renderSidebar();
 }
@@ -826,32 +858,38 @@ function openDDx() {
     <p class="ws-sub">Confirm or rule out each diagnosis against what you have found so far.</p>
     <div class="ddx-grid">
       ${DDX.map((d, i) => `
-        <button class="ddx-row" id="di-${i}" onclick="pickDDx(${i})">
+        <div class="ddx-row" id="di-${i}">
           <span class="ddx-n">${d.name}</span>
-          <span class="ddx-s" id="ds-${i}">Assess</span>
-        </button>`).join('')}
+          <span class="ddx-act" id="da-${i}">
+            <button class="ddx-b" onclick="pickDDx(${i}, true)">Confirm</button>
+            <button class="ddx-b" onclick="pickDDx(${i}, false)">Rule out</button>
+          </span>
+        </div>`).join('')}
     </div>
     <div class="ws-foot" id="ws-foot"></div>`;
 
   renderOrderNav();
 }
 
-function pickDDx(i) {
+function pickDDx(i, saidConfirm) {
   const el = document.getElementById('di-' + i);
   if (!el || el.classList.contains('done')) return;
-  const d = window.TOPICS[currentTopicId].ddx[i];
   const DDX = window.TOPICS[currentTopicId].ddx;
+  const d = DDX[i];
+  const right = saidConfirm === !!d.correct;
 
-  el.classList.add('done', d.correct ? 'confirmed' : 'ruled');
-  document.getElementById('ds-' + i).textContent = d.correct ? 'Confirmed' : 'Ruled out';
+  el.classList.add('done', right ? 'got' : 'missed', d.correct ? 'confirmed' : 'ruled');
+  document.getElementById('da-' + i).outerHTML =
+    `<span class="ddx-s">${saidConfirm ? 'You confirmed' : 'You ruled out'} · ${right ? 'correct' : 'wrong'}</span>`;
   const r = document.createElement('span');
   r.className = 'ddx-r';
   r.textContent = d.reason;
   el.appendChild(r);
 
-  S.ddxPts += d.correct ? 20 : 5;
-  S.ddxLog.push({ name: d.name, correct: d.correct, reason: d.reason });
-  addLog(d.correct ? 'good' : '', (d.correct ? 'Confirmed: ' : 'Ruled out: ') + d.name);
+  S.ddxPts += right ? 15 : -3;
+  S.ddxLog.push({ name: d.name, correct: d.correct, saidConfirm, right, reason: d.reason });
+  addLog(right ? 'good' : 'bad',
+         (saidConfirm ? 'Confirmed: ' : 'Ruled out: ') + d.name);
   S.ddxAnswered++;
 
   if (S.ddxAnswered >= DDX.length) {
@@ -892,10 +930,10 @@ function monitorHTML(topic) {
 }
 
 const GRADES = [
-  { min: 108, g: 'S', say: 'Exceptional. You reasoned like a registrar.' },
-  { min:  88, g: 'A', say: 'Strong. The reasoning held up under pressure.' },
-  { min:  64, g: 'B', say: 'Solid, with a few detours worth reading below.' },
-  { min:  40, g: 'C', say: 'You got there, but the path cost the patient time.' },
+  { min: 140, g: 'S', say: 'Exceptional. You reasoned like a registrar.' },
+  { min: 115, g: 'A', say: 'Strong. The reasoning held up under pressure.' },
+  { min:  85, g: 'B', say: 'Solid, with a few detours worth reading below.' },
+  { min:  55, g: 'C', say: 'You got there, but the path cost the patient time.' },
   { min:-999, g: 'F', say: 'Work the differential again — the reasoning came apart early.' },
 ];
 
@@ -977,7 +1015,9 @@ function renderReviewStep() {
     mid.innerHTML = `
       <div class="ws-head"><span class="ws-kicker">Summary</span></div>
       <h2 class="ws-stem">${topic.title} — ${S.severity} presentation.</h2>
-      <p class="ws-sub">${S.deteriorated
+      <p class="ws-sub">${S.harmedByTreatment
+        ? 'Your treatment made the patient worse. That is the order to re-read first — the rail on the left marks it.'
+        : S.deteriorated
         ? 'The patient deteriorated during your workup. The orders that cost time are marked in the rail on the left.'
         : 'The patient remained stable throughout your workup.'}</p>
       ${missed.length ? `
@@ -1007,9 +1047,9 @@ function renderReviewStep() {
       <div class="ws-head"><span class="ws-kicker">Differential</span></div>
       <h2 class="ws-stem">How your differential resolved.</h2>
       <div class="ddx-grid">${S.ddxLog.map(d => `
-        <div class="ddx-row done ${d.correct ? 'confirmed' : 'ruled'}">
+        <div class="ddx-row done ${d.right ? 'got' : 'missed'}">
           <span class="ddx-n">${d.name}</span>
-          <span class="ddx-s">${d.correct ? 'Confirmed' : 'Ruled out'}</span>
+          <span class="ddx-s">${d.saidConfirm ? 'You confirmed' : 'You ruled out'} · ${d.right ? 'correct' : 'wrong'}</span>
           <span class="ddx-r">${d.reason}</span>
         </div>`).join('')}</div>`;
     return;
@@ -1045,7 +1085,7 @@ function restart() {
   S = {
     pts: 0, ddxPts: 0, learnDone: false, learnLayer: 0, severity: '',
     usedActions: new Set(), ddxAnswered: 0, ddxDone: false, twistShown: false,
-    vit: [], pressure: 0, deteriorated: false, openPanel: null,
+    vit: [], pressure: 0, deteriorated: false, harmedByTreatment: false, openPanel: null,
   learnChecks: {},
     log: [], ddxLog: [], learnChecks: {},
   };
