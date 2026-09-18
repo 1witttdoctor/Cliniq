@@ -28,7 +28,7 @@ The patient can deteriorate. Pressure builds from the decisions you make,
 never from how long you take — reading carefully is never punished. Some
 orders harm the patient outright: uncontrolled oxygen in a CO₂ retainer,
 a beta-blocker in acute decompensation, thrombolysis into an uncontrolled
-blood pressure.
+blood pressure, a large-volume tap without albumin cover.
 
 ---
 
@@ -37,14 +37,18 @@ blood pressure.
 | System | Topic |
 |---|---|
 | Neurology | Acute ischaemic stroke |
-| Cardiology | Acute decompensated heart failure |
 | Respiratory | COPD exacerbation |
+| Respiratory | Pulmonary embolism |
+| Cardiology | Acute decompensated heart failure |
+| Cardiology | Acute coronary syndrome |
+| Hepatology | Decompensated cirrhosis |
 | Renal | Acute kidney injury |
 
 Each runs in four presentations — mild, moderate, severe and atypical — so
 the same topic is a different patient each time.
 
-More systems are in progress: hepatology, endocrine, gastroenterology.
+Every organ on the home page now has a case behind it. Endocrine and
+gastroenterology are next.
 
 ---
 
