@@ -236,6 +236,7 @@ window.TOPICS['acute-kidney-injury'] = {
           fb_title: 'Correct — treat the cause, remove the insults.',
           fb: 'Pre-renal AKI reverses when you refill the tank: isotonic fluids restore renal perfusion, and stopping the NSAID and ACE inhibitor removes the two drugs blocking autoregulation. Close monitoring of urine output and potassium guards against overload and hyperkalaemia as the kidney recovers.' },
         { t: 'Give IV furosemide to force urine output', type: 'wrong', d: "Drive diuresis with a loop diuretic.",
+          harm: 'Urine appears briefly, then the blood pressure falls further. Diuresing an under-perfused kidney has deepened the hypovolaemia driving the injury.',
           fb_title: 'Wrong — diuretics do not treat pre-renal AKI.',
           fb: 'The problem is under-perfusion; a diuretic worsens hypovolaemia and can deepen the injury. Diuretics only manage established volume overload after the patient is adequately filled — they never "flush out" AKI or improve outcomes.' },
         { t: 'Give IV fluids but continue all of his home medications unchanged', type: 'near', d: "Volume replacement with the drug chart left untouched.",

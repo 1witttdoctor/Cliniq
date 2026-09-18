@@ -240,6 +240,7 @@ window.TOPICS['heart-failure'] = {
           fb_title: 'Correct acute ADHF bundle.',
           fb: 'Oxygen here is to correct hypoxaemia — this patient is at 88% — not to push a well-saturated patient higher. Give it for SpO₂ &lt;90% or PaO₂ &lt;60 mmHg; routine oxygen in a non-hypoxaemic patient raises systemic vascular resistance and lowers cardiac output. Sitting upright reduces venous return (↓preload). IV furosemide venodilates within minutes, then diureses — rapid preload reduction. Continuous monitoring for arrhythmias and haemodynamic deterioration.' },
         { t: 'Start oral metoprolol 25mg + lisinopril immediately', type: 'wrong', d: "Begin long-term neurohormonal blockade now.",
+          harm: 'Within the hour the blood pressure drops and the patient becomes clammy. The beta-blocker has cut contractility in a ventricle that was already failing.',
           fb_title: 'DANGEROUS — never start BB in acute decompensation.',
           fb: 'Beta-blockers are CONTRAINDICATED in acute ADHF — they reduce contractility and worsen haemodynamics acutely. If patient is already on a BB, continue at lower dose. Only initiate after achieving euvolaemia. Lisinopril can be started once stable.' },
         { t: 'IV furosemide + IV dobutamine + urgent cardiology consult', type: 'near', d: "Diuresis plus inotropic support and specialist input.",

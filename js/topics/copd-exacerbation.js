@@ -239,6 +239,7 @@ window.TOPICS['copd-exacerbation'] = {
           fb_title: 'Correct — the full evidence-based bundle.',
           fb: 'Bronchodilators relieve obstruction. Steroids shorten recovery — 40 mg prednisolone or equivalent for 5 days, and no longer, since a longer course adds harm without benefit. Antibiotics are indicated here because the sputum is purulent. Controlled oxygen corrects hypoxaemia without precipitating CO₂ retention. This is the standard bundle for a moderate–severe exacerbation.' },
         { t: 'High-flow 100% oxygen by non-rebreather mask + IV fluids', type: 'wrong', d: "Maximal oxygen delivery with volume support.",
+          harm: 'Saturations climb, then the patient becomes drowsy. Repeat gas shows a rising PaCO₂ and a falling pH — CO₂ narcosis from uncontrolled oxygen.',
           fb_title: 'DANGEROUS — risks CO₂ narcosis.',
           fb: 'Uncontrolled high-flow oxygen in COPD can worsen V/Q mismatch and blunt respiratory drive, precipitating CO₂ retention and respiratory acidosis. Always titrate oxygen to a target range (typically SpO₂ 88–92%) in known or suspected COPD.' },
         { t: 'Nebulised bronchodilators + corticosteroids only, hold antibiotics', type: 'near', d: "Treat obstruction and inflammation, withhold antimicrobials.",
