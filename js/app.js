@@ -438,7 +438,8 @@ function renderLayer(i) {
 const ICON_RULES = [
   [/coronary angiograph|cardiac cath/i,                                   'heart'],
   [/\becg\b|electrocardiogram|telemetry|rhythm strip|\bekg\b/i,           'ecg'],
-  [/ct\b|computed tomograph|ctpa|\bcta\b/i,                               'ct'],
+  [/\bv\/?q\b|ventilation[- ]perfusion|perfusion scan/i,                     'lungs'],
+  [/\bct\b|computed tomograph|\bctpa\b|\bcta\b/i,                          'ct'],
   [/echo|ultrasound|\btte\b|\btoe\b|doppler|sonograph/i,                  'ultrasound'],
   [/x-?ray|\bcxr\b|radiograph|\bkub\b/i,                                  'xray'],
   [/urinalysis|urine|urinary|\bfena\b|catheter|dipstick/i,                'droplet'],
