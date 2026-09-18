@@ -25,7 +25,10 @@ Each topic runs in three stages:
   diagnosis against the one most easily confused with it.
 
 The patient can deteriorate. Pressure builds from the decisions you make,
-never from how long you take — reading carefully is never punished.
+never from how long you take — reading carefully is never punished. Some
+orders harm the patient outright: uncontrolled oxygen in a CO₂ retainer,
+a beta-blocker in acute decompensation, thrombolysis into an uncontrolled
+blood pressure.
 
 ---
 
@@ -33,6 +36,7 @@ never from how long you take — reading carefully is never punished.
 
 | System | Topic |
 |---|---|
+| Neurology | Acute ischaemic stroke |
 | Cardiology | Acute decompensated heart failure |
 | Respiratory | COPD exacerbation |
 | Renal | Acute kidney injury |
@@ -40,7 +44,7 @@ never from how long you take — reading carefully is never punished.
 Each runs in four presentations — mild, moderate, severe and atypical — so
 the same topic is a different patient each time.
 
-More systems are in progress: neurology, endocrine, gastroenterology.
+More systems are in progress: hepatology, endocrine, gastroenterology.
 
 ---
 
