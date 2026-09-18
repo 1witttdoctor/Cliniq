@@ -807,3 +807,64 @@ body.screen-learn footer { display: none; }
   .ln-col + .ln-col { border-left: none; border-top: 1px solid var(--border); padding-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .ln-why.show { animation: none; } }
+
+/* ════════════════════════════════════════════════
+   MOBILE — the screen most of this audience is on
+   ════════════════════════════════════════════════ */
+
+/* mode cards and the back link are real buttons now */
+.mode-card { display: block; width: 100%; text-align: left; font-family: var(--sans);
+             cursor: pointer; color: inherit; }
+.mode-card-icon { width: 30px; height: 30px; color: var(--accent); margin-bottom: 14px; }
+.mode-card-icon .ic { width: 30px; height: 30px; }
+.back-link { background: none; border: none; font-family: var(--mono); font-size: 11px;
+             letter-spacing: 0.12em; text-transform: uppercase; color: var(--text2);
+             cursor: pointer; padding: 8px 0; display: inline-block; }
+.back-link:hover { color: var(--text); }
+.back-link::before { content: '← '; }
+.focus-ico { display: flex; color: var(--accent); }
+.focus-ico .ic { width: 20px; height: 20px; }
+
+/* The patient's own words are the most important line on the monitor.
+   They were clamped to three lines at every width. */
+.mon-cc { -webkit-line-clamp: unset; display: block; overflow: visible; }
+
+@media (max-width: 840px) {
+  /* The review is the screen that teaches. It was outspecified by the
+     desktop three-column rule and stayed 126px wide on a phone. */
+  body.screen-review .cockpit,
+  body.screen-learn  .cockpit { grid-template-columns: 1fr; }
+  body.screen-review .ck-right { grid-column: auto; border-left: none;
+                                 border-top: 1px solid var(--border);
+                                 padding: 22px 0 40px; display: block; }
+  body.screen-review .ck-left  { border-right: none;
+                                 border-bottom: 1px solid var(--border);
+                                 padding: 20px 0 24px; }
+  body.screen-review .ck-mid   { padding: 24px 0 40px; }
+
+  /* the contrast table stacks: each feature becomes its own block */
+  .ctab, .ctab tbody, .ctab tr, .ctab td { display: block; width: 100%; }
+  .ctab thead { display: none; }
+  .ctab tr { padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .ctab td { border: none; padding: 2px 0; font-size: 13.5px; }
+  .ctab .ct-f { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase;
+                letter-spacing: 0.12em; color: var(--text3); margin-bottom: 6px; }
+  .ctab td:nth-child(2)::before { content: attr(data-a) ' — '; color: var(--green); }
+  .ctab td:nth-child(3)::before { content: attr(data-b) ' — '; color: var(--accent); }
+
+  /* a monitor must never silently hide a vital sign */
+  .mon-vitals { display: grid; grid-template-columns: repeat(3, 1fr);
+                overflow-x: visible; }
+  .vital { min-width: 0; padding: 14px 12px; border-bottom: 1px solid var(--border); }
+  .vital:first-child { padding-left: 0; }
+  .v-val { font-size: 23px; }
+
+  /* which presentation you are in matters more on a phone, not less */
+  .sim-bar { flex-wrap: wrap; gap: 10px; row-gap: 6px; }
+  .ws-stem { font-size: 21px; }
+}
+@media (max-width: 560px) {
+  .sim-case { display: inline; }
+  .sim-brand { font-size: 14px; }
+  .mon-vitals { grid-template-columns: repeat(2, 1fr); }
+}

@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -48,7 +49,7 @@
 
   <!-- ═══ SCREEN: TOPIC ═══ -->
   <div class="screen" id="screen-topic">
-    <span class="back-link" onclick="goHome()">← All topics</span>
+    <button class="back-link" onclick="goHome()">All topics</button>
     <div class="topic-hero">
       <div class="topic-eyebrow" id="topic-eyebrow"></div>
       <h1 class="topic-title" id="topic-title"></h1>
@@ -56,18 +57,18 @@
       <div class="topic-tags" id="topic-tags"></div>
     </div>
     <div class="mode-cards">
-      <div class="mode-card" onclick="startLearn()">
-        <div class="mode-card-icon">📖</div>
+      <button class="mode-card" onclick="startLearn()">
+        <div class="mode-card-icon" data-ic="clipboard"></div>
         <div class="mode-card-title">Learn First</div>
         <div class="mode-card-desc">Walk through the topic layer by layer — physiology, pathology, clinical, diagnosis, treatment. Then test yourself.</div>
-        <div class="mode-card-tag">Recommended → 15 min</div>
-      </div>
-      <div class="mode-card" onclick="startCase()">
-        <div class="mode-card-icon">🏥</div>
+        <div class="mode-card-tag">Recommended · 15 min</div>
+      </button>
+      <button class="mode-card" onclick="startCase()">
+        <div class="mode-card-icon" data-ic="stethoscope"></div>
         <div class="mode-card-title">Jump to Case</div>
         <div class="mode-card-desc">Already know this topic? Go straight to the patient case. Review will show you what you missed.</div>
-        <div class="mode-card-tag">Skip learn → 10 min</div>
-      </div>
+        <div class="mode-card-tag">Skip learn · 10 min</div>
+      </button>
     </div>
   </div>
 

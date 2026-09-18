@@ -105,7 +105,7 @@ function renderHome() {
   if (focus) {
     callout.style.display = 'flex';
     callout.innerHTML = `
-      <span class="focus-ico">🎯</span>
+      <span class="focus-ico">${icon('branch')}</span>
       <div>
         <div class="focus-title">Focus area</div>
         <div class="focus-body">You've missed <strong>${focus.n} ${QTYPE_LABELS[focus.type] || focus.type}</strong> questions across your cases. Pay extra attention to that step next time.</div>
@@ -178,15 +178,25 @@ function anatomyFigure() {
   </svg>`;
 }
 
+/* Systems with cases come first — the home page should never open on
+   an empty state. Empty systems keep their anatomical order behind them. */
+let VIEW_REGIONS = REGIONS;
+
+function orderedRegions() {
+  const has = new Set(Object.values(window.TOPICS || {}).map(t => t.system));
+  return [...REGIONS].sort((a, b) => (has.has(b.system) ? 1 : 0) - (has.has(a.system) ? 1 : 0));
+}
+
 function renderAnatomy() {
   const stage = document.getElementById('anat-figure');
   if (!stage) return;
+  VIEW_REGIONS = orderedRegions();
   stage.innerHTML = anatomyFigure();
 
   const bySystem = {};
   Object.values(window.TOPICS || {}).forEach(t => (bySystem[t.system] = bySystem[t.system] || []).push(t));
 
-  document.getElementById('anat-sections').innerHTML = REGIONS.map((r, i) => {
+  document.getElementById('anat-sections').innerHTML = VIEW_REGIONS.map((r, i) => {
     const cases = bySystem[r.system] || [];
     const body = cases.length
       ? cases.map(t => `
@@ -211,7 +221,7 @@ function renderAnatomy() {
 }
 
 function setActiveRegion(i) {
-  const r = REGIONS[i];
+  const r = VIEW_REGIONS[i];
   if (!r) return;
   const svg = document.getElementById('anat-svg');
   if (!svg) return;
@@ -279,6 +289,12 @@ function drawECG(canvas, phase, opts) {
 // ────────────────────────────────────────────────
 // TOPIC SELECT
 // ────────────────────────────────────────────────
+function paintIcons(root) {
+  (root || document).querySelectorAll('[data-ic]').forEach(el => {
+    if (!el.firstChild) el.innerHTML = icon(el.dataset.ic);
+  });
+}
+
 function selectTopic(id) {
   const topic = window.TOPICS[id];
   if (!topic) return;
@@ -290,6 +306,7 @@ function selectTopic(id) {
   document.getElementById('topic-desc').textContent = topic.desc;
   document.getElementById('topic-tags').innerHTML = topic.tags.map(t => `<span class="tag ${t.cls}">${t.label}</span>`).join('');
 
+  paintIcons();
   show('topic');
 }
 
@@ -875,9 +892,9 @@ function monitorHTML(topic) {
 }
 
 const GRADES = [
-  { min: 120, g: 'S', say: 'Exceptional. You reasoned like a registrar.' },
-  { min:  90, g: 'A', say: 'Strong. The reasoning held up under pressure.' },
-  { min:  65, g: 'B', say: 'Solid, with a few detours worth reading below.' },
+  { min: 108, g: 'S', say: 'Exceptional. You reasoned like a registrar.' },
+  { min:  88, g: 'A', say: 'Strong. The reasoning held up under pressure.' },
+  { min:  64, g: 'B', say: 'Solid, with a few detours worth reading below.' },
   { min:  40, g: 'C', say: 'You got there, but the path cost the patient time.' },
   { min:-999, g: 'F', say: 'Work the differential again — the reasoning came apart early.' },
 ];
@@ -909,7 +926,7 @@ function showReview() {
     <div class="col-label">Contrasting diagnoses</div>
     <table class="ctab">
       <thead><tr><th>Feature</th><th>${c.a}</th><th>${c.b}</th></tr></thead>
-      <tbody>${c.rows.map(r => `<tr><td class="ct-f">${r.f}</td><td>${r.a}</td><td>${r.b}</td></tr>`).join('')}</tbody>
+      <tbody>${c.rows.map(r => `<tr><td class="ct-f">${r.f}</td><td data-a="${c.a}">${r.a}</td><td data-b="${c.b}">${r.b}</td></tr>`).join('')}</tbody>
     </table>` : '') + (topic.takeaway ? `
     <div class="takeaway">
       <div class="col-label">Key takeaway</div>
